@@ -2,7 +2,7 @@
 
 A compound interest calculator that runs in the browser. It needs no install and no build step.
 
-**Live app:** https://pearl-vision.github.io/compound-interest-calculator/
+**Live app:** https://pearl-vision.github.io/easy-growth-calculator/
 
 ## What it does
 
