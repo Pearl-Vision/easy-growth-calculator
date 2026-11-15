@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compound Interest Calculator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #1d2433;
+    --muted: #5d6679;
+    --border: #e2e6ef;
+    --primary: #4f46e5;
+    --primary-2: #7c3aed;
+    --green: #059669;
+    --blue: #2563eb;
+    --orange: #ea580c;
+    --input-bg: #f9fafc;
+    --shadow: 0 4px 18px rgba(30, 40, 80, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1320; --card: #181d2e; --text: #e8ebf3; --muted: #9aa3b8;
+      --border: #2a3147; --input-bg: #11162a; --shadow: 0 4px 18px rgba(0,0,0,0.35);
+      --green: #34d399; --blue: #60a5fa; --orange: #fb923c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1320; --card: #181d2e; --text: #e8ebf3; --muted: #9aa3b8;
+    --border: #2a3147; --input-bg: #11162a; --shadow: 0 4px 18px rgba(0,0,0,0.35);
+    --green: #34d399; --blue: #60a5fa; --orange: #fb923c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(120deg, var(--primary), var(--primary-2));
+    color: #fff; padding: 28px 16px 60px; text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: clamp(1.5rem, 4vw, 2.2rem); }
+  header p { margin: 0; opacity: 0.9; }
+  main { max-width: 1150px; margin: -40px auto 40px; padding: 0 16px; }
+  .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
+  .grid > *, .stack > * { min-width: 0; }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; box-shadow: var(--shadow);
+  }
+  .card h2 { margin: 0 0 14px; font-size: 1.1rem; }
+  label { display: block; font-weight: 600; font-size: 0.9rem; margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+  .input-wrap { position: relative; }
+  .input-wrap span {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-weight: 600;
+  }
+  .input-wrap.right span { left: auto; right: 12px; }
+  input, select {
+    width: 100%; padding: 10px 12px; font-size: 1rem; color: var(--text);
+    background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .input-wrap input { padding-left: 28px; }
+  .input-wrap.right input { padding-left: 12px; padding-right: 32px; }
+  input:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip {
+    border: 1px solid var(--border); background: var(--input-bg); color: var(--text);
+    padding: 4px 12px; border-radius: 999px; cursor: pointer; font-size: 0.85rem;
+  }
+  .chip.active, .chip:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .infl-tools { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+  .infl-tools .input-wrap { width: 90px; }
+  .infl-tools input { padding: 6px 28px 6px 8px; font-size: 0.9rem; }
+  .infl-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px;
+    max-height: 240px; overflow-y: auto; padding: 8px; border: 1px solid var(--border); border-radius: 10px;
+  }
+  .infl-grid label { margin: 0 0 2px; font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+  .infl-grid input { padding: 6px 8px; font-size: 0.9rem; }
+  .error { color: #dc2626; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat { border-radius: 14px; padding: 16px; color: #fff; }
+  .stat .label { font-size: 0.85rem; opacity: 0.92; }
+  .stat .value { font-size: 1.6rem; font-weight: 700; margin-top: 4px; word-break: break-word; }
+  .s-total { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+  .s-deposit { background: linear-gradient(135deg, #2563eb, #0ea5e9); }
+  .s-interest { background: linear-gradient(135deg, #059669, #10b981); }
+  .s-real { background: linear-gradient(135deg, #ea580c, #f59e0b); }
+  td.real { color: var(--orange); font-weight: 600; }
+  .summary { color: var(--muted); margin: 0 0 16px; }
+  .summary b { color: var(--text); }
+  .chart-box { position: relative; height: 320px; }
+  .table-wrap { max-height: 380px; overflow: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { position: sticky; top: 0; background: var(--card); color: var(--muted); font-weight: 600; }
+  td.int { color: var(--green); font-weight: 600; }
+  td.pct { color: var(--primary); font-weight: 600; }
+  :root[data-theme="dark"] td.pct { color: #a5b4fc; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) td.pct { color: #a5b4fc; } }
+  .stack { display: grid; gap: 20px; }
+  .note { font-size: 0.8rem; color: var(--muted); margin-top: 14px; }
+  .rates-card { margin-top: 20px; }
+  .rates-table td, .rates-table th { white-space: normal; text-align: left; vertical-align: top; }
+  .rates-table td.rate { font-weight: 700; color: var(--green); white-space: nowrap; }
+  .use-btn {
+    background: var(--primary); color: #fff; border: 0; border-radius: 8px;
+    padding: 5px 10px; cursor: pointer; font-size: 0.8rem; white-space: nowrap;
+  }
+  .use-btn:hover { background: var(--primary-2); }
+  .tag { display: inline-block; font-size: 0.72rem; padding: 1px 8px; border-radius: 999px;
+    background: var(--input-bg); border: 1px solid var(--border); color: var(--muted); }
+  .rates-table a { color: var(--primary); }
+  :root[data-theme="dark"] .rates-table a { color: #a5b4fc; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rates-table a { color: #a5b4fc; } }
+  .research-box { border: 1px dashed var(--border); border-radius: 12px; padding: 14px; margin-bottom: 14px; background: var(--input-bg); }
+  .research-box h3 { margin: 0 0 6px; font-size: 1rem; }
+  .research-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .research-links a {
+    display: inline-block; padding: 6px 12px; border-radius: 999px; text-decoration: none; font-size: 0.85rem;
+    background: var(--primary); color: #fff;
+  }
+  .research-links a:hover { background: var(--primary-2); }
+  .add-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
+  .add-form label { margin: 0; font-size: 0.8rem; }
+  .add-form label input { margin-top: 4px; }
+  .add-form .wide { grid-column: span 2; }
+  @media (max-width: 480px) { .add-form .wide { grid-column: auto; } }
+  .add-btn { padding: 10px 14px; font-size: 0.9rem; }
+  .del-btn { background: transparent; color: var(--muted); border: 1px solid var(--border); margin-left: 4px; }
+  .del-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+  .flash { animation: flash 0.8s; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 4px var(--primary); } 100% { box-shadow: none; } }
+  footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 0 16px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Compound Interest Calculator</h1>
+  <p>See how your money grows with regular savings and compounding interest</p>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- INPUTS -->
+    <section class="card">
+      <h2>Your details</h2>
+
+      <label for="currency">Currency</label>
+      <select id="currency">
+        <option value="USD" selected>US Dollar (USD $)</option>
+        <option value="AUD">Australian Dollar (AUD $)</option>
+        <option value="NZD">New Zealand Dollar (NZD $)</option>
+        <option value="CAD">Canadian Dollar (CAD $)</option>
+        <option value="GBP">British Pound (GBP £)</option>
+        <option value="EUR">Euro (EUR €)</option>
+        <option value="INR">Indian Rupee (INR ₹)</option>
+        <option value="SGD">Singapore Dollar (SGD $)</option>
+        <option value="JPY">Japanese Yen (JPY ¥)</option>
+        <option value="OTHER">Other currency… (type it)</option>
+      </select>
+      <div id="otherWrap" hidden style="margin-top:8px">
+        <input id="otherCurrency" list="currencyList" autocomplete="off"
+          placeholder="Type a code or name, e.g. MYR or Ringgit" aria-label="Type any currency">
+        <datalist id="currencyList"></datalist>
+      </div>
+      <div class="hint" id="currencyHint" style="margin-top:4px"></div>
+
+      <label for="initial">Starting amount</label>
+      <div class="input-wrap"><span class="cur">$</span><input id="initial" type="number" min="0" step="any" value="100"></div>
+
+      <label for="contrib">Regular contribution</label>
+      <div class="input-wrap"><span class="cur">$</span><input id="contrib" type="number" min="0" step="any" value="100"></div>
+
+      <label for="contribFreq">How often you contribute</label>
+      <select id="contribFreq">
+        <option value="1" selected>Every month</option>
+        <option value="3">Every 3 months (quarterly)</option>
+        <option value="6">Every 6 months (half-yearly)</option>
+        <option value="12">Every year (yearly)</option>
+      </select>
+
+      <label for="rate">Interest rate per year <span class="hint">(e.g. 5)</span></label>
+      <div class="input-wrap right"><span>%</span><input id="rate" type="number" min="0" step="any" value="5"></div>
+
+      <label for="inflMode">Inflation per year <span class="hint">(prices going up; use 0 to ignore)</span></label>
+      <select id="inflMode">
+        <option value="same" selected>Same rate every year</option>
+        <option value="each">Different rate for each year</option>
+      </select>
+      <div class="input-wrap right" id="inflSameWrap" style="margin-top:8px">
+        <span>%</span><input id="inflation" type="number" min="0" step="any" value="3" aria-label="Inflation rate every year">
+      </div>
+      <div id="inflEachWrap" hidden>
+        <div class="infl-tools">
+          <span class="hint">Set all years to</span>
+          <div class="input-wrap right"><span>%</span><input id="inflFill" type="number" min="0" step="any" value="3" aria-label="Inflation rate for all years"></div>
+          <button type="button" class="chip" id="inflFillBtn">Apply</button>
+        </div>
+        <div class="infl-grid" id="inflGrid"></div>
+      </div>
+
+      <label for="compFreq">How often interest compounds</label>
+      <select id="compFreq">
+        <option value="365">Daily</option>
+        <option value="12" selected>Monthly</option>
+        <option value="4">Quarterly (every 3 months)</option>
+        <option value="2">Half-yearly (every 6 months)</option>
+        <option value="1">Yearly</option>
+      </select>
+
+      <label for="years">Number of years</label>
+      <select id="years"></select>
+      <div class="chips" id="yearChips">
+        <button class="chip" data-years="10">10 yrs</button>
+        <button class="chip active" data-years="20">20 yrs</button>
+        <button class="chip" data-years="30">30 yrs</button>
+        <button class="chip" data-years="40">40 yrs</button>
+      </div>
+
+      <div class="error" id="error"></div>
+      <p class="note">Contributions are added at the end of each period. The interest rate is the
+        nominal yearly rate. Tax and fees are not included.</p>
+    </section>
+
+    <!-- RESULTS -->
+    <div class="stack">
+      <section class="card">
+        <div class="stats">
+          <div class="stat s-total"><div class="label">Final value</div><div class="value" id="outTotal">$0</div></div>
+          <div class="stat s-deposit"><div class="label">Total you put in</div><div class="value" id="outDeposits">$0</div></div>
+          <div class="stat s-interest"><div class="label">Interest earned</div><div class="value" id="outInterest">$0</div></div>
+          <div class="stat s-real"><div class="label">Final value in today's money</div><div class="value" id="outReal">$0</div></div>
+        </div>
+        <p class="summary" id="summary"></p>
+        <div class="chart-box"><canvas id="chart" aria-label="Growth chart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <h2>Year by year</h2>
+        <p class="note" style="margin-top:0"><b>Balance in today's money</b> = what the balance could buy at today's prices, after inflation.
+          <b>Total gain on money put in</b> = total interest ÷ total money you put in.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Year</th><th>Put in this year</th><th>Interest this year</th><th>Total put in</th><th>Total interest</th><th>Balance</th><th>Total gain on money put in</th><th>Inflation</th><th>Balance in today's money</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ADVERTISED RATES -->
+  <section class="card rates-card">
+    <h2>Rates advertised now in <span id="ratesCountry">USA</span> <span class="hint" id="checkedLabel">(checked November 2026)</span></h2>
+    <p class="summary">These rates match the currency you picked. Change the <b>Currency</b> menu to see another country.
+      Click <b>Use this rate</b> to put a rate into the calculator.</p>
+    <p class="summary" id="ratesNote"></p>
+
+    <!-- Shown only for a typed ("other") currency -->
+    <div id="research" hidden>
+      <div class="research-box">
+        <h3>Step 1 — Research the rates</h3>
+        <p class="note" style="margin-top:0">Each button opens a web search in a new tab, ready for <b id="researchCountry"></b>.
+          Look for comparison websites and the banks' own pages.</p>
+        <div class="research-links" id="researchLinks"></div>
+      </div>
+      <div class="research-box">
+        <h3>Step 2 — Save a rate you found</h3>
+        <form id="addRateForm" class="add-form">
+          <label>Bank<input id="arBank" required maxlength="60" placeholder="e.g. Maybank"></label>
+          <label>Product<input id="arProduct" maxlength="60" placeholder="e.g. 12-month fixed deposit"></label>
+          <label>Rate per year<div class="input-wrap right"><span>%</span><input id="arRate" type="number" min="0" max="100" step="any" required placeholder="4.5"></div></label>
+          <label>Conditions<input id="arCond" maxlength="120" placeholder="e.g. Minimum 10,000"></label>
+          <label class="wide">Source link (web address)<input id="arUrl" type="url" placeholder="https://..."></label>
+          <button type="submit" class="use-btn add-btn">Save this rate</button>
+        </form>
+        <p class="note" id="saveNote"></p>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="max-height:none" id="ratesTableWrap">
+      <table class="rates-table">
+        <thead><tr><th>Bank</th><th>Product</th><th>Rate</th><th>Minimum / term / conditions</th><th>Source</th><th></th></tr></thead>
+        <tbody id="ratesBody"></tbody>
+      </table>
+    </div>
+    <p class="note">Rates change often and some pages were a few weeks old. Always check the bank's own website
+      before opening an account. Savings accounts usually let you add money any time. Term deposits and CDs
+      usually do <b>not</b> let you add money after you open them.</p>
+  </section>
+</main>
+<footer>For learning only. This is not financial advice.</footer>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let currency = "USD";
+  // Each currency's normal decimal places (yen 0, dollar 2, Kuwaiti dinar 3)
+  const money = (n) => {
+    const digits = new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits;
+    return n.toLocaleString(undefined, { style: "currency", currency, minimumFractionDigits: digits, maximumFractionDigits: digits });
+  };
+  const moneyShort = (n) => n.toLocaleString(undefined, { style: "currency", currency, notation: "compact", maximumFractionDigits: 1 });
+  // Percentage of part compared to whole, e.g. pct(5, 100) -> "+5.00%"
+  const pct = (part, whole) => whole > 0 ? (part >= 0 ? "+" : "") + (part / whole * 100).toFixed(2) + "%" : "–";
+  function currencySymbol() {
+    const part = new Intl.NumberFormat(undefined, { style: "currency", currency, currencyDisplay: "narrowSymbol" })
+      .formatToParts(0).find(p => p.type === "currency");
+    return part ? part.value : currency;
+  }
+  // ---------- Any currency in the world ----------
+  // The browser knows every official currency code (ISO 4217) and its name.
+  const ALL_CODES = (Intl.supportedValuesOf ? Intl.supportedValuesOf("currency") :
+    ["AED","CHF","CNY","HKD","IDR","KRW","MYR","PHP","THB","ZAR"]);
+  let curNames = null, regionNames = null;
+  try { curNames = new Intl.DisplayNames(["en"], { type: "currency" }); } catch (e) {}
+  try { regionNames = new Intl.DisplayNames(["en"], { type: "region", fallback: "none" }); } catch (e) {}
+  const currencyName = (code) => (curNames && curNames.of(code)) || code;
+  // Most codes start with the country code (MYR -> MY -> Malaysia). Shared ones like XAF do not.
+  function countryOf(code) {
+    let name;
+    try { name = regionNames && regionNames.of(code.slice(0, 2)); } catch (e) {}
+    return name && !code.startsWith("X") ? name : currencyName(code);
+  }
+  // Turn what the visitor typed into a currency code, or null if we cannot tell.
+  function parseTypedCurrency(text) {
+    const t = (text || "").trim().toLowerCase();
+    if (!t) return null;
+    const code = t.slice(0, 3).toUpperCase();
+    if (/^[a-z]{3}(\b|$)/.test(t) && ALL_CODES.includes(code)) return code;
+    const name = c => currencyName(c).toLowerCase(), land = c => countryOf(c).toLowerCase();
+    // Best match first: names that START with the text, then names that only contain it
+    return ALL_CODES.find(c => name(c).startsWith(t) || land(c).startsWith(t)) ||
+           ALL_CODES.find(c => name(c).split(" ").some(w => w.startsWith(t))) ||
+           ALL_CODES.find(c => name(c).includes(t) || land(c).includes(t)) || null;
+  }
+  // The currency in use right now (one of the nine, or the typed one)
+  function currentCurrency() {
+    const sel = $("currency").value;
+    return sel === "OTHER" ? parseTypedCurrency($("otherCurrency").value) : sel;
+  }
+
+  const freqNames = { 1: "every month", 3: "every 3 months", 6: "every 6 months", 12: "every year" };
+  const compNames = { 365: "daily", 12: "monthly", 4: "quarterly", 2: "half-yearly", 1: "yearly" };
+
+  // Main calculation. Works month by month.
+  function calculate(initial, contrib, everyMonths, ratePct, compPerYear, years) {
+    const r = ratePct / 100;
+    // Growth for one month that matches the chosen compounding
+    const monthlyGrowth = Math.pow(1 + r / compPerYear, compPerYear / 12);
+    let balance = initial;
+    let totalIn = initial;
+    const rows = [];
+    for (let y = 1; y <= years; y++) {
+      let inThisYear = 0;
+      const startBalance = balance;
+      for (let m = 1; m <= 12; m++) {
+        balance *= monthlyGrowth;               // interest for this month
+        const monthNumber = (y - 1) * 12 + m;
+        if (monthNumber % everyMonths === 0) {  // contribution day
+          balance += contrib;
+          inThisYear += contrib;
+        }
+      }
+      totalIn += inThisYear;
+      rows.push({
+        year: y,
+        inThisYear,
+        interestThisYear: balance - startBalance - inThisYear,
+        totalIn,
+        totalInterest: balance - totalIn,
+        balance,
+      });
+    }
+    return rows;
+  }
+
+  let chart;
+  function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function drawChart(rows, initial, showReal) {
+    const labels = ["Start", ...rows.map(r => "Year " + r.year)];
+    const deposits = [initial, ...rows.map(r => r.totalIn)];
+    const interest = [0, ...rows.map(r => r.totalInterest)];
+    const real = [initial, ...rows.map(r => r.real)];
+    const textColor = cssVar("--muted");
+    const gridColor = cssVar("--border");
+    const datasets = [
+      { label: "Total you put in", data: deposits, backgroundColor: cssVar("--blue"), stack: "s", order: 2 },
+      { label: "Interest earned", data: interest, backgroundColor: cssVar("--green"), stack: "s", order: 2 },
+    ];
+    if (showReal) {
+      datasets.push({ type: "line", label: "Balance in today's money", data: real, stack: "real", order: 1,
+        borderColor: cssVar("--orange"), backgroundColor: cssVar("--orange"), borderWidth: 3, pointRadius: 0, tension: 0.2 });
+    }
+    const data = { labels, datasets };
+    const options = {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: textColor } },
+        tooltip: { callbacks: {
+          label: (c) => c.dataset.label + ": " + money(c.parsed.y),
+          footer: (items) => "Balance: " + money(items.filter(i => i.dataset.stack === "s").reduce((s, i) => s + i.parsed.y, 0)),
+        } },
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: textColor, maxRotation: 0, autoSkip: true }, grid: { display: false } },
+        y: { stacked: true, ticks: { color: textColor, callback: (v) => moneyShort(v) }, grid: { color: gridColor } },
+      },
+    };
+    if (chart) { chart.data = data; chart.options = options; chart.update(); }
+    else { chart = new Chart($("chart"), { type: "bar", data, options }); }
+  }
+
+  function update() {
+    $("otherWrap").hidden = $("currency").value !== "OTHER";
+    const chosen = currentCurrency();
+    if (!chosen) {
+      $("error").textContent = "Please type a currency, for example MYR or Malaysian Ringgit, and pick it from the list.";
+      return;
+    }
+    currency = chosen;
+    document.querySelectorAll(".cur").forEach(s => s.textContent = currencySymbol());
+    const initial = parseFloat($("initial").value) || 0;
+    const contrib = parseFloat($("contrib").value) || 0;
+    const everyMonths = parseInt($("contribFreq").value, 10);
+    const rate = parseFloat($("rate").value) || 0;
+    const comp = parseInt($("compFreq").value, 10);
+    const years = parseInt($("years").value, 10);
+    // Inflation: one rate for all years, or a list with one rate per year
+    const eachYear = $("inflMode").value === "each";
+    $("inflSameWrap").hidden = eachYear;
+    $("inflEachWrap").hidden = !eachYear;
+    let inflRates;
+    if (eachYear) {
+      buildInflGrid(years);
+      inflRates = [...$("inflGrid").querySelectorAll("input")].map(i => parseFloat(i.value) || 0);
+    } else {
+      inflRates = Array(years).fill(parseFloat($("inflation").value) || 0);
+    }
+    const inflation = inflRates.reduce((s, v) => s + v, 0) / inflRates.length; // average
+
+    if (initial < 0 || contrib < 0 || rate < 0 || inflRates.some(v => v < 0)) { $("error").textContent = "Please use numbers that are 0 or more."; return; }
+    if (!years || years < 1 || years > 100) { $("error").textContent = "Years must be between 1 and 100."; return; }
+    $("error").textContent = "";
+
+    document.querySelectorAll("#yearChips .chip").forEach(c =>
+      c.classList.toggle("active", parseInt(c.dataset.years, 10) === years));
+
+    const rows = calculate(initial, contrib, everyMonths, rate, comp, years);
+    // Today's money: divide by how much prices have grown so far.
+    // Prices grow by each year's own inflation rate, one year after another.
+    let priceGrowth = 1;
+    rows.forEach((r, i) => {
+      priceGrowth *= 1 + inflRates[i] / 100;
+      r.inflation = inflRates[i];
+      r.real = r.balance / priceGrowth;
+    });
+    const last = rows[rows.length - 1];
+    $("outTotal").textContent = money(last.balance);
+    $("outDeposits").textContent = money(last.totalIn);
+    $("outInterest").textContent = money(last.totalInterest);
+    $("outReal").textContent = money(last.real);
+
+    const times = last.totalIn > 0 ? (last.balance / last.totalIn).toFixed(2) : "0";
+    $("summary").innerHTML =
+      `Starting with <b>${money(initial)}</b> and adding <b>${money(contrib)}</b> ${freqNames[everyMonths]}, ` +
+      `at <b>${rate}%</b> a year compounded <b>${compNames[comp]}</b>, after <b>${years} ${years === 1 ? "year" : "years"}</b> ` +
+      `you will have <b>${money(last.balance)}</b> — that is <b>${times}×</b> what you put in.` +
+      (inflation > 0
+        ? (eachYear
+            ? ` With your yearly inflation rates (average <b>${inflation.toFixed(2)}%</b>), that money will buy what <b>${money(last.real)}</b> buys today.`
+            : ` With <b>${inflation}%</b> inflation a year, that money will buy what <b>${money(last.real)}</b> buys today.`)
+        : "");
+
+    $("tableBody").innerHTML = rows.map(r => `<tr>
+      <td>${r.year}</td><td>${money(r.inThisYear)}</td><td class="int">${money(r.interestThisYear)}</td>
+      <td>${money(r.totalIn)}</td><td class="int">${money(r.totalInterest)}</td><td><b>${money(r.balance)}</b></td>
+      <td class="pct">${pct(r.totalInterest, r.totalIn)}</td>
+      <td>${r.inflation}%</td>
+      <td class="real">${money(r.real)}</td></tr>`).join("");
+
+    drawChart(rows, initial, inflation > 0);
+  }
+
+  // Make one inflation box per year. Values already typed are kept.
+  // inflMemory remembers every year's value, even when fewer years are shown for a while.
+  const inflMemory = [];
+  function buildInflGrid(years) {
+    const grid = $("inflGrid");
+    const boxes = grid.querySelectorAll("input");
+    boxes.forEach((box, i) => inflMemory[i] = box.value);  // save what is typed now
+    if (boxes.length === years) return;           // already right, keep focus while typing
+    const start = $("inflation").value || "0";    // brand-new years start with the "same rate" value
+    let html = "";
+    for (let y = 1; y <= years; y++) {
+      const v = inflMemory[y - 1] !== undefined ? inflMemory[y - 1] : start;
+      html += `<div><label for="infl${y}">Year ${y}</label>
+        <div class="input-wrap right"><span>%</span><input id="infl${y}" type="number" min="0" step="any" value="${v}"></div></div>`;
+    }
+    grid.innerHTML = html;
+  }
+  $("inflGrid").addEventListener("input", update);
+  $("inflFillBtn").addEventListener("click", () => {
+    $("inflGrid").querySelectorAll("input").forEach(i => i.value = $("inflFill").value || "0");
+    update();
+  });
+
+  // Fill the years dropdown with 1 to 50 years (20 picked to start)
+  for (let y = 1; y <= 50; y++) {
+    $("years").add(new Option(y === 1 ? "1 year" : y + " years", y, false, y === 20));
+  }
+
+  ["currency", "initial", "contrib", "contribFreq", "rate", "inflation", "inflMode", "compFreq", "years"].forEach(id => {
+    $(id).addEventListener("input", update);
+    $(id).addEventListener("change", update);
+  });
+  document.querySelectorAll("#yearChips .chip").forEach(c => c.addEventListener("click", () => {
+    $("years").value = c.dataset.years; update();
+  }));
+  // ---------- Advertised rates ----------
+  // Each row: [bank, product, rate %, minimum / term / conditions, source name, source link, compounding per year]
+  // Compounding is used when you click "Use this rate". Advertised APY / AER / p.a. figures are
+  // already yearly numbers, so most rows use 1 (yearly).
+  const RATES = {
+    USD: { country: "the USA", rows: [
+      ["Axos ONE", "Savings", 5.00, "Needs direct deposit and a minimum balance. About 4.21% after the promo.", "NerdWallet", "https://www.nerdwallet.com/banking/best/high-yield-online-savings-accounts", 1],
+      ["Pibank", "Savings", 4.40, "No minimum balance.", "Motley Fool", "https://www.fool.com/money/banks/articles/top-savings-account-rates-today-nov-9-2026/", 1],
+      ["SoFi", "Savings", 4.40, "3.30% base + 1.10% bonus for up to 6 months.", "CNBC Select", "https://www.cnbc.com/select/best-high-yield-savings-accounts/", 1],
+      ["Western Alliance (via Raisin)", "Savings", 4.30, "Guaranteed 90 days, then 4.00%.", "CNBC Select", "https://www.cnbc.com/select/best-high-yield-savings-accounts/", 1],
+      ["Sallie Mae", "Savings", 4.00, "No minimum balance.", "CNBC Select", "https://www.cnbc.com/select/best-high-yield-savings-accounts/", 1],
+      ["CFG Bank", "1-year CD", 4.65, "Minimum $500.", "Bankrate", "https://www.bankrate.com/banking/cds/best-1-year-cd-rates/", 1],
+      ["BTG Pactual Bank", "1-year CD", 4.65, "Minimum $500.", "Bankrate", "https://www.bankrate.com/banking/cds/best-1-year-cd-rates/", 1],
+      ["Charles Schwab", "CD OneSource", 4.75, "Minimum $1,000.", "Forbes Advisor", "https://www.forbes.com/advisor/banking/cds/best-cd-rates/", 1],
+      ["Sallie Mae", "5-year CD", 5.00, "Term 5 years.", "Bankrate", "https://www.bankrate.com/banking/cds/current-cd-interest-rates/", 1],
+      ["E*TRADE", "5-year CD", 4.80, "Term 5 years.", "Bankrate", "https://www.bankrate.com/banking/cds/current-cd-interest-rates/", 1],
+    ]},
+    AUD: { country: "Australia", rows: [
+      ["Suncorp", "Term deposit", 5.75, "12 months. Canstar table based on $10,000.", "Canstar", "https://www.canstar.com.au/term-deposits/compare/best-term-deposit-rates/", 1],
+      ["AMP Bank GO", "Term deposit", 5.70, "12 months.", "Mozo", "https://www.mozo.com.au/term-deposits", 1],
+      ["Rabobank", "Term deposit", 5.70, "60 months (5 years). Higher minimum.", "Easy Fixed Income", "https://easyfixedincome.com/term-deposits-australia/", 1],
+      ["Bank Australia", "Term deposit", 5.40, "6 months.", "Bank Australia", "https://www.bankaust.com.au/banking/term-deposits", 2],
+      ["CommBank", "Term deposit (special)", 5.35, "12 months. $5,000 to $5 million. Interest at maturity.", "Canstar", "https://www.canstar.com.au/term-deposits/compare/big-four-banks-term-deposit-rates/", 1],
+    ]},
+    NZD: { country: "New Zealand", rows: [
+      ["Rabobank", "Term deposit", 5.05, "5 years. Highest 5-year rate in NZ (9 Nov 2026).", "Opes Partners", "https://www.opespartners.co.nz/investment/current-term-deposits-nz", 1],
+      ["ASB", "Term deposit", 5.00, "5 years. Minimum $5,000.", "TermDepositRates.co.nz", "https://www.termdepositrates.co.nz/asb/", 1],
+      ["Gold Band Finance", "Term deposit", 4.85, "24 months. Non-bank lender: check its credit rating.", "Canstar NZ", "https://www.canstar.co.nz/personal-banking/term-deposits/", 1],
+      ["General Finance", "Term deposit", 4.55, "12 months. Non-bank lender: check its credit rating.", "Canstar NZ", "https://www.canstar.co.nz/personal-banking/term-deposits/", 1],
+      ["Rabobank", "Term deposit", 4.15, "12 months. Highest 12-month bank rate.", "Opes Partners", "https://www.opespartners.co.nz/investment/current-term-deposits-nz", 1],
+      ["BNZ", "Term deposit", 4.05, "12 months. Minimum $2,000.", "TermDepositRates.co.nz", "https://www.termdepositrates.co.nz/bnz/", 1],
+      ["Heartland Bank", "Notice saver", 3.25, "90-day notice savings account.", "Heartland", "https://www.heartland.co.nz/savings-and-deposits/interest-rates", 1],
+    ]},
+    CAD: { country: "Canada", rows: [
+      ["WealthONE Bank", "5-year GIC", 4.55, "Term 5 years.", "WOWA", "https://wowa.ca/gic-rates", 1],
+      ["Oaken Financial", "5-year GIC", 4.50, "Term 5 years.", "Motley Fool Canada", "https://www.fool.ca/2026/11/06/rates-are-rising-again-so-are-gics-and-high-interest-savings-etfs-even-worth-it/", 1],
+      ["Saven Financial", "5-year GIC", 4.50, "Term 5 years.", "Motley Fool Canada", "https://www.fool.ca/2026/11/06/rates-are-rising-again-so-are-gics-and-high-interest-savings-etfs-even-worth-it/", 1],
+      ["WealthONE Bank", "1-year GIC", 4.05, "Term 1 year.", "WOWA", "https://wowa.ca/1-year-gic-rates", 1],
+      ["Achieva Financial", "1-year GIC", 3.95, "Term 1 year.", "Ratehub", "https://www.ratehub.ca/gics/best-gic-rates", 1],
+      ["WealthONE Bank", "Savings (HISA)", 3.25, "Up to 3.25%. Check the regular rate after any promo.", "Forbes Advisor Canada", "https://www.forbes.com/advisor/ca/banking/best-high-interest-savings-accounts/", 12],
+      ["EQ Bank", "Savings (HISA)", 3.00, "Promo rate. Check the regular rate.", "YourBestSavings", "https://yourbestsavings.com/ca/best-high-interest-savings-accounts/", 12],
+    ]},
+    GBP: { country: "the UK", rows: [
+      ["Afin Bank", "5-year fixed bond", 5.40, "Term 5 years (AER).", "Depositscout", "https://depositscout.com/guides/best-uk-savings-rates-november-2026", 1],
+      ["GB Bank", "5-year fixed bond", 5.37, "Term 5 years (AER).", "Which?", "https://www.which.co.uk/money/savings-and-isas/savings-accounts/how-to-find-the-best-savings-account-aAWTh2N0jTx5", 1],
+      ["Vida Savings", "2-year fixed bond", 5.26, "Term 2 years (AER).", "Which?", "https://www.which.co.uk/money/savings-and-isas/savings-accounts/how-to-find-the-best-savings-account-aAWTh2N0jTx5", 1],
+      ["Afin Bank", "1-year fixed bond", 5.17, "Term 1 year (AER).", "Depositscout", "https://depositscout.com/savings/fixed-rate", 1],
+      ["OakNorth", "1-year fixed bond", 5.16, "Term 1 year (AER).", "Money.co.uk", "https://www.money.co.uk/savings-accounts/fixed-rate-bonds", 1],
+      ["LemFi", "Easy access savings", 5.00, "Variable rate (AER). Balances up to £250,000.", "Moneyfacts", "https://moneyfactscompare.co.uk/savings-accounts/", 1],
+      ["Monument Bank / Zopa", "Easy access savings", 4.56, "Variable rate (AER).", "Depositscout", "https://depositscout.com/savings", 1],
+    ]},
+    EUR: { country: "Germany / Europe", note: "Note: the newest euro rates I could find are from mid-2026, so they may be out of date.", rows: [
+      ["Achmea Bank (via Raisin)", "Fixed deposit", 4.00, "Up to about 4% APY. The page is older, so check the rate now.", "Settle in Germany", "https://settle-in-germany.com/banking/savings/fixed-term/", 1],
+      ["EU partner banks (via Raisin)", "12-month fixed deposit (Festgeld)", 3.08, "Minimum €5,000. Protected up to €100,000.", "Bankdaten.de", "https://www.bankdaten.de/en/guide/festgeld-germany.html", 1],
+      ["EU partner banks (via Raisin)", "6-month fixed deposit", 2.76, "Term 6 months.", "Bankdaten.de", "https://www.bankdaten.de/en/guide/festgeld-germany.html", 1],
+      ["German banks", "12-month fixed deposit", 2.30, "Minimums about €1,000 to €10,000.", "PickTheBank", "https://pickthebank.eu/fixed-deposits/germany/1-year/eur/", 1],
+      ["German banks", "5-year fixed deposit", 2.30, "Term 5 years.", "PickTheBank", "https://pickthebank.eu/fixed-deposits/germany/5-years/eur/", 1],
+    ]},
+    INR: { country: "India", note: "Small finance banks pay the most. Senior citizens usually get about 0.25% to 0.50% more.", rows: [
+      ["Suryoday Small Finance Bank", "Fixed deposit (FD)", 8.25, "General citizens. Up to 8.60% for seniors.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 4],
+      ["Utkarsh Small Finance Bank", "Fixed deposit (FD)", 8.10, "Up to 8.50% for seniors.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 4],
+      ["Ujjivan Small Finance Bank", "Fixed deposit (FD)", 8.10, "Best tenure only.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 4],
+      ["HDFC Bank", "Fixed deposit (FD)", 7.20, "Rates raised from 4 Nov 2026 on some tenures.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 4],
+      ["ICICI Bank / PNB", "Fixed deposit (FD)", 7.10, "Large banks, best tenure.", "Policybazaar", "https://www.policybazaar.com/fd-interest-rates/fd-rates-comparison/", 4],
+      ["Muthoot Capital", "Company FD (NBFC)", 9.10, "Not a bank: higher risk. Up to 9.35% for seniors.", "Stable Money", "https://stablemoney.in/fixed-deposit-interest-rates/best-fixed-deposit-interest-rate", 4],
+    ]},
+    SGD: { country: "Singapore", note: "The best rates often need fresh funds, a minimum amount or other conditions.", rows: [
+      ["RHB (Premier Banking)", "12-month fixed deposit", 2.40, "Promo. Minimum S$20,000.", "Syfe", "https://www.syfe.com/magazine/best-fixed-deposit-rates-singapore/", 1],
+      ["Maybank", "12-month fixed deposit", 2.40, "Up to 2.40% with promotions.", "The Kopi Notes", "https://thekopinotes.com/articles/digital-banks/maybank-fixed-deposit-rate-promotion/", 1],
+      ["HL Bank", "24-month fixed deposit", 2.20, "Minimum S$10,000.", "Growbeansprout", "https://growbeansprout.com/insights/savings/singapore-best-fixed-deposit-rate", 1],
+      ["CIMB", "12-month fixed deposit", 2.10, "Minimum S$10,000. Online. No fresh funds needed.", "The Kopi Notes", "https://thekopinotes.com/articles/digital-banks/highest-fixed-deposit-rate-singapore/", 1],
+      ["Hong Leong Finance", "Premium SAVER", 1.20, "Savings account. Lower rate at S$200,000 or more.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 12],
+      ["MariBank", "Savings account", 0.88, "Flat rate, no conditions.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 365],
+    ]},
+    JPY: { country: "Japan", note: "Most normal yen deposit rates are still below 1%. Higher rates are short campaigns with conditions.", rows: [
+      ["Bank of Yokohama", "3-month time deposit (campaign)", 2.00, "Retirement-bonus deposits only. 1 Oct to 30 Dec 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 4],
+      ["Major banks (megabanks)", "1-year time deposit", 0.50, "Normal rate, as of September 2026.", "FinCalcYou", "https://fincalcyou.com/pages/fixed-deposit-calculator-japan.html", 1],
+      ["Japan Post Bank", "Ordinary savings", 0.50, "New rate from 9 Nov 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 2],
+      ["Rakuten Bank", "1-year time deposit", 0.40, "Standard rate (June 2026). A 1.20% campaign ran in summer.", "FinCalcYou", "https://fincalcyou.com/pages/fixed-deposit-calculator-japan.html", 1],
+    ]},
+  };
+
+  // ---------- Rates the visitor saves for a typed currency ----------
+  // Kept in this visitor's own browser. If the browser blocks saving, they last until the page closes.
+  const memoryRates = {};
+  let storageWorks = true;
+  function loadMyRates(code) {
+    try { const s = localStorage.getItem("cic-rates-" + code); if (s) return JSON.parse(s); }
+    catch (e) { storageWorks = false; }
+    return memoryRates[code] || [];
+  }
+  function saveMyRates(code, rows) {
+    memoryRates[code] = rows;
+    try { localStorage.setItem("cic-rates-" + code, JSON.stringify(rows)); } catch (e) { storageWorks = false; }
+  }
+  // Make typed text safe to show inside the page
+  const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const safeUrl = (u) => /^https?:\/\//i.test(u || "") ? u : "";
+
+  // The rows shown for the currency in use: our researched list, or the visitor's saved list
+  function ratesRowsFor(code) {
+    return RATES[code] ? RATES[code].rows : loadMyRates(code);
+  }
+
+  function researchLinks(code) {
+    const country = countryOf(code);
+    const when = new Date().toLocaleString("en", { month: "long", year: "numeric" });
+    const searches = [
+      ["Best savings account rates", `best high interest savings account rates ${country} ${when}`],
+      ["Best fixed / term deposit rates", `best fixed deposit term deposit rates ${country} ${when}`],
+      ["Rate comparison websites", `compare savings interest rates banks ${country}`],
+      ["Central bank interest rate", `${country} central bank interest rate ${when}`],
+      ["Inflation rate", `${country} inflation rate ${when}`],
+    ];
+    return searches.map(([label, q]) =>
+      `<a href="https://www.google.com/search?q=${encodeURIComponent(q)}" target="_blank" rel="noopener noreferrer">🔎 ${label}</a>`).join("");
+  }
+
+  function drawRates() {
+    const code = currentCurrency();
+    const typed = $("currency").value === "OTHER";
+    $("research").hidden = !typed || !code;
+    if (!code) {   // typed currency not recognised yet
+      $("ratesCountry").textContent = "…";
+      $("ratesNote").textContent = "Type a currency above to see research links for that country.";
+      $("ratesNote").style.display = "";
+      $("ratesTableWrap").hidden = true;
+      return;
+    }
+    const known = RATES[code];
+    const rows = ratesRowsFor(code);
+    $("checkedLabel").hidden = !known;   // only our researched lists were checked in Nov 2026
+    $("ratesCountry").textContent = known ? known.country : `${countryOf(code)} (${code})`;
+    let note = known ? (known.note || "") :
+      (rows.length ? "These are the rates you saved. Check them again before you rely on them."
+                   : `No rates saved for ${currencyName(code)} yet. Use Step 1 to research, then Step 2 to save what you find.`);
+    $("ratesNote").textContent = note;
+    $("ratesNote").style.display = note ? "" : "none";
+    if (typed) {
+      $("researchCountry").textContent = countryOf(code);
+      $("researchLinks").innerHTML = researchLinks(code);
+      $("saveNote").textContent = storageWorks ? "Saved rates stay in this browser on this device only."
+        : "Your browser is not allowing saving, so saved rates will be lost when you close the page.";
+    }
+    $("ratesTableWrap").hidden = rows.length === 0;
+    $("ratesBody").innerHTML = rows.map((row, i) => {
+      const [bank, product, rate, cond, srcName, url] = row;
+      const link = safeUrl(url);
+      return `<tr><td><b>${esc(bank)}</b></td><td>${product ? `<span class="tag">${esc(product)}</span>` : ""}</td>
+        <td class="rate">${Number(rate).toFixed(2)}%</td><td>${esc(cond || "")}</td>
+        <td>${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(srcName)} ↗</a>` : "—"}</td>
+        <td><button class="use-btn" data-i="${i}">Use this rate</button>${known ? "" :
+          ` <button class="use-btn del-btn" data-del="${i}" aria-label="Delete this rate">✕</button>`}</td></tr>`;
+    }).join("");
+  }
+
+  $("addRateForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const code = currentCurrency(); if (!code || RATES[code]) return;
+    const url = safeUrl($("arUrl").value.trim());
+    let srcName = "Link";
+    try { if (url) srcName = new URL(url).hostname.replace(/^www\./, ""); } catch (err) {}
+    const rows = loadMyRates(code);
+    rows.push([$("arBank").value.trim(), $("arProduct").value.trim(), parseFloat($("arRate").value),
+               $("arCond").value.trim(), srcName, url, 1]);
+    rows.sort((a, b) => b[2] - a[2]);   // highest rate first
+    saveMyRates(code, rows);
+    $("addRateForm").reset();
+    drawRates();
+  });
+  // ---------- Pick the starting currency ----------
+  // 1) A currency this visitor picked before (saved in their own browser only)
+  // 2) Their device's time zone, e.g. "Australia/Sydney" -> AUD
+  // 3) Their device's language/region, e.g. "en-AU" -> AUD
+  // 4) Otherwise US Dollar
+  // Nothing is sent to any website: everything is read from the visitor's own device.
+  const EURO_COUNTRIES = ["AT","BE","HR","CY","EE","FI","FR","DE","GR","IE","IT","LV","LT","LU","MT","NL","PT","SK","SI","ES"];
+  const EURO_ZONES = ["Vienna","Brussels","Zagreb","Nicosia","Tallinn","Helsinki","Paris","Berlin","Athens","Dublin","Rome",
+    "Riga","Vilnius","Luxembourg","Malta","Amsterdam","Lisbon","Bratislava","Ljubljana","Madrid","Monaco","Andorra"];
+  const CANADA_ZONES = ["Toronto","Vancouver","Edmonton","Winnipeg","Halifax","St_Johns","Regina","Moncton","Montreal",
+    "Whitehorse","Yellowknife","Iqaluit","Glace_Bay","Goose_Bay","Swift_Current","Dawson_Creek","Fort_Nelson","Creston"];
+  const US_ZONES = ["New_York","Chicago","Denver","Los_Angeles","Phoenix","Anchorage","Detroit","Boise","Juneau",
+    "Sitka","Nome","Adak","Menominee","Metlakatla","Yakutat"];
+  const REGION_CURRENCY = { US: "USD", AU: "AUD", NZ: "NZD", CA: "CAD", GB: "GBP", IN: "INR", SG: "SGD", JP: "JPY" };
+
+  function currencyFromTimeZone() {
+    let tz = "";
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+    const [area, city = ""] = tz.split("/");
+    if (area === "Australia" || tz === "Antarctica/Macquarie") return "AUD";
+    if (tz === "Pacific/Auckland" || tz === "Pacific/Chatham" || tz === "NZ") return "NZD";
+    if (tz === "Asia/Kolkata" || tz === "Asia/Calcutta") return "INR";
+    if (tz === "Asia/Singapore" || tz === "Singapore") return "SGD";
+    if (tz === "Asia/Tokyo" || tz === "Japan") return "JPY";
+    if (tz === "Europe/London" || tz === "Europe/Belfast" || tz === "GB") return "GBP";
+    if (area === "Europe" && EURO_ZONES.includes(city)) return "EUR";
+    if (area === "America" && CANADA_ZONES.includes(city)) return "CAD";
+    if (area === "Canada") return "CAD";
+    if (area === "America" && (US_ZONES.includes(city) || tz.startsWith("America/Indiana/") ||
+        tz.startsWith("America/Kentucky/") || tz.startsWith("America/North_Dakota/"))) return "USD";
+    if (tz === "Pacific/Honolulu" || area === "US") return "USD";
+    return null;
+  }
+  function currencyFromLanguage() {
+    const langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""];
+    for (const lang of langs) {
+      let region = "";
+      try { region = new Intl.Locale(lang).maximize().region || ""; } catch (e) {}
+      if (REGION_CURRENCY[region]) return REGION_CURRENCY[region];
+      if (EURO_COUNTRIES.includes(region)) return "EUR";
+    }
+    return null;
+  }
+  function pickStartCurrency() {
+    let saved = null;
+    try { saved = localStorage.getItem("cic-currency"); } catch (e) {}
+    if (saved && RATES[saved]) return [saved, "Your last choice."];
+    if (saved && ALL_CODES.includes(saved)) return ["OTHER", "Your last choice.", saved];
+    const tzCur = currencyFromTimeZone();
+    if (tzCur) return [tzCur, "Picked from your device's location (time zone). You can change it."];
+    const langCur = currencyFromLanguage();
+    if (langCur) return [langCur, "Picked from your device's region setting. You can change it."];
+    return ["USD", ""];
+  }
+  // Fill the "type a currency" suggestion list with every currency except the nine above
+  $("currencyList").innerHTML = ALL_CODES.filter(c => !RATES[c])
+    .map(c => `<option value="${c} — ${esc(currencyName(c))}">`).join("");
+
+  const [startCurrency, startHint, startTyped] = pickStartCurrency();
+  $("currency").value = startCurrency;
+  $("currencyHint").textContent = startHint;
+  if (startTyped) $("otherCurrency").value = `${startTyped} — ${currencyName(startTyped)}`;
+
+  function rememberCurrency() {
+    const code = currentCurrency();
+    if (code) { try { localStorage.setItem("cic-currency", code); } catch (e) {} }
+  }
+  $("currency").addEventListener("change", () => {
+    $("currencyHint").textContent = "";
+    if ($("currency").value === "OTHER") {
+      $("otherWrap").hidden = false;
+      $("otherCurrency").focus();
+    }
+    rememberCurrency();
+    drawRates();
+  });
+  $("otherCurrency").addEventListener("input", () => { update(); drawRates(); rememberCurrency(); });
+  $("otherCurrency").addEventListener("change", () => {
+    // Tidy what was typed into "CODE — Name" once we know the currency
+    const code = currentCurrency();
+    if (code && RATES[code]) {                // typed one of the nine: use the normal option
+      $("currency").value = code;
+      $("otherCurrency").value = "";
+    } else if (code) {
+      $("otherCurrency").value = `${code} — ${currencyName(code)}`;
+    }
+    update(); drawRates(); rememberCurrency();
+  });
+  $("ratesBody").addEventListener("click", (e) => {
+    const code = currentCurrency(); if (!code) return;
+    const del = e.target.closest("[data-del]");
+    if (del) {
+      const rows = loadMyRates(code);
+      rows.splice(+del.dataset.del, 1);
+      saveMyRates(code, rows);
+      drawRates();
+      return;
+    }
+    const b = e.target.closest(".use-btn"); if (!b) return;
+    const row = ratesRowsFor(code)[+b.dataset.i];
+    $("rate").value = row[2];
+    $("compFreq").value = String(row[6]);
+    update();
+    ["rate", "compFreq"].forEach(id => { $(id).classList.remove("flash"); void $(id).offsetWidth; $(id).classList.add("flash"); });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  drawRates();
+
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", update);
+  update();
+</script>
+</body>
+</html>
