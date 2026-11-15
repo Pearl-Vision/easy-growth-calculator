@@ -188,7 +188,7 @@
 <body>
 <header>
   <h1>Easy Growth Planner</h1>
-  <p>Compare, Play and Grow!</p>
+  <p>Compare. Plan. Grow.</p>
 </header>
 
 <main>
@@ -392,9 +392,10 @@
       usually do <b>not</b> let you add money after you open them.</p>
   </section>
 </main>
-<footer>For learning only. This is not financial advice.
+<footer>For learning only. This is not financial advice. Seek professional services before making any commitment.
   <p class="footnote">Everything here is speculative and subject to change.
-    "Look after your money and it will take care of you" is subjective.</p>
+    "Look after your money and it will take care of you" is subjective.
+    Visits are counted anonymously, without cookies. The amounts you type never leave your browser.</p>
 </footer>
 
 <script>
@@ -454,7 +455,9 @@
   let compareChart;
   function optionHtml(k) {
     // Shorter labels fit the small boxes: "Every year (yearly)" -> "Every year"
-    const short = (id) => $(id).innerHTML.replace(/ \([^)]*\)/g, "");
+    const short = (id) => $(id).innerHTML
+      .replace(/Every [36] months \(([^)]*)\)/g, (m, w) => w[0].toUpperCase() + w.slice(1))  // "Every 3 months (quarterly)" -> "Quarterly"
+      .replace(/ \([^)]*\)/g, "");
     return `<div class="opt-head"><span class="swatch" style="background:var(--opt${k})"></span><b>Option ${k}</b>
       <button type="button" class="opt-remove" data-remove="${k}" aria-label="Remove option ${k}">✕</button></div>
       <div class="opt-grid">
@@ -513,7 +516,9 @@
   const money0 = (n) => n.toLocaleString(undefined, { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
   function optionDHtml() {
     const cur = `<span class="cur">$</span>`;
-    const short = (id) => $(id).innerHTML.replace(/ \([^)]*\)/g, "");
+    const short = (id) => $(id).innerHTML
+      .replace(/Every [36] months \(([^)]*)\)/g, (m, w) => w[0].toUpperCase() + w.slice(1))  // "Every 3 months (quarterly)" -> "Quarterly"
+      .replace(/ \([^)]*\)/g, "");
     const box = (id, value) => `<div class="input-wrap">${cur}<input id="${id}" type="number" min="0" step="any" value="${value}"></div>`;
     const pctBox = (id, value) => `<div class="input-wrap right"><span>%</span><input id="${id}" type="number" min="0" step="any" value="${value}"></div>`;
     return `<div class="opt-head"><span class="swatch" style="background:var(--optD)"></span><b>Option D</b>
@@ -530,7 +535,7 @@
         <label>Loan term (years)<input id="d_loanYears" type="number" min="0" max="40" step="1" value="0"></label>
         <label>House value growth per year${pctBox("d_growth", 0)}</label>
         <label>Loan interest rate<select id="d_rateMode">
-          <option value="same">Same every year</option>
+          <option value="same">Fixed rate</option>
           <option value="each">Changes each year</option>
         </select></label>
         <label id="d_rateSameWrap">Rate per year${pctBox("d_loanRate", 0)}</label>
@@ -1446,5 +1451,7 @@
   window.addEventListener("pageshow", (e) => { if (e.persisted) location.reload(); });
   update();
 </script>
+<!-- Anonymous visit counting by GoatCounter (no cookies, no personal data). Dashboard: https://easygrowth.goatcounter.com -->
+<script data-goatcounter="https://easygrowth.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

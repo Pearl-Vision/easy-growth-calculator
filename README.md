@@ -1,6 +1,6 @@
 # Easy Growth Planner
 
-**Compare, Play and Grow!** A compound interest planner that runs in the browser. It needs no install and no build step.
+**Compare. Plan. Grow.** A compound interest planner that runs in the browser. It needs no install and no build step.
 
 **Live app:** https://pearl-vision.github.io/easy-growth-calculator/
 
@@ -24,9 +24,15 @@
 
 ## Currencies and rates
 
-- Pick from 9 currencies, or type any other currency. The page guesses a starting currency from the device's time zone or region. It reads these from the device and sends nothing anywhere.
+- Pick from 9 currencies, or type any other currency. The page guesses a starting currency from the device's time zone or region. It reads these from the device and does not send them anywhere.
 - Browse advertised savings and term deposit rates for the USA, Australia, New Zealand, Canada, the UK, Europe, India, Singapore and Japan, checked in November 2026. Click **Use this rate** to load one into Option A, B or C.
 - For other currencies, use the research links to find local rates and save them. Saved rates stay in that browser on that device only.
+
+## Privacy
+
+- Visits are counted anonymously with [GoatCounter](https://www.goatcounter.com/): no cookies and no personal data. It records only things like the page visited, the country, the type of device and where the visit came from.
+- The amounts, rates and other numbers you type never leave your browser.
+- Opening `index.html` from your own computer is not counted.
 
 ## Run locally
 
@@ -34,4 +40,4 @@ Open `index.html` in any browser.
 
 ## Disclaimer
 
-Advertised rates change often. Check them with the bank before you rely on them. Tax and fees are not included. House prices and share returns are steady yearly guesses; real ones go up and down, and rent is not included. This is for learning only and is not financial advice. Everything here is speculative and subject to change.
+Advertised rates change often. Check them with the bank before you rely on them. Tax and fees are not included. House prices and share returns are steady yearly guesses; real ones go up and down, and rent is not included. This is for learning only and is not financial advice. Seek professional services before making any commitment. Everything here is speculative and subject to change.
