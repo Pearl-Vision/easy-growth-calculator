@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Easy Growth Calculator</title>
+<title>Easy Growth Planner</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
@@ -33,6 +33,7 @@
     --green: #34d399; --blue: #60a5fa; --orange: #fb923c;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }   /* hidden things stay hidden, even labels and flex boxes */
   body {
     margin: 0; background: var(--bg); color: var(--text);
     font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; line-height: 1.5;
@@ -138,23 +139,66 @@
   .del-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
   .flash { animation: flash 0.8s; }
   @keyframes flash { 0% { box-shadow: 0 0 0 4px var(--primary); } 100% { box-shadow: none; } }
+  /* ---------- Compare options ---------- */
+  :root { --optA: #4f46e5; --optB: #0ea5e9; --optC: #db2777; --optD: #16a34a; }
+  .compare-box { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .compare-box h3 { margin: 0 0 4px; font-size: 1rem; }
+  .opt { border: 1px solid var(--border); border-left-width: 4px; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  #optB { border-left-color: var(--optB); }
+  #optC { border-left-color: var(--optC); }
+  #optD { border-left-color: var(--optD); }
+  .d-type { display: flex; gap: 14px; margin: 2px 0 8px; }
+  .d-type label { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 0.85rem; cursor: pointer; }
+  .d-type input { width: auto; margin: 0; }
+  .opt-grid .span2 { grid-column: 1 / -1; }
+  .d-info { font-size: 0.8rem; background: var(--input-bg); border-radius: 8px; padding: 8px 10px; }
+  .compare-table td.txt { white-space: normal; min-width: 150px; }
+  /* Row labels may wrap onto 2 lines so the numbers get the room (matters most on phones) */
+  .compare-table td:first-child { white-space: normal; min-width: 90px; max-width: 130px; }
+  .opt-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .opt-remove { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 8px; cursor: pointer; padding: 2px 8px; }
+  .opt-remove:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+  .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opt-grid label { margin: 0; font-size: 0.78rem; }
+  .opt-grid input, .opt-grid select { margin-top: 3px; padding: 7px 8px; font-size: 0.9rem; }
+  .opt-grid .input-wrap input { padding-left: 24px; }
+  .opt-grid .input-wrap.right input { padding-left: 8px; padding-right: 26px; }
+  .add-opt { margin-top: 10px; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+  .opt-tag { font-size: 0.75rem; font-weight: 600; color: #fff; background: var(--optA); border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 2px; }
+  .compare-table td, .compare-table th { text-align: right; }
+  .compare-table td:first-child, .compare-table th:first-child { text-align: left; color: var(--muted); }
+  .compare-table td.best { color: var(--green); font-weight: 700; }
+  .compare-table td.best::after { content: " 🏆"; }
+  .compare-summary { font-size: 1rem; margin: 0 0 14px; }
+  details.year-compare { margin-top: 14px; }
+  details.year-compare summary { cursor: pointer; font-weight: 600; }
+  .top-winner { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; background: var(--input-bg);
+    border: 1px solid var(--border); font-size: 0.95rem; }
+  .chart-type { display: flex; align-items: center; gap: 8px; margin: 12px 0 8px; }
+  .chart-type label { margin: 0; }
+  .chart-type select { width: auto; padding: 6px 10px; }
+  .footnote { font-size: 0.75rem; margin: 6px auto 0; max-width: 640px; font-style: italic; }
+  .rate-target { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 0.9rem; }
+  .rate-target select { width: auto; padding: 6px 10px; }
   footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 0 16px 30px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Easy Growth Calculator</h1>
-  <p>See how your money grows with regular savings and compounding interest</p>
+  <h1>Easy Growth Planner</h1>
+  <p>Compare, Play and Grow!</p>
 </header>
 
 <main>
   <div class="grid">
     <!-- INPUTS -->
     <section class="card">
-      <h2>Your details</h2>
+      <h2>Your details <span class="opt-tag" id="optATag" hidden>Option A</span></h2>
 
       <label for="currency">Currency</label>
-      <select id="currency">
+      <select id="currency" autocomplete="off">
         <option value="USD" selected>US Dollar (USD $)</option>
         <option value="AUD">Australian Dollar (AUD $)</option>
         <option value="NZD">New Zealand Dollar (NZD $)</option>
@@ -174,13 +218,13 @@
       <div class="hint" id="currencyHint" style="margin-top:4px"></div>
 
       <label for="initial">Starting amount</label>
-      <div class="input-wrap"><span class="cur">$</span><input id="initial" type="number" min="0" step="any" value="100"></div>
+      <div class="input-wrap"><span class="cur">$</span><input id="initial" type="number" autocomplete="off" min="0" step="any" value="0"></div>
 
       <label for="contrib">Regular contribution</label>
-      <div class="input-wrap"><span class="cur">$</span><input id="contrib" type="number" min="0" step="any" value="100"></div>
+      <div class="input-wrap"><span class="cur">$</span><input id="contrib" type="number" autocomplete="off" min="0" step="any" value="0"></div>
 
       <label for="contribFreq">How often you contribute</label>
-      <select id="contribFreq">
+      <select id="contribFreq" autocomplete="off">
         <option value="1" selected>Every month</option>
         <option value="3">Every 3 months (quarterly)</option>
         <option value="6">Every 6 months (half-yearly)</option>
@@ -188,41 +232,54 @@
       </select>
 
       <label for="rate">Interest rate per year <span class="hint">(e.g. 5)</span></label>
-      <div class="input-wrap right"><span>%</span><input id="rate" type="number" min="0" step="any" value="5"></div>
+      <div class="input-wrap right"><span>%</span><input id="rate" type="number" autocomplete="off" min="0" step="any" value="0"></div>
 
       <label for="inflMode">Inflation per year <span class="hint">(prices going up; use 0 to ignore)</span></label>
-      <select id="inflMode">
+      <select id="inflMode" autocomplete="off">
         <option value="same" selected>Same rate every year</option>
         <option value="each">Different rate for each year</option>
       </select>
       <div class="input-wrap right" id="inflSameWrap" style="margin-top:8px">
-        <span>%</span><input id="inflation" type="number" min="0" step="any" value="3" aria-label="Inflation rate every year">
+        <span>%</span><input id="inflation" type="number" autocomplete="off" min="0" step="any" value="0" aria-label="Inflation rate every year">
       </div>
       <div id="inflEachWrap" hidden>
         <div class="infl-tools">
           <span class="hint">Set all years to</span>
-          <div class="input-wrap right"><span>%</span><input id="inflFill" type="number" min="0" step="any" value="3" aria-label="Inflation rate for all years"></div>
+          <div class="input-wrap right"><span>%</span><input id="inflFill" type="number" autocomplete="off" min="0" step="any" value="0" aria-label="Inflation rate for all years"></div>
           <button type="button" class="chip" id="inflFillBtn">Apply</button>
         </div>
         <div class="infl-grid" id="inflGrid"></div>
       </div>
 
       <label for="compFreq">How often interest compounds</label>
-      <select id="compFreq">
+      <select id="compFreq" autocomplete="off">
         <option value="365">Daily</option>
-        <option value="12" selected>Monthly</option>
+        <option value="12">Monthly</option>
         <option value="4">Quarterly (every 3 months)</option>
         <option value="2">Half-yearly (every 6 months)</option>
-        <option value="1">Yearly</option>
+        <option value="1" selected>Yearly</option>
       </select>
 
       <label for="years">Number of years</label>
-      <select id="years"></select>
+      <select id="years" autocomplete="off"></select>
       <div class="chips" id="yearChips">
         <button class="chip" data-years="10">10 yrs</button>
         <button class="chip active" data-years="20">20 yrs</button>
         <button class="chip" data-years="30">30 yrs</button>
         <button class="chip" data-years="40">40 yrs</button>
+      </div>
+
+      <!-- Compare: Options B and C, plus Option D (house or shares) -->
+      <div class="compare-box" id="compareBox">
+        <h3>Compare options</h3>
+        <div class="hint">Options B and C: try a different rate, compounding, contribution or inflation side by side.
+          Option D: buy a house with a loan, or invest in shares.
+          Years and currency stay the same for every option.</div>
+        <div class="opt" id="optB" hidden></div>
+        <div class="opt" id="optC" hidden></div>
+        <div class="opt" id="optD" hidden></div>
+        <button type="button" class="chip add-opt" id="addOptBtn">+ Add option B</button>
+        <button type="button" class="chip add-opt" id="addDBtn">+ Add option D: house or shares</button>
       </div>
 
       <div class="error" id="error"></div>
@@ -233,23 +290,57 @@
     <!-- RESULTS -->
     <div class="stack">
       <section class="card">
+        <p class="top-winner" id="topWinner" hidden></p>
         <div class="stats">
-          <div class="stat s-total"><div class="label">Final value</div><div class="value" id="outTotal">$0</div></div>
+          <div class="stat s-total"><div class="label" id="lblTotal">Final value</div><div class="value" id="outTotal">$0</div></div>
           <div class="stat s-deposit"><div class="label">Total you put in</div><div class="value" id="outDeposits">$0</div></div>
-          <div class="stat s-interest"><div class="label">Interest earned</div><div class="value" id="outInterest">$0</div></div>
+          <div class="stat s-interest"><div class="label" id="lblInterest">Interest earned</div><div class="value" id="outInterest">$0</div></div>
           <div class="stat s-real"><div class="label">Final value in today's money</div><div class="value" id="outReal">$0</div></div>
         </div>
         <p class="summary" id="summary"></p>
         <div class="chart-box"><canvas id="chart" aria-label="Growth chart"></canvas></div>
       </section>
 
+      <!-- Shown only when 2 or more options are being compared -->
+      <section class="card" id="compareCard" hidden>
+        <h2>Comparing your options</h2>
+        <p class="compare-summary" id="compareSummary"></p>
+        <p class="hint" id="compareNote" hidden></p>
+        <div class="table-wrap">
+          <table class="compare-table">
+            <thead id="compareHead"></thead>
+            <tbody id="compareBody"></tbody>
+          </table>
+        </div>
+        <details class="year-compare" open>
+          <summary>Year by year balances</summary>
+          <div class="chart-type">
+            <label for="chartType">Chart type</label>
+            <select id="chartType" autocomplete="off">
+              <option value="line" selected>Lines</option>
+              <option value="bar">Bars (side by side)</option>
+              <option value="area">Shaded areas</option>
+              <option value="diff">Difference from Option A</option>
+            </select>
+          </div>
+          <div class="chart-box"><canvas id="compareChart" aria-label="Comparison chart"></canvas></div>
+          <div class="table-wrap">
+            <table class="compare-table">
+              <thead id="compareYearHead"></thead>
+              <tbody id="compareYearBody"></tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
       <section class="card">
         <h2>Year by year</h2>
         <p class="note" style="margin-top:0"><b>Balance in today's money</b> = what the balance could buy at today's prices, after inflation.
-          <b>Total gain on money put in</b> = total interest ÷ total money you put in.</p>
+          <b>Total gain on money put in</b> = total interest ÷ total money you put in.
+          When you compare options, columns for Options B, C and D are added on the right.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Year</th><th>Put in this year</th><th>Interest this year</th><th>Total put in</th><th>Total interest</th><th>Balance</th><th>Total gain on money put in</th><th>Inflation</th><th>Balance in today's money</th></tr></thead>
+            <thead id="mainHead"></thead>
             <tbody id="tableBody"></tbody>
           </table>
         </div>
@@ -263,6 +354,10 @@
     <p class="summary">These rates match the currency you picked. Change the <b>Currency</b> menu to see another country.
       Click <b>Use this rate</b> to put a rate into the calculator.</p>
     <p class="summary" id="ratesNote"></p>
+    <div class="rate-target" id="rateTargetWrap" hidden>
+      <label for="rateTarget" style="margin:0">Send <b>Use this rate</b> to:</label>
+      <select id="rateTarget" autocomplete="off"></select>
+    </div>
 
     <!-- Shown only for a typed ("other") currency -->
     <div id="research" hidden>
@@ -277,7 +372,7 @@
         <form id="addRateForm" class="add-form">
           <label>Bank<input id="arBank" required maxlength="60" placeholder="e.g. Maybank"></label>
           <label>Product<input id="arProduct" maxlength="60" placeholder="e.g. 12-month fixed deposit"></label>
-          <label>Rate per year<div class="input-wrap right"><span>%</span><input id="arRate" type="number" min="0" max="100" step="any" required placeholder="4.5"></div></label>
+          <label>Rate per year<div class="input-wrap right"><span>%</span><input id="arRate" type="number" autocomplete="off" min="0" max="100" step="any" required placeholder="4.5"></div></label>
           <label>Conditions<input id="arCond" maxlength="120" placeholder="e.g. Minimum 10,000"></label>
           <label class="wide">Source link (web address)<input id="arUrl" type="url" placeholder="https://..."></label>
           <button type="submit" class="use-btn add-btn">Save this rate</button>
@@ -297,7 +392,10 @@
       usually do <b>not</b> let you add money after you open them.</p>
   </section>
 </main>
-<footer>For learning only. This is not financial advice.</footer>
+<footer>For learning only. This is not financial advice.
+  <p class="footnote">Everything here is speculative and subject to change.
+    "Look after your money and it will take care of you" is subjective.</p>
+</footer>
 
 <script>
   const $ = (id) => document.getElementById(id);
@@ -350,6 +448,462 @@
   const freqNames = { 1: "every month", 3: "every 3 months", 6: "every 6 months", 12: "every year" };
   const compNames = { 365: "daily", 12: "monthly", 4: "quarterly", 2: "half-yearly", 1: "yearly" };
 
+  // ---------- Compare options (B and C) ----------
+  // Option A is the main details. B and C each have their own contribution, rate and compounding.
+  const activeOpts = [];   // which extra options are showing, e.g. ["B"] or ["B", "C"]
+  let compareChart;
+  function optionHtml(k) {
+    // Shorter labels fit the small boxes: "Every year (yearly)" -> "Every year"
+    const short = (id) => $(id).innerHTML.replace(/ \([^)]*\)/g, "");
+    return `<div class="opt-head"><span class="swatch" style="background:var(--opt${k})"></span><b>Option ${k}</b>
+      <button type="button" class="opt-remove" data-remove="${k}" aria-label="Remove option ${k}">✕</button></div>
+      <div class="opt-grid">
+        <label>Regular contribution<div class="input-wrap"><span class="cur">$</span><input id="contrib_${k}" type="number" min="0" step="any"></div></label>
+        <label>How often<select id="contribFreq_${k}">${short("contribFreq")}</select></label>
+        <label>Interest rate per year<div class="input-wrap right"><span>%</span><input id="rate_${k}" type="number" min="0" step="any"></div></label>
+        <label>Interest compounds<select id="compFreq_${k}">${short("compFreq")}</select></label>
+        <label>Inflation<select id="inflMode_${k}">
+          <option value="same">Same as A</option>
+          <option value="own">Own rate</option>
+        </select></label>
+        <label id="inflWrap_${k}" hidden>Inflation per year<div class="input-wrap right"><span>%</span><input id="infl_${k}" type="number" min="0" step="any"></div></label>
+      </div>`;
+  }
+  function addOption() {
+    const k = ["B", "C"].find(x => !activeOpts.includes(x));
+    if (!k) return;
+    const box = $("opt" + k);
+    box.innerHTML = optionHtml(k);
+    // Start as a copy of Option A, so you only change what you want to compare.
+    // Interest always starts as compounding Yearly.
+    ["contrib", "contribFreq", "rate"].forEach(f => $(f + "_" + k).value = $(f).value);
+    $("compFreq_" + k).value = "1";
+    $("infl_" + k).value = $("inflation").value || "0";   // used only if "Own rate" is picked
+    box.hidden = false;
+    activeOpts.push(k);
+    activeOpts.sort();
+    refreshCompareUI();
+    update();
+    $("rate_" + k).focus();
+  }
+  function removeOption(k) {
+    const box = $("opt" + k);
+    box.hidden = true;
+    box.innerHTML = "";
+    activeOpts.splice(activeOpts.indexOf(k), 1);
+    refreshCompareUI();
+    update();
+  }
+  function refreshCompareUI() {
+    const next = ["B", "C"].find(x => !activeOpts.includes(x));
+    $("addOptBtn").hidden = !next;
+    if (next) $("addOptBtn").textContent = "+ Add option " + next;
+    const dOn = !$("optD").hidden;
+    $("addDBtn").hidden = dOn;
+    $("optATag").hidden = activeOpts.length === 0 && !dOn;
+    const all = ["A", ...activeOpts];
+    const keep = $("rateTarget").value || "A";
+    $("rateTarget").innerHTML = all.map(k => `<option value="${k}">Option ${k}</option>`).join("");
+    $("rateTarget").value = all.includes(keep) ? keep : "A";
+    $("rateTargetWrap").hidden = activeOpts.length === 0;
+  }
+
+  // ---------- Option D: buy a house, or invest in shares ----------
+  // Whole amounts (no cents) for big house numbers
+  const money0 = (n) => n.toLocaleString(undefined, { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  function optionDHtml() {
+    const cur = `<span class="cur">$</span>`;
+    const short = (id) => $(id).innerHTML.replace(/ \([^)]*\)/g, "");
+    const box = (id, value) => `<div class="input-wrap">${cur}<input id="${id}" type="number" min="0" step="any" value="${value}"></div>`;
+    const pctBox = (id, value) => `<div class="input-wrap right"><span>%</span><input id="${id}" type="number" min="0" step="any" value="${value}"></div>`;
+    return `<div class="opt-head"><span class="swatch" style="background:var(--optD)"></span><b>Option D</b>
+      <button type="button" class="opt-remove" data-remove="D" aria-label="Remove option D">✕</button></div>
+      <div class="d-type">
+        <label><input type="radio" name="dType" value="house" checked> Buy a house</label>
+        <label><input type="radio" name="dType" value="shares"> Invest in shares</label>
+      </div>
+      <div class="opt-grid" id="dHouse">
+        <label>House price${box("d_price", 0)}</label>
+        <label>Deposit${box("d_deposit", 0)}</label>
+        <label>Buying costs (stamp duty, fees)${box("d_buyCosts", 0)}</label>
+        <label>Yearly costs (rates, insurance, repairs)${box("d_yearCosts", 0)}</label>
+        <label>Loan term (years)<input id="d_loanYears" type="number" min="0" max="40" step="1" value="0"></label>
+        <label>House value growth per year${pctBox("d_growth", 0)}</label>
+        <label>Loan interest rate<select id="d_rateMode">
+          <option value="same">Same every year</option>
+          <option value="each">Changes each year</option>
+        </select></label>
+        <label id="d_rateSameWrap">Rate per year${pctBox("d_loanRate", 0)}</label>
+        <div class="span2" id="d_rateEachWrap" hidden>
+          <div class="infl-tools">
+            <span class="hint">Set all years to</span>
+            <div class="input-wrap right"><span>%</span><input id="d_rateFill" type="number" min="0" step="any" value="0" aria-label="Loan rate for all years"></div>
+            <button type="button" class="chip" id="d_rateFillBtn">Apply</button>
+          </div>
+          <div class="infl-grid" id="d_rateGrid"></div>
+          <div class="hint" id="d_rateNote" style="margin-top:4px"></div>
+        </div>
+        <div class="d-info span2" id="dHouseInfo"></div>
+      </div>
+      <div class="opt-grid" id="dShares" hidden>
+        <button type="button" class="chip span2" id="dSameMoney">Use the same money as the house</button>
+        <label>Starting amount${box("d_sStart", 0)}</label>
+        <label>Regular contribution${box("d_sContrib", 0)}</label>
+        <label>How often<select id="d_sFreq">${short("contribFreq")}</select></label>
+        <label>Expected return per year${pctBox("d_sRate", 0)}</label>
+        <label class="span2">Interest compounds<select id="d_sComp">${short("compFreq")}</select></label>
+        <div class="hint span2">Shares go up and down. The expected return is an average guess, not a promise.</div>
+      </div>
+      <div class="opt-grid" style="margin-top:8px">
+        <label>Inflation<select id="inflMode_D">
+          <option value="same">Same as A</option>
+          <option value="own">Own rate</option>
+        </select></label>
+        <label id="inflWrap_D" hidden>Inflation per year${pctBox("infl_D", 0)}</label>
+      </div>`;
+  }
+  function addOptionD() {
+    const box = $("optD");
+    box.innerHTML = optionDHtml();
+    $("d_sFreq").value = "1";
+    $("d_sComp").value = "1";
+    $("infl_D").value = $("inflation").value || "0";   // used only if "Own rate" is picked
+    box.hidden = false;
+    refreshCompareUI();
+    update();
+  }
+  function removeOptionD() {
+    $("optD").hidden = true;
+    $("optD").innerHTML = "";
+    dRateMemory.length = 0;
+    refreshCompareUI();
+    update();
+  }
+  // Monthly repayment that pays off "owed" in "monthsLeft" months at a yearly rate (standard loan formula)
+  function repaymentFor(owed, ratePct, monthsLeft) {
+    const i = ratePct / 100 / 12;
+    if (owed <= 0 || monthsLeft <= 0) return 0;
+    return i === 0 ? owed / monthsLeft : owed * i / (1 - Math.pow(1 + i, -monthsLeft));
+  }
+  // One loan-rate box per year (only the years the loan is running). Typed values are remembered.
+  const dRateMemory = [];
+  function buildRateGrid(count) {
+    const grid = $("d_rateGrid");
+    const boxes = grid.querySelectorAll("input");
+    boxes.forEach((b, i) => dRateMemory[i] = b.value);
+    if (boxes.length === count) return;
+    const start = $("d_loanRate").value || "0";
+    let html = "";
+    for (let y = 1; y <= count; y++) {
+      const v = dRateMemory[y - 1] !== undefined ? dRateMemory[y - 1] : start;
+      html += `<div><label for="d_rate${y}">Year ${y}</label>
+        <div class="input-wrap right"><span>%</span><input id="d_rate${y}" type="number" min="0" step="any" value="${v}"></div></div>`;
+    }
+    grid.innerHTML = html;
+  }
+  // Read the house fields. "years" = how many years the planner looks ahead.
+  function readHouse(years) {
+    const num = (id) => parseFloat($(id).value) || 0;
+    const h = { kind: "house", price: num("d_price"), deposit: num("d_deposit"), buyCosts: num("d_buyCosts"),
+      yearCosts: num("d_yearCosts"), loanYears: num("d_loanYears"), growth: num("d_growth"),
+      rateMode: $("d_rateMode").value, loanRate: num("d_loanRate") };
+    const eachYear = h.rateMode === "each";
+    $("d_rateSameWrap").hidden = eachYear;
+    $("d_rateEachWrap").hidden = !eachYear;
+    $("d_rateMode").closest("label").classList.toggle("span2", eachYear);   // full width so the words fit
+    if ([h.price, h.deposit, h.buyCosts, h.yearCosts, h.loanYears, h.growth, h.loanRate].some(v => v < 0))
+      return { error: "Option D: please use numbers that are 0 or more." };
+    if (h.deposit > h.price) return { error: "Option D: the deposit can't be more than the house price." };
+    if (h.price > h.deposit && (h.loanYears < 1 || h.loanYears > 40)) return { error: "Option D: please type a loan term between 1 and 40 years." };
+    // The loan rate for each year of the plan
+    if (eachYear) {
+      // One box for every year of the loan term (e.g. 30 boxes for a 30-year loan)
+      const termYears = Math.max(1, Math.ceil(h.loanYears));
+      buildRateGrid(termYears);
+      $("d_rateNote").textContent = termYears > years
+        ? `Only years 1 to ${years} change the results, because the plan looks ${years} ${years === 1 ? "year" : "years"} ahead.`
+        : "";
+      const typed = [...$("d_rateGrid").querySelectorAll("input")].map(i => parseFloat(i.value) || 0);
+      if (typed.some(v => v < 0)) return { error: "Option D: please use numbers that are 0 or more." };
+      h.rates = Array.from({ length: years }, (_, y) => typed[Math.min(y, typed.length - 1)]);
+    } else {
+      h.rates = Array(years).fill(h.loanRate);
+    }
+    return h;
+  }
+  // Read Option D's fields. Returns null when Option D is not added, or { error } if something is wrong.
+  function readOptionD(years) {
+    if ($("optD").hidden) return null;
+    const num = (id) => parseFloat($(id).value) || 0;
+    const kind = document.querySelector('input[name="dType"]:checked').value;
+    $("dHouse").hidden = kind !== "house";
+    $("dShares").hidden = kind !== "shares";
+    const ownInfl = $("inflMode_D").value === "own";
+    $("inflWrap_D").hidden = !ownInfl;
+    const infl = num("infl_D");
+    if (infl < 0) return { error: "Option D: please use numbers that are 0 or more." };
+    if (kind === "house") {
+      const h = readHouse(years);
+      return h.error ? h : Object.assign(h, { ownInfl, infl });
+    }
+    const s = { kind, start: num("d_sStart"), contrib: num("d_sContrib"), everyMonths: parseInt($("d_sFreq").value, 10),
+      rate: num("d_sRate"), comp: parseInt($("d_sComp").value, 10), ownInfl, infl };
+    if (s.start < 0 || s.contrib < 0 || s.rate < 0) return { error: "Option D: please use numbers that are 0 or more." };
+    return s;
+  }
+  // House: month by month the loan is repaid; each year the house value grows.
+  // At the start of each year the repayment is worked out again for that year's rate
+  // (like a variable-rate loan). "Final value" for a house = equity = house value minus the loan still owed.
+  function calcHouse(h, years) {
+    const loan = Math.max(h.price - h.deposit, 0);
+    const n = Math.round(h.loanYears * 12);
+    let owed = loan, totalIn = h.deposit + h.buyCosts, interestPaid = 0, pay = 0;
+    const rows = [], pays = [];
+    for (let y = 1; y <= years; y++) {
+      const rate = h.rates[y - 1];
+      const i = rate / 100 / 12;
+      const done = (y - 1) * 12;
+      const loanRunning = done < n && owed > 0.005;
+      if (loanRunning) { pay = repaymentFor(owed, rate, n - done); pays.push(pay); }
+      for (let m = 1; m <= 12; m++) {
+        if (done + m <= n && owed > 0.005) {
+          const interest = owed * i;
+          const principal = Math.min(pay - interest, owed);   // the last payment can be smaller
+          owed -= principal;
+          interestPaid += interest;
+          totalIn += interest + principal;
+        }
+      }
+      totalIn += h.yearCosts;
+      const houseValue = h.price * Math.pow(1 + h.growth / 100, y);
+      const equity = houseValue - owed;
+      rows.push({ year: y, houseValue, loanLeft: owed, loanRate: loanRunning ? rate : null,
+                  repayment: loanRunning ? pay : 0, balance: equity, totalIn, totalInterest: equity - totalIn, interestPaid });
+    }
+    return { rows, loan, pays };
+  }
+  // Turn Option D's inputs into an option for the comparison
+  function buildOptionD(d, years) {
+    const inflText = d.ownInfl ? `${d.infl}% a year` : "Same as Option A";
+    if (d.kind === "house") {
+      const res = calcHouse(d, years);
+      const last = res.rows[res.rows.length - 1];
+      const yrs = years === 1 ? "1 year" : years + " years";
+      const lo = Math.min(...res.pays), hi = Math.max(...res.pays);
+      const varies = res.pays.length > 1 && Math.round(hi * 100) !== Math.round(lo * 100);
+      const loanYearsShown = res.rows.filter(r => r.loanRate !== null);
+      const avgRate = loanYearsShown.length ? loanYearsShown.reduce((s, r) => s + r.loanRate, 0) / loanYearsShown.length : 0;
+      $("dHouseInfo").innerHTML = res.loan > 0
+        ? `Loan: <b>${money0(res.loan)}</b>. Repayment: <b>` +
+          (varies ? `${money(lo)} to ${money(hi)}</b> a month (it changes with the rate)` : `${money(res.pays[0])}</b> a month`) +
+          ` over ${d.loanYears} years. Loan interest paid in ${yrs}: <b>${money0(last.interestPaid)}</b>.` +
+          (last.loanLeft > 0.005 ? ` Still owed after ${yrs}: <b>${money0(last.loanLeft)}</b>.` : " The loan is fully paid off.")
+        : d.price <= 0
+          ? "Type the house price and your deposit to see the loan and repayments."
+          : "No loan needed: the deposit covers the whole price.";
+      return { key: "D", kind: "house", rows: res.rows, start: d.deposit, ownInfl: d.ownInfl, infl: d.infl, inflText,
+        price: d.price, deposit: d.deposit, loan: res.loan,
+        payText: varies ? `${money(lo)} to ${money(hi)}` : (res.pays.length ? money(res.pays[0]) : money(0)),
+        rateText: `House grows ${d.growth}% a year; loan ` +
+          (d.rateMode === "each" ? `rate changes each year (average ${avgRate.toFixed(2)}%)` : `at ${d.loanRate}%`),
+        compText: "Loan repaid monthly",
+        contribText: (res.loan > 0 ? (varies ? `${money(lo)} to ${money(hi)}` : money(res.pays[0])) + " a month (loan) + " : "") +
+          `${money0(d.yearCosts)} a year (costs)`,
+        startText: `${money0(d.deposit)} deposit + ${money0(d.buyCosts)} buying costs` };
+    }
+    const rows = calculate(d.start, d.contrib, d.everyMonths, d.rate, d.comp, years);
+    return { key: "D", kind: "shares", rows, start: d.start, ownInfl: d.ownInfl, infl: d.infl, inflText,
+      contrib: d.contrib, everyMonths: d.everyMonths, rate: d.rate, comp: d.comp,
+      rateText: `${d.rate}% a year (expected, not guaranteed)`, compText: compNames[d.comp],
+      contribText: `${money(d.contrib)} ${freqNames[d.everyMonths]}`, startText: money(d.start) };
+  }
+  // "Use the same money as the house": shares start with the deposit + buying costs, then get the
+  // house's other spending (loan repayments + yearly costs) spread evenly as a monthly amount,
+  // so both put in exactly the same total over the plan.
+  function sameMoneyAsHouse() {
+    const years = parseInt($("years").value, 10);
+    const h = readHouse(years);
+    if (h.error) { $("error").textContent = h.error; return; }
+    const last = calcHouse(h, years).rows[years - 1];
+    const upfront = h.deposit + h.buyCosts;
+    $("d_sStart").value = Math.round(upfront);
+    $("d_sContrib").value = ((last.totalIn - upfront) / (years * 12)).toFixed(2);
+    $("d_sFreq").value = "1";
+    update();
+  }
+
+  // ---------- Top card: the four boxes, the sentence and the bar chart ----------
+  // With one option it shows Option A. When comparing, it shows the winner:
+  // the option with the biggest final value (the same one that gets the trophy below).
+  function showTopResults(options, years, aInflPhrase, aHasInflation) {
+    const cents = (x) => Math.round(x * 100);
+    const lastOf = (o) => o.rows[o.rows.length - 1];
+    let o = options[0];
+    options.forEach(x => { if (cents(lastOf(x).balance) > cents(lastOf(o).balance)) o = x; });   // a tie keeps the earlier option
+    const L = lastOf(o);
+    const house = o.kind === "house";
+    const comparing = options.length > 1;
+    const yrs = years === 1 ? "1 year" : years + " years";
+
+    // Options that tie with the winner (same final value to the cent)
+    const tied = options.filter(x => cents(lastOf(x).balance) === cents(L.balance)).map(x => x.key);
+    $("topWinner").hidden = !comparing;
+    $("topWinner").innerHTML = !comparing ? ""
+      : tied.length > 1
+        ? `🤝 Options ${tied.join(", ").replace(/, ([^,]*)$/, " and $1")} tie for the most money. Showing <b>Option ${o.key}</b>. All options are compared below.`
+        : `🏆 Showing the winner: <b>Option ${o.key}</b> (it ends with the most money). All options are compared below.`;
+    $("lblTotal").textContent = house ? "Final value (equity)" : "Final value";
+    $("lblInterest").textContent = house ? "Growth (value minus put in)" : "Interest earned";
+    $("outTotal").textContent = money(L.balance);
+    $("outDeposits").textContent = money(L.totalIn);
+    $("outInterest").textContent = money(L.totalInterest);
+    $("outReal").textContent = money(L.real);
+
+    const times = L.totalIn > 0 ? (L.balance / L.totalIn).toFixed(2) : "0";
+    const what = house ? "equity" : "money";
+    const inflPhrase = o.ownInfl
+      ? (o.infl > 0 ? ` With <b>${o.infl}%</b> inflation a year, that ${what} will buy what <b>${money(L.real)}</b> buys today.` : "")
+      : aInflPhrase(L.real, what);
+    const prefix = comparing ? `<b>Option ${o.key}:</b> ` : "";
+    // Nothing typed yet (all money boxes start at 0): show how to start instead of "$0"
+    const nothingYet = options.every(x => cents(lastOf(x).totalIn) === 0 && cents(lastOf(x).balance) === 0 &&
+                                          !(x.kind === "house" && x.price > 0));
+    if (nothingYet) {
+      $("topWinner").hidden = true;
+      $("summary").innerHTML = "👋 Type a <b>starting amount</b> and/or a <b>regular contribution</b> " +
+        "to see how your money grows.";
+      drawChart(o.rows, o.start, false);
+      return;
+    }
+    $("summary").innerHTML = prefix + (house
+      ? `Buying a house for <b>${money0(o.price)}</b> with a <b>${money0(o.deposit)}</b> deposit` +
+        (o.loan > 0 ? ` and a <b>${money0(o.loan)}</b> loan (${o.payText} a month)` : "") +
+        `, after <b>${yrs}</b> your equity is <b>${money(L.balance)}</b> (house worth ${money0(L.houseValue)}` +
+        (L.loanLeft > 0.005 ? ` minus ${money0(L.loanLeft)} still owed` : `, loan paid off`) +
+        `) — that is <b>${times}×</b> what you put in.`
+      : `Starting with <b>${money(o.start)}</b> and adding <b>${money(o.contrib)}</b> ${freqNames[o.everyMonths]}, ` +
+        `at <b>${o.rate}%</b> a year compounded <b>${compNames[o.comp]}</b>, after <b>${yrs}</b> ` +
+        `you will have <b>${money(L.balance)}</b> — that is <b>${times}×</b> what you put in.`) + inflPhrase;
+
+    const showReal = o.ownInfl ? o.infl > 0 : aHasInflation;
+    drawChart(o.rows, o.start, showReal, house ? "Growth (value minus put in)" : "Interest earned");
+  }
+
+  function drawCompare(options, initial, years) {
+    $("compareCard").hidden = options.length < 2;
+    if (options.length < 2) return;
+    const cents = (x) => Math.round(x * 100);           // compare money to the cent
+    const last = options.map(o => o.rows[o.rows.length - 1]);
+    const yrs = years === 1 ? "1 year" : years + " years";
+
+    // The winner is the option with the biggest final value
+    const topCents = Math.max(...last.map(r => cents(r.balance)));
+    const winIdx = last.map((r, i) => cents(r.balance) === topCents ? i : -1).filter(i => i >= 0);
+    let text;
+    const nothingYet = last.every(r => cents(r.balance) === 0 && cents(r.totalIn) === 0);
+    if (nothingYet) {
+      text = "👋 Type your amounts to compare the options.";
+    } else if (winIdx.length === options.length) {
+      text = `All options end with the same amount: <b>${money(last[0].balance)}</b> after ${yrs}.`;
+    } else {
+      const w = winIdx[0];
+      const others = options.map((o, i) => i).filter(i => !winIdx.includes(i));
+      text = `🏆 <b>${winIdx.length > 1 ? "Options" : "Option"} ${winIdx.map(i => options[i].key).join(" and ")}</b> ${winIdx.length > 1 ? "end" : "ends"} with the most: ` +
+        `<b>${money(last[w].balance)}</b> after ${yrs}. ` +
+        others.map(i => `That is <b>${money(last[w].balance - last[i].balance)}</b> more than Option ${options[i].key}.`).join(" ");
+      // Be fair: say so if the winner only wins because more of your own money goes in
+      const putInMore = others.filter(i => cents(last[w].totalIn) > cents(last[i].totalIn));
+      if (putInMore.length) {
+        text += ` Note: Option ${options[w].key} also needs more of your own money (` +
+          putInMore.map(i => `${money(last[w].totalIn - last[i].totalIn)} more than Option ${options[i].key}`).join(", ") + `).`;
+      }
+    }
+    // When an option uses its own inflation, also say which is worth most in today's money
+    if (options.some(o => o.ownInfl)) {
+      const topReal = Math.max(...last.map(r => cents(r.real)));
+      const realWin = options.filter((o, i) => cents(last[i].real) === topReal).map(o => o.key);
+      const r0 = last.find(r => cents(r.real) === topReal);
+      text += ` After each option's own inflation, <b>${realWin.length > 1 ? "Options" : "Option"} ${realWin.join(" and ")}</b> ` +
+        `${realWin.length > 1 ? "are" : "is"} worth the most ` +
+        `in today's money: <b>${money(r0.real)}</b>.`;
+    }
+    $("compareSummary").innerHTML = text;
+    // Explain what "final value" means for a house
+    const house = options.find(o => o.kind === "house");
+    $("compareNote").hidden = !house;
+    if (house) {
+      $("compareNote").textContent = "For the house (Option D), the final value is your equity: the house value minus the loan " +
+        "still owed. Total put in counts the deposit, buying costs, every loan repayment and the yearly costs. " +
+        "It does not count rent you would save by owning, or rent you could earn.";
+    }
+
+    // Summary table: one column per option, the best value in a row marked with a trophy
+    const head = (k) => `<span class="swatch" style="background:var(--opt${k})"></span> Option ${k}`;
+    const row = (label, vals, markBest) => {
+      const bestC = Math.max(...vals.map(cents));
+      const allSame = vals.every(v => cents(v) === bestC);
+      return `<tr><td>${label}</td>${vals.map(v =>
+        `<td class="${markBest && !allSame && cents(v) === bestC ? "best" : ""}">${money(v)}</td>`).join("")}</tr>`;
+    };
+    $("compareHead").innerHTML = `<tr><th></th>${options.map(o => `<th>${head(o.key)}</th>`).join("")}</tr>`;
+    $("compareBody").innerHTML =
+      `<tr><td>Starting amount</td>${options.map(o => `<td class="txt">${o.startText}</td>`).join("")}</tr>` +
+      `<tr><td>Rate</td>${options.map(o => `<td class="txt">${o.rateText}</td>`).join("")}</tr>` +
+      `<tr><td>Compounds</td>${options.map(o => `<td class="txt">${o.compText}</td>`).join("")}</tr>` +
+      `<tr><td>Money added</td>${options.map(o => `<td class="txt">${o.contribText}</td>`).join("")}</tr>` +
+      `<tr><td>Inflation</td>${options.map(o => `<td class="txt">${o.inflText}</td>`).join("")}</tr>` +
+      row("Final value", last.map(r => r.balance), true) +
+      row("Total you put in", last.map(r => r.totalIn), false) +
+      row("Gain (final value minus put in)", last.map(r => r.totalInterest), true) +
+      row("In today's money", last.map(r => r.real), true);
+
+    // Year-by-year balances
+    $("compareYearHead").innerHTML = `<tr><th>Year</th>${options.map(o => `<th>${head(o.key)}</th>`).join("")}</tr>`;
+    $("compareYearBody").innerHTML = options[0].rows.map((_, y) =>
+      row(String(y + 1), options.map(o => o.rows[y].balance), true)).join("");
+
+    // Chart: the visitor picks lines, bars, shaded areas, or the difference from Option A
+    const type = $("chartType").value;
+    const labels = ["Start", ...options[0].rows.map(r => "Year " + r.year)];
+    const balances = (o) => [o.start, ...o.rows.map(r => r.balance)];
+    const colour = (k) => cssVar("--opt" + k);
+    let datasets;
+    if (type === "diff") {
+      // How far ahead (above 0) or behind (below 0) each option is compared with A
+      const a = balances(options[0]);
+      datasets = options.slice(1).map(o => ({
+        label: `Option ${o.key} minus Option A`, data: balances(o).map((v, i) => v - a[i]),
+        backgroundColor: colour(o.key),
+      }));
+    } else {
+      datasets = options.map(o => ({
+        label: "Option " + o.key, data: balances(o),
+        borderColor: colour(o.key),
+        backgroundColor: type === "area" ? colour(o.key) + "33" : colour(o.key),   // "33" = see-through
+        fill: type === "area" ? "origin" : false,
+        borderWidth: type === "bar" ? 0 : 3, pointRadius: 0, tension: 0.2,
+      }));
+    }
+    const chartKind = (type === "bar" || type === "diff") ? "bar" : "line";
+    const textColor = cssVar("--muted"), gridColor = cssVar("--border");
+    const chartOptions = {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: textColor } },
+        tooltip: { callbacks: { label: (c) => c.dataset.label + ": " + money(c.parsed.y) } },
+      },
+      scales: {
+        x: { ticks: { color: textColor, maxRotation: 0, autoSkip: true }, grid: { display: false } },
+        y: { ticks: { color: textColor, callback: (v) => moneyShort(v) }, grid: { color: gridColor } },
+      },
+    };
+    // A chart cannot switch between line and bar in place, so make a new one when the kind changes
+    if (compareChart && compareChart.config.type !== chartKind) { compareChart.destroy(); compareChart = null; }
+    if (compareChart) { compareChart.data = { labels, datasets }; compareChart.options = chartOptions; compareChart.update(); }
+    else { compareChart = new Chart($("compareChart"), { type: chartKind, data: { labels, datasets }, options: chartOptions }); }
+  }
+
   // Main calculation. Works month by month.
   function calculate(initial, contrib, everyMonths, ratePct, compPerYear, years) {
     const r = ratePct / 100;
@@ -385,7 +939,7 @@
   let chart;
   function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
-  function drawChart(rows, initial, showReal) {
+  function drawChart(rows, initial, showReal, gainLabel = "Interest earned") {
     const labels = ["Start", ...rows.map(r => "Year " + r.year)];
     const deposits = [initial, ...rows.map(r => r.totalIn)];
     const interest = [0, ...rows.map(r => r.totalInterest)];
@@ -394,7 +948,7 @@
     const gridColor = cssVar("--border");
     const datasets = [
       { label: "Total you put in", data: deposits, backgroundColor: cssVar("--blue"), stack: "s", order: 2 },
-      { label: "Interest earned", data: interest, backgroundColor: cssVar("--green"), stack: "s", order: 2 },
+      { label: gainLabel, data: interest, backgroundColor: cssVar("--green"), stack: "s", order: 2 },
     ];
     if (showReal) {
       datasets.push({ type: "line", label: "Balance in today's money", data: real, stack: "real", order: 1,
@@ -448,8 +1002,24 @@
     }
     const inflation = inflRates.reduce((s, v) => s + v, 0) / inflRates.length; // average
 
-    if (initial < 0 || contrib < 0 || rate < 0 || inflRates.some(v => v < 0)) { $("error").textContent = "Please use numbers that are 0 or more."; return; }
+    // Options B and C (if added): their own contribution, rate and compounding
+    const extras = activeOpts.map(k => ({
+      key: k,
+      contrib: parseFloat($("contrib_" + k).value) || 0,
+      everyMonths: parseInt($("contribFreq_" + k).value, 10),
+      rate: parseFloat($("rate_" + k).value) || 0,
+      comp: parseInt($("compFreq_" + k).value, 10),
+      ownInfl: $("inflMode_" + k).value === "own",        // false = same inflation as Option A
+      infl: parseFloat($("infl_" + k).value) || 0,
+    }));
+    activeOpts.forEach(k => $("inflWrap_" + k).hidden = $("inflMode_" + k).value !== "own");
+
+    if (initial < 0 || contrib < 0 || rate < 0 || inflRates.some(v => v < 0) ||
+        extras.some(o => o.contrib < 0 || o.rate < 0 || o.infl < 0)) { $("error").textContent = "Please use numbers that are 0 or more."; return; }
     if (!years || years < 1 || years > 100) { $("error").textContent = "Years must be between 1 and 100."; return; }
+    // Option D (house or shares), if added
+    const dInput = readOptionD(years);
+    if (dInput && dInput.error) { $("error").textContent = dInput.error; return; }
     $("error").textContent = "";
 
     document.querySelectorAll("#yearChips .chip").forEach(c =>
@@ -458,37 +1028,75 @@
     const rows = calculate(initial, contrib, everyMonths, rate, comp, years);
     // Today's money: divide by how much prices have grown so far.
     // Prices grow by each year's own inflation rate, one year after another.
-    let priceGrowth = 1;
-    rows.forEach((r, i) => {
-      priceGrowth *= 1 + inflRates[i] / 100;
-      r.inflation = inflRates[i];
-      r.real = r.balance / priceGrowth;
+    // ratesByYear = the inflation % for each year (Option B or C may use their own).
+    const addReal = (list, ratesByYear) => {
+      let priceGrowth = 1;
+      list.forEach((r, i) => {
+        priceGrowth *= 1 + ratesByYear[i] / 100;
+        r.inflation = ratesByYear[i];
+        r.real = r.balance / priceGrowth;
+      });
+    };
+    addReal(rows, inflRates);
+    // The sentence about inflation for anything that uses Option A's inflation
+    const aInflPhrase = (realValue, what) => inflation > 0
+      ? (eachYear
+          ? ` With your yearly inflation rates (average <b>${inflation.toFixed(2)}%</b>), that ${what} will buy what <b>${money(realValue)}</b> buys today.`
+          : ` With <b>${inflation}%</b> inflation a year, that ${what} will buy what <b>${money(realValue)}</b> buys today.`)
+      : "";
+
+    // Compare: Option A uses the main details; B and C use their own settings
+    // Words for the comparison table (Option D writes its own)
+    const describe = (o) => Object.assign(o, { start: initial, startText: money(initial),
+      rateText: `${o.rate}% a year`, compText: compNames[o.comp],
+      contribText: `${money(o.contrib)} ${freqNames[o.everyMonths]}` });
+    const options = [describe({ key: "A", contrib, everyMonths, rate, comp, rows,
+      inflText: eachYear ? `varies by year (average ${inflation.toFixed(2)}%)` : `${inflation}% a year` })];
+    extras.forEach(o => {
+      o.rows = calculate(initial, o.contrib, o.everyMonths, o.rate, o.comp, years);
+      addReal(o.rows, o.ownInfl ? Array(years).fill(o.infl) : inflRates);
+      o.inflText = o.ownInfl ? `${o.infl}% a year` : "Same as Option A";
+      options.push(describe(o));
     });
-    const last = rows[rows.length - 1];
-    $("outTotal").textContent = money(last.balance);
-    $("outDeposits").textContent = money(last.totalIn);
-    $("outInterest").textContent = money(last.totalInterest);
-    $("outReal").textContent = money(last.real);
+    if (dInput) {
+      const d = buildOptionD(dInput, years);
+      addReal(d.rows, d.ownInfl ? Array(years).fill(d.infl) : inflRates);   // own rate, or the same as Option A
+      options.push(d);
+    }
 
-    const times = last.totalIn > 0 ? (last.balance / last.totalIn).toFixed(2) : "0";
-    $("summary").innerHTML =
-      `Starting with <b>${money(initial)}</b> and adding <b>${money(contrib)}</b> ${freqNames[everyMonths]}, ` +
-      `at <b>${rate}%</b> a year compounded <b>${compNames[comp]}</b>, after <b>${years} ${years === 1 ? "year" : "years"}</b> ` +
-      `you will have <b>${money(last.balance)}</b> — that is <b>${times}×</b> what you put in.` +
-      (inflation > 0
-        ? (eachYear
-            ? ` With your yearly inflation rates (average <b>${inflation.toFixed(2)}%</b>), that money will buy what <b>${money(last.real)}</b> buys today.`
-            : ` With <b>${inflation}%</b> inflation a year, that money will buy what <b>${money(last.real)}</b> buys today.`)
-        : "");
+    // Top card: Option A on its own, or the winning option when comparing
+    showTopResults(options, years, aInflPhrase, inflation > 0);
 
-    $("tableBody").innerHTML = rows.map(r => `<tr>
+    // Year-by-year table: Option A's details, plus columns for each option being compared
+    const others = options.slice(1);
+    const comparing = others.length > 0;
+    const sw = (k) => `<span class="swatch" style="background:var(--opt${k})"></span> `;
+    // Each extra column: [heading, how to show a year's row, CSS class]
+    const columnsFor = (o) => o.kind === "house"
+      ? [[`${sw("D")}Option D house value`, r => money0(r.houseValue), ""],
+         ["Option D loan rate", r => r.loanRate === null ? "—" : r.loanRate + "%", ""],
+         ["Option D monthly repayment", r => r.repayment ? money(r.repayment) : "—", ""],
+         ["Option D loan left", r => money0(r.loanLeft), ""],
+         ["Option D equity (value minus loan)", r => `<b>${money(r.balance)}</b>`, ""],
+         ["Option D in today's money", r => money(r.real), "real"]]
+      : [[`${sw(o.key)}Option ${o.key} balance`, r => `<b>${money(r.balance)}</b>`, ""],
+         [`Option ${o.key} in today's money`, r => money(r.real), "real"]];
+    $("mainHead").innerHTML = `<tr><th>Year</th><th>Put in this year</th><th>Interest this year</th>` +
+      `<th>Total put in</th><th>Total interest</th><th>${comparing ? sw("A") + "Option A balance" : "Balance"}</th>` +
+      `<th>Total gain on money put in</th><th>Inflation</th>` +
+      `<th>${comparing ? "Option A in today's money" : "Balance in today's money"}</th>` +
+      others.map(o => columnsFor(o).map(c => `<th>${c[0]}</th>`).join("")).join("") +
+      `</tr>`;
+    $("tableBody").innerHTML = rows.map((r, y) => `<tr>
       <td>${r.year}</td><td>${money(r.inThisYear)}</td><td class="int">${money(r.interestThisYear)}</td>
       <td>${money(r.totalIn)}</td><td class="int">${money(r.totalInterest)}</td><td><b>${money(r.balance)}</b></td>
       <td class="pct">${pct(r.totalInterest, r.totalIn)}</td>
       <td>${r.inflation}%</td>
-      <td class="real">${money(r.real)}</td></tr>`).join("");
+      <td class="real">${money(r.real)}</td>` +
+      others.map(o => columnsFor(o).map(c => `<td class="${c[2]}">${c[1](o.rows[y])}</td>`).join("")).join("") +
+      `</tr>`).join("");
 
-    drawChart(rows, initial, inflation > 0);
+    drawCompare(options, initial, years);
   }
 
   // Make one inflation box per year. Values already typed are kept.
@@ -514,6 +1122,15 @@
     update();
   });
 
+  // Start fresh every time the page opens. Browsers like to put back numbers typed on an
+  // earlier visit; this puts every box and dropdown back to its starting value (0 for numbers).
+  document.querySelectorAll('input[type="number"]').forEach(i => i.value = i.defaultValue);
+  document.querySelectorAll("select").forEach(s => {
+    const start = [...s.options].find(o => o.defaultSelected);
+    if (start) s.value = start.value;
+  });
+  $("otherCurrency").value = "";
+
   // Fill the years dropdown with 1 to 50 years (20 picked to start)
   for (let y = 1; y <= 50; y++) {
     $("years").add(new Option(y === 1 ? "1 year" : y + " years", y, false, y === 20));
@@ -528,8 +1145,8 @@
   }));
   // ---------- Advertised rates ----------
   // Each row: [bank, product, rate %, minimum / term / conditions, source name, source link, compounding per year]
-  // Compounding is used when you click "Use this rate". Advertised APY / AER / p.a. figures are
-  // already yearly numbers, so most rows use 1 (yearly).
+  // Compounding is used when you click "Use this rate". It is always 1 (Yearly): advertised
+  // APY / AER / p.a. figures are yearly numbers.
   const RATES = {
     USD: { country: "the USA", rows: [
       ["Axos ONE", "Savings", 5.00, "Needs direct deposit and a minimum balance. About 4.21% after the promo.", "NerdWallet", "https://www.nerdwallet.com/banking/best/high-yield-online-savings-accounts", 1],
@@ -547,7 +1164,7 @@
       ["Suncorp", "Term deposit", 5.75, "12 months. Canstar table based on $10,000.", "Canstar", "https://www.canstar.com.au/term-deposits/compare/best-term-deposit-rates/", 1],
       ["AMP Bank GO", "Term deposit", 5.70, "12 months.", "Mozo", "https://www.mozo.com.au/term-deposits", 1],
       ["Rabobank", "Term deposit", 5.70, "60 months (5 years). Higher minimum.", "Easy Fixed Income", "https://easyfixedincome.com/term-deposits-australia/", 1],
-      ["Bank Australia", "Term deposit", 5.40, "6 months.", "Bank Australia", "https://www.bankaust.com.au/banking/term-deposits", 2],
+      ["Bank Australia", "Term deposit", 5.40, "6 months.", "Bank Australia", "https://www.bankaust.com.au/banking/term-deposits", 1],
       ["CommBank", "Term deposit (special)", 5.35, "12 months. $5,000 to $5 million. Interest at maturity.", "Canstar", "https://www.canstar.com.au/term-deposits/compare/big-four-banks-term-deposit-rates/", 1],
     ]},
     NZD: { country: "New Zealand", rows: [
@@ -565,8 +1182,8 @@
       ["Saven Financial", "5-year GIC", 4.50, "Term 5 years.", "Motley Fool Canada", "https://www.fool.ca/2026/11/06/rates-are-rising-again-so-are-gics-and-high-interest-savings-etfs-even-worth-it/", 1],
       ["WealthONE Bank", "1-year GIC", 4.05, "Term 1 year.", "WOWA", "https://wowa.ca/1-year-gic-rates", 1],
       ["Achieva Financial", "1-year GIC", 3.95, "Term 1 year.", "Ratehub", "https://www.ratehub.ca/gics/best-gic-rates", 1],
-      ["WealthONE Bank", "Savings (HISA)", 3.25, "Up to 3.25%. Check the regular rate after any promo.", "Forbes Advisor Canada", "https://www.forbes.com/advisor/ca/banking/best-high-interest-savings-accounts/", 12],
-      ["EQ Bank", "Savings (HISA)", 3.00, "Promo rate. Check the regular rate.", "YourBestSavings", "https://yourbestsavings.com/ca/best-high-interest-savings-accounts/", 12],
+      ["WealthONE Bank", "Savings (HISA)", 3.25, "Up to 3.25%. Check the regular rate after any promo.", "Forbes Advisor Canada", "https://www.forbes.com/advisor/ca/banking/best-high-interest-savings-accounts/", 1],
+      ["EQ Bank", "Savings (HISA)", 3.00, "Promo rate. Check the regular rate.", "YourBestSavings", "https://yourbestsavings.com/ca/best-high-interest-savings-accounts/", 1],
     ]},
     GBP: { country: "the UK", rows: [
       ["Afin Bank", "5-year fixed bond", 5.40, "Term 5 years (AER).", "Depositscout", "https://depositscout.com/guides/best-uk-savings-rates-november-2026", 1],
@@ -585,25 +1202,25 @@
       ["German banks", "5-year fixed deposit", 2.30, "Term 5 years.", "PickTheBank", "https://pickthebank.eu/fixed-deposits/germany/5-years/eur/", 1],
     ]},
     INR: { country: "India", note: "Small finance banks pay the most. Senior citizens usually get about 0.25% to 0.50% more.", rows: [
-      ["Suryoday Small Finance Bank", "Fixed deposit (FD)", 8.25, "General citizens. Up to 8.60% for seniors.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 4],
-      ["Utkarsh Small Finance Bank", "Fixed deposit (FD)", 8.10, "Up to 8.50% for seniors.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 4],
-      ["Ujjivan Small Finance Bank", "Fixed deposit (FD)", 8.10, "Best tenure only.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 4],
-      ["HDFC Bank", "Fixed deposit (FD)", 7.20, "Rates raised from 4 Nov 2026 on some tenures.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 4],
-      ["ICICI Bank / PNB", "Fixed deposit (FD)", 7.10, "Large banks, best tenure.", "Policybazaar", "https://www.policybazaar.com/fd-interest-rates/fd-rates-comparison/", 4],
-      ["Muthoot Capital", "Company FD (NBFC)", 9.10, "Not a bank: higher risk. Up to 9.35% for seniors.", "Stable Money", "https://stablemoney.in/fixed-deposit-interest-rates/best-fixed-deposit-interest-rate", 4],
+      ["Suryoday Small Finance Bank", "Fixed deposit (FD)", 8.25, "General citizens. Up to 8.60% for seniors.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 1],
+      ["Utkarsh Small Finance Bank", "Fixed deposit (FD)", 8.10, "Up to 8.50% for seniors.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 1],
+      ["Ujjivan Small Finance Bank", "Fixed deposit (FD)", 8.10, "Best tenure only.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 1],
+      ["HDFC Bank", "Fixed deposit (FD)", 7.20, "Rates raised from 4 Nov 2026 on some tenures.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 1],
+      ["ICICI Bank / PNB", "Fixed deposit (FD)", 7.10, "Large banks, best tenure.", "Policybazaar", "https://www.policybazaar.com/fd-interest-rates/fd-rates-comparison/", 1],
+      ["Muthoot Capital", "Company FD (NBFC)", 9.10, "Not a bank: higher risk. Up to 9.35% for seniors.", "Stable Money", "https://stablemoney.in/fixed-deposit-interest-rates/best-fixed-deposit-interest-rate", 1],
     ]},
     SGD: { country: "Singapore", note: "The best rates often need fresh funds, a minimum amount or other conditions.", rows: [
       ["RHB (Premier Banking)", "12-month fixed deposit", 2.40, "Promo. Minimum S$20,000.", "Syfe", "https://www.syfe.com/magazine/best-fixed-deposit-rates-singapore/", 1],
       ["Maybank", "12-month fixed deposit", 2.40, "Up to 2.40% with promotions.", "The Kopi Notes", "https://thekopinotes.com/articles/digital-banks/maybank-fixed-deposit-rate-promotion/", 1],
       ["HL Bank", "24-month fixed deposit", 2.20, "Minimum S$10,000.", "Growbeansprout", "https://growbeansprout.com/insights/savings/singapore-best-fixed-deposit-rate", 1],
       ["CIMB", "12-month fixed deposit", 2.10, "Minimum S$10,000. Online. No fresh funds needed.", "The Kopi Notes", "https://thekopinotes.com/articles/digital-banks/highest-fixed-deposit-rate-singapore/", 1],
-      ["Hong Leong Finance", "Premium SAVER", 1.20, "Savings account. Lower rate at S$200,000 or more.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 12],
-      ["MariBank", "Savings account", 0.88, "Flat rate, no conditions.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 365],
+      ["Hong Leong Finance", "Premium SAVER", 1.20, "Savings account. Lower rate at S$200,000 or more.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 1],
+      ["MariBank", "Savings account", 0.88, "Flat rate, no conditions.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 1],
     ]},
     JPY: { country: "Japan", note: "Most normal yen deposit rates are still below 1%. Higher rates are short campaigns with conditions.", rows: [
-      ["Bank of Yokohama", "3-month time deposit (campaign)", 2.00, "Retirement-bonus deposits only. 1 Oct to 30 Dec 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 4],
+      ["Bank of Yokohama", "3-month time deposit (campaign)", 2.00, "Retirement-bonus deposits only. 1 Oct to 30 Dec 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 1],
       ["Major banks (megabanks)", "1-year time deposit", 0.50, "Normal rate, as of September 2026.", "FinCalcYou", "https://fincalcyou.com/pages/fixed-deposit-calculator-japan.html", 1],
-      ["Japan Post Bank", "Ordinary savings", 0.50, "New rate from 9 Nov 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 2],
+      ["Japan Post Bank", "Ordinary savings", 0.50, "New rate from 9 Nov 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 1],
       ["Rakuten Bank", "1-year time deposit", 0.40, "Standard rate (June 2026). A 1.20% campaign ran in summer.", "FinCalcYou", "https://fincalcyou.com/pages/fixed-deposit-calculator-japan.html", 1],
     ]},
   };
@@ -796,15 +1413,37 @@
     }
     const b = e.target.closest(".use-btn"); if (!b) return;
     const row = ratesRowsFor(code)[+b.dataset.i];
-    $("rate").value = row[2];
-    $("compFreq").value = String(row[6]);
+    // Send the rate to Option A, B or C (whichever is picked in "Send Use this rate to")
+    const t = activeOpts.includes($("rateTarget").value) ? $("rateTarget").value : "A";
+    const ids = t === "A" ? ["rate", "compFreq"] : ["rate_" + t, "compFreq_" + t];
+    $(ids[0]).value = row[2];
+    $(ids[1]).value = String(row[6]);
     update();
-    ["rate", "compFreq"].forEach(id => { $(id).classList.remove("flash"); void $(id).offsetWidth; $(id).classList.add("flash"); });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    ids.forEach(id => { $(id).classList.remove("flash"); void $(id).offsetWidth; $(id).classList.add("flash"); });
+    if (t === "A") window.scrollTo({ top: 0, behavior: "smooth" });
+    else $("opt" + t).scrollIntoView({ behavior: "smooth", block: "center" });
   });
+
+  // Compare buttons and inputs
+  $("addOptBtn").addEventListener("click", addOption);
+  $("addDBtn").addEventListener("click", addOptionD);
+  $("chartType").addEventListener("change", update);
+  $("compareBox").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-remove]");
+    if (b) { if (b.dataset.remove === "D") removeOptionD(); else removeOption(b.dataset.remove); }
+    if (e.target.id === "dSameMoney") sameMoneyAsHouse();
+    if (e.target.id === "d_rateFillBtn") {        // "Set all years to __% Apply" for the loan rate
+      $("d_rateGrid").querySelectorAll("input").forEach(i => i.value = $("d_rateFill").value || "0");
+      update();
+    }
+  });
+  $("compareBox").addEventListener("input", (e) => { if (e.target.closest(".opt")) update(); });
+  $("compareBox").addEventListener("change", (e) => { if (e.target.closest(".opt")) update(); });
   drawRates();
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", update);
+  // Coming back with the browser's Back button can show the old page from memory: start fresh again
+  window.addEventListener("pageshow", (e) => { if (e.persisted) location.reload(); });
   update();
 </script>
 </body>
