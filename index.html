@@ -14,9 +14,10 @@
     --border: #e2e6ef;
     --primary: #4f46e5;
     --primary-2: #7c3aed;
-    --green: #059669;
+    --green: #047857;
     --blue: #2563eb;
-    --orange: #ea580c;
+    --orange: #c2410c;
+    --error: #dc2626;
     --input-bg: #f9fafc;
     --shadow: 0 4px 18px rgba(30, 40, 80, 0.08);
   }
@@ -24,13 +25,13 @@
     :root:not([data-theme="light"]) {
       --bg: #0f1320; --card: #181d2e; --text: #e8ebf3; --muted: #9aa3b8;
       --border: #2a3147; --input-bg: #11162a; --shadow: 0 4px 18px rgba(0,0,0,0.35);
-      --green: #34d399; --blue: #60a5fa; --orange: #fb923c;
+      --green: #34d399; --blue: #60a5fa; --orange: #fb923c; --error: #f87171;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0f1320; --card: #181d2e; --text: #e8ebf3; --muted: #9aa3b8;
     --border: #2a3147; --input-bg: #11162a; --shadow: 0 4px 18px rgba(0,0,0,0.35);
-    --green: #34d399; --blue: #60a5fa; --orange: #fb923c;
+    --green: #34d399; --blue: #60a5fa; --orange: #fb923c; --error: #f87171;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }   /* hidden things stay hidden, even labels and flex boxes */
@@ -84,7 +85,7 @@
   }
   .infl-grid label { margin: 0 0 2px; font-size: 0.75rem; color: var(--muted); font-weight: 600; }
   .infl-grid input { padding: 6px 8px; font-size: 0.9rem; }
-  .error { color: #dc2626; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  .error { color: var(--error); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
   .stat { border-radius: 14px; padding: 16px; color: #fff; }
   .stat .label { font-size: 0.85rem; opacity: 0.92; }
@@ -108,35 +109,11 @@
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) td.pct { color: #a5b4fc; } }
   .stack { display: grid; gap: 20px; }
   .note { font-size: 0.8rem; color: var(--muted); margin-top: 14px; }
-  .rates-card { margin-top: 20px; }
-  .rates-table td, .rates-table th { white-space: normal; text-align: left; vertical-align: top; }
-  .rates-table td.rate { font-weight: 700; color: var(--green); white-space: nowrap; }
   .use-btn {
     background: var(--primary); color: #fff; border: 0; border-radius: 8px;
     padding: 5px 10px; cursor: pointer; font-size: 0.8rem; white-space: nowrap;
   }
   .use-btn:hover { background: var(--primary-2); }
-  .tag { display: inline-block; font-size: 0.72rem; padding: 1px 8px; border-radius: 999px;
-    background: var(--input-bg); border: 1px solid var(--border); color: var(--muted); }
-  .rates-table a { color: var(--primary); }
-  :root[data-theme="dark"] .rates-table a { color: #a5b4fc; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rates-table a { color: #a5b4fc; } }
-  .research-box { border: 1px dashed var(--border); border-radius: 12px; padding: 14px; margin-bottom: 14px; background: var(--input-bg); }
-  .research-box h3 { margin: 0 0 6px; font-size: 1rem; }
-  .research-links { display: flex; flex-wrap: wrap; gap: 8px; }
-  .research-links a {
-    display: inline-block; padding: 6px 12px; border-radius: 999px; text-decoration: none; font-size: 0.85rem;
-    background: var(--primary); color: #fff;
-  }
-  .research-links a:hover { background: var(--primary-2); }
-  .add-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
-  .add-form label { margin: 0; font-size: 0.8rem; }
-  .add-form label input { margin-top: 4px; }
-  .add-form .wide { grid-column: span 2; }
-  @media (max-width: 480px) { .add-form .wide { grid-column: auto; } }
-  .add-btn { padding: 10px 14px; font-size: 0.9rem; }
-  .del-btn { background: transparent; color: var(--muted); border: 1px solid var(--border); margin-left: 4px; }
-  .del-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
   .flash { animation: flash 0.8s; }
   @keyframes flash { 0% { box-shadow: 0 0 0 4px var(--primary); } 100% { box-shadow: none; } }
   /* ---------- Compare options ---------- */
@@ -176,12 +153,24 @@
   details.year-compare summary { cursor: pointer; font-weight: 600; }
   .top-winner { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; background: var(--input-bg);
     border: 1px solid var(--border); font-size: 0.95rem; }
+  .goal-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
+  @media (max-width: 480px) { .goal-inputs { grid-template-columns: 1fr; } }
+  .goal-inputs label { margin: 0; }
+  .goal-check { display: flex !important; align-items: center; gap: 8px; font-weight: 400; font-size: 0.85rem; }
+  .goal-check input { width: auto; margin: 0; }
+  .goal-result { margin-top: 12px; font-size: 0.95rem; }
+  .goal-result p { margin: 6px 0; }
+  .goal-result .use-btn { margin-top: 4px; }
   .chart-type { display: flex; align-items: center; gap: 8px; margin: 12px 0 8px; }
   .chart-type label { margin: 0; }
   .chart-type select { width: auto; padding: 6px 10px; }
+  .feedback { margin: 10px auto 0; font-size: 0.85rem; }
+  .feedback a { color: var(--primary); font-weight: 600; text-decoration: none; padding: 4px 10px;
+    border: 1px solid var(--border); border-radius: 999px; background: var(--card); display: inline-block; }
+  .feedback a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  :root[data-theme="dark"] .feedback a { color: #a5b4fc; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .feedback a { color: #a5b4fc; } }
   .footnote { font-size: 0.75rem; margin: 6px auto 0; max-width: 640px; font-style: italic; }
-  .rate-target { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 0.9rem; }
-  .rate-target select { width: auto; padding: 6px 10px; }
   footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 0 16px 30px; }
 </style>
 </head>
@@ -284,7 +273,7 @@
 
       <div class="error" id="error"></div>
       <p class="note">Contributions are added at the end of each period. The interest rate is the
-        nominal yearly rate. Tax and fees are not included.</p>
+        nominal yearly rate. Tax and fees are not included; please seek your own tax advice.</p>
     </section>
 
     <!-- RESULTS -->
@@ -333,6 +322,15 @@
         </details>
       </section>
 
+      <section class="card" id="goalCard">
+        <h2>🎯 Goal finder <span class="hint">(uses Option A's settings)</span></h2>
+        <div class="goal-inputs">
+          <label for="goalAmount">My goal<div class="input-wrap"><span class="cur">$</span><input id="goalAmount" type="number" autocomplete="off" min="0" step="any" value="0"></div></label>
+          <label class="goal-check"><input type="checkbox" id="goalReal" autocomplete="off"> The goal is in today's money (allow for inflation)</label>
+        </div>
+        <div class="goal-result" id="goalResult"></div>
+      </section>
+
       <section class="card">
         <h2>Year by year</h2>
         <p class="note" style="margin-top:0"><b>Balance in today's money</b> = what the balance could buy at today's prices, after inflation.
@@ -348,51 +346,10 @@
     </div>
   </div>
 
-  <!-- ADVERTISED RATES -->
-  <section class="card rates-card">
-    <h2>Rates advertised now in <span id="ratesCountry">USA</span> <span class="hint" id="checkedLabel">(checked November 2026)</span></h2>
-    <p class="summary">These rates match the currency you picked. Change the <b>Currency</b> menu to see another country.
-      Click <b>Use this rate</b> to put a rate into the calculator.</p>
-    <p class="summary" id="ratesNote"></p>
-    <div class="rate-target" id="rateTargetWrap" hidden>
-      <label for="rateTarget" style="margin:0">Send <b>Use this rate</b> to:</label>
-      <select id="rateTarget" autocomplete="off"></select>
-    </div>
-
-    <!-- Shown only for a typed ("other") currency -->
-    <div id="research" hidden>
-      <div class="research-box">
-        <h3>Step 1 — Research the rates</h3>
-        <p class="note" style="margin-top:0">Each button opens a web search in a new tab, ready for <b id="researchCountry"></b>.
-          Look for comparison websites and the banks' own pages.</p>
-        <div class="research-links" id="researchLinks"></div>
-      </div>
-      <div class="research-box">
-        <h3>Step 2 — Save a rate you found</h3>
-        <form id="addRateForm" class="add-form">
-          <label>Bank<input id="arBank" required maxlength="60" placeholder="e.g. Maybank"></label>
-          <label>Product<input id="arProduct" maxlength="60" placeholder="e.g. 12-month fixed deposit"></label>
-          <label>Rate per year<div class="input-wrap right"><span>%</span><input id="arRate" type="number" autocomplete="off" min="0" max="100" step="any" required placeholder="4.5"></div></label>
-          <label>Conditions<input id="arCond" maxlength="120" placeholder="e.g. Minimum 10,000"></label>
-          <label class="wide">Source link (web address)<input id="arUrl" type="url" placeholder="https://..."></label>
-          <button type="submit" class="use-btn add-btn">Save this rate</button>
-        </form>
-        <p class="note" id="saveNote"></p>
-      </div>
-    </div>
-
-    <div class="table-wrap" style="max-height:none" id="ratesTableWrap">
-      <table class="rates-table">
-        <thead><tr><th>Bank</th><th>Product</th><th>Rate</th><th>Minimum / term / conditions</th><th>Source</th><th></th></tr></thead>
-        <tbody id="ratesBody"></tbody>
-      </table>
-    </div>
-    <p class="note">Rates change often and some pages were a few weeks old. Always check the bank's own website
-      before opening an account. Savings accounts usually let you add money any time. Term deposits and CDs
-      usually do <b>not</b> let you add money after you open them.</p>
-  </section>
 </main>
-<footer>For learning only. This is not financial advice. Seek professional services before making any commitment.
+<footer>For learning only. This is not financial or tax advice. Results do not include tax. Seek professional services, including your own tax advice, before making any commitment.
+  <p class="feedback"><a href="https://docs.google.com/forms/d/e/1FAIpQLSen8tOrDVLJdkpFpjhgKqawVwHMIy0JHeH_Q8XEy8JMrlayGw/viewform" target="_blank" rel="noopener noreferrer">💬 Feedback / Contact</a>
+    – tell us about a mistake, something confusing or an idea. (We can't give personal financial or tax advice.)</p>
   <p class="footnote">Everything here is speculative and subject to change.
     "Look after your money and it will take care of you" is subjective.
     Visits are counted anonymously, without cookies. The amounts you type never leave your browser.</p>
@@ -504,11 +461,6 @@
     const dOn = !$("optD").hidden;
     $("addDBtn").hidden = dOn;
     $("optATag").hidden = activeOpts.length === 0 && !dOn;
-    const all = ["A", ...activeOpts];
-    const keep = $("rateTarget").value || "A";
-    $("rateTarget").innerHTML = all.map(k => `<option value="${k}">Option ${k}</option>`).join("");
-    $("rateTarget").value = all.includes(keep) ? keep : "A";
-    $("rateTargetWrap").hidden = activeOpts.length === 0;
   }
 
   // ---------- Option D: buy a house, or invest in shares ----------
@@ -528,6 +480,13 @@
         <label><input type="radio" name="dType" value="shares"> Invest in shares</label>
       </div>
       <div class="opt-grid" id="dHouse">
+        <label class="span2">What is this house for?<select id="d_purpose">
+          <option value="" selected>Choose one…</option>
+          <option value="ppr">Home to live in (PPR)</option>
+          <option value="invest">Investment property</option>
+        </select></label>
+        <div class="hint span2" id="d_purposeHint">Choose first: a home you live in (principal place of residence), or an investment property you rent out.</div>
+        <div class="opt-grid span2" id="dHouseFields" hidden>
         <label>House price${box("d_price", 0)}</label>
         <label>Deposit${box("d_deposit", 0)}</label>
         <label>Buying costs (stamp duty, fees)${box("d_buyCosts", 0)}</label>
@@ -548,6 +507,12 @@
           <div class="infl-grid" id="d_rateGrid"></div>
           <div class="hint" id="d_rateNote" style="margin-top:4px"></div>
         </div>
+        <div class="opt-grid span2" id="dInvestFields" hidden>
+          <label>Weekly rent received${box("d_rent", 0)}</label>
+          <label>Rent increase per year${pctBox("d_rentGrowth", 0)}</label>
+          <label class="span2">Selling costs (agent, marketing), % of the sale price${pctBox("d_sellPct", 0)}</label>
+        </div>
+        </div>
         <div class="d-info span2" id="dHouseInfo"></div>
       </div>
       <div class="opt-grid" id="dShares" hidden>
@@ -557,6 +522,9 @@
         <label>How often<select id="d_sFreq">${short("contribFreq")}</select></label>
         <label>Expected return per year${pctBox("d_sRate", 0)}</label>
         <label class="span2">Interest compounds<select id="d_sComp">${short("compFreq")}</select></label>
+        <label>Rent paid if not buying (per week)${box("d_sRent", 0)}</label>
+        <label>Rent increase per year${pctBox("d_sRentGrowth", 0)}</label>
+        <div class="hint span2">For "rent vs buy": the rent you would pay instead of buying. It is money spent, so it counts in "total put in" but does not grow. Leave it at 0 if not needed.</div>
         <div class="hint span2">Shares go up and down. The expected return is an average guess, not a promise.</div>
       </div>
       <div class="opt-grid" style="margin-top:8px">
@@ -611,7 +579,19 @@
     const num = (id) => parseFloat($(id).value) || 0;
     const h = { kind: "house", price: num("d_price"), deposit: num("d_deposit"), buyCosts: num("d_buyCosts"),
       yearCosts: num("d_yearCosts"), loanYears: num("d_loanYears"), growth: num("d_growth"),
-      rateMode: $("d_rateMode").value, loanRate: num("d_loanRate") };
+      rateMode: $("d_rateMode").value, loanRate: num("d_loanRate"), purpose: $("d_purpose").value };
+    // Ask first: home to live in (PPR) or investment property. Show the boxes only after a choice.
+    const invest = h.purpose === "invest";
+    $("dHouseFields").hidden = !h.purpose;
+    $("d_purposeHint").hidden = !!h.purpose;
+    $("dInvestFields").hidden = !invest;
+    if (!h.purpose) return { pending: true };
+    // Rent and selling costs only count for an investment property
+    h.rent = invest ? num("d_rent") : 0;
+    h.rentGrowth = invest ? num("d_rentGrowth") : 0;
+    h.sellPct = invest ? num("d_sellPct") : 0;
+    if ([h.rent, h.rentGrowth, h.sellPct].some(v => v < 0)) return { error: "Option D: please use numbers that are 0 or more." };
+    if (h.sellPct > 100) return { error: "Option D: selling costs can't be more than 100% of the sale price." };
     const eachYear = h.rateMode === "each";
     $("d_rateSameWrap").hidden = eachYear;
     $("d_rateEachWrap").hidden = !eachYear;
@@ -649,11 +629,13 @@
     if (infl < 0) return { error: "Option D: please use numbers that are 0 or more." };
     if (kind === "house") {
       const h = readHouse(years);
-      return h.error ? h : Object.assign(h, { ownInfl, infl });
+      return h.error || h.pending ? h : Object.assign(h, { ownInfl, infl });
     }
     const s = { kind, start: num("d_sStart"), contrib: num("d_sContrib"), everyMonths: parseInt($("d_sFreq").value, 10),
-      rate: num("d_sRate"), comp: parseInt($("d_sComp").value, 10), ownInfl, infl };
-    if (s.start < 0 || s.contrib < 0 || s.rate < 0) return { error: "Option D: please use numbers that are 0 or more." };
+      rate: num("d_sRate"), comp: parseInt($("d_sComp").value, 10), ownInfl, infl,
+      rent: num("d_sRent"), rentGrowth: num("d_sRentGrowth") };
+    if (s.start < 0 || s.contrib < 0 || s.rate < 0 || s.rent < 0 || s.rentGrowth < 0)
+      return { error: "Option D: please use numbers that are 0 or more." };
     return s;
   }
   // House: month by month the loan is repaid; each year the house value grows.
@@ -662,7 +644,7 @@
   function calcHouse(h, years) {
     const loan = Math.max(h.price - h.deposit, 0);
     const n = Math.round(h.loanYears * 12);
-    let owed = loan, totalIn = h.deposit + h.buyCosts, interestPaid = 0, pay = 0;
+    let owed = loan, totalIn = h.deposit + h.buyCosts, interestPaid = 0, pay = 0, rentTotal = 0;
     const rows = [], pays = [];
     for (let y = 1; y <= years; y++) {
       const rate = h.rates[y - 1];
@@ -680,10 +662,18 @@
         }
       }
       totalIn += h.yearCosts;
+      // Investment property: rent comes back to you, so it lowers the money you put in.
+      // Rent for year y = weekly rent x 52, growing by the rent increase each year.
+      const rentYear = h.rent * 52 * Math.pow(1 + h.rentGrowth / 100, y - 1);
+      totalIn -= rentYear;
+      rentTotal += rentYear;
       const houseValue = h.price * Math.pow(1 + h.growth / 100, y);
-      const equity = houseValue - owed;
+      // Equity = what you would keep if you sold that year: value minus selling costs minus loan still owed
+      const sellCost = houseValue * h.sellPct / 100;
+      const equity = houseValue - sellCost - owed;
       rows.push({ year: y, houseValue, loanLeft: owed, loanRate: loanRunning ? rate : null,
-                  repayment: loanRunning ? pay : 0, balance: equity, totalIn, totalInterest: equity - totalIn, interestPaid });
+                  repayment: loanRunning ? pay : 0, rentYear, rentTotal, sellCost,
+                  balance: equity, totalIn, totalInterest: equity - totalIn, interestPaid });
     }
     return { rows, loan, pays };
   }
@@ -702,25 +692,44 @@
         ? `Loan: <b>${money0(res.loan)}</b>. Repayment: <b>` +
           (varies ? `${money(lo)} to ${money(hi)}</b> a month (it changes with the rate)` : `${money(res.pays[0])}</b> a month`) +
           ` over ${d.loanYears} years. Loan interest paid in ${yrs}: <b>${money0(last.interestPaid)}</b>.` +
-          (last.loanLeft > 0.005 ? ` Still owed after ${yrs}: <b>${money0(last.loanLeft)}</b>.` : " The loan is fully paid off.")
+          (last.loanLeft > 0.005 ? ` Still owed after ${yrs}: <b>${money0(last.loanLeft)}</b>.` : " The loan is fully paid off.") +
+          (d.purpose === "invest"
+            ? ` Rent received in ${yrs}: <b>${money0(last.rentTotal)}</b>. Selling costs if sold then: <b>${money0(last.sellCost)}</b>.`
+            : "")
         : d.price <= 0
           ? "Type the house price and your deposit to see the loan and repayments."
           : "No loan needed: the deposit covers the whole price.";
-      return { key: "D", kind: "house", rows: res.rows, start: d.deposit, ownInfl: d.ownInfl, infl: d.infl, inflText,
+      const invest = d.purpose === "invest";
+      // Chart start point = equity on day one if sold: deposit minus selling costs
+      return { key: "D", kind: "house", rows: res.rows, start: d.deposit - d.price * d.sellPct / 100,
+        ownInfl: d.ownInfl, infl: d.infl, inflText,
+        purpose: d.purpose, rent: d.rent, rentGrowth: d.rentGrowth, sellPct: d.sellPct,
         price: d.price, deposit: d.deposit, loan: res.loan,
         payText: varies ? `${money(lo)} to ${money(hi)}` : (res.pays.length ? money(res.pays[0]) : money(0)),
-        rateText: `House grows ${d.growth}% a year; loan ` +
-          (d.rateMode === "each" ? `rate changes each year (average ${avgRate.toFixed(2)}%)` : `at ${d.loanRate}%`),
+        rateText: `${invest ? "Investment property" : "Home (PPR)"}: grows ${d.growth}% a year; loan ` +
+          (d.rateMode === "each" ? `rate changes each year (average ${avgRate.toFixed(2)}%)` : `at ${d.loanRate}%`) +
+          (invest ? `; rent ${money0(d.rent)} a week (+${d.rentGrowth}% a year); selling costs ${d.sellPct}%` : ""),
         compText: "Loan repaid monthly",
         contribText: (res.loan > 0 ? (varies ? `${money(lo)} to ${money(hi)}` : money(res.pays[0])) + " a month (loan) + " : "") +
-          `${money0(d.yearCosts)} a year (costs)`,
+          `${money0(d.yearCosts)} a year (costs)` + (invest && d.rent > 0 ? `, minus rent received` : ""),
         startText: `${money0(d.deposit)} deposit + ${money0(d.buyCosts)} buying costs` };
     }
     const rows = calculate(d.start, d.contrib, d.everyMonths, d.rate, d.comp, years);
+    // Rent vs buy: rent paid while renting is money spent. It adds to "total put in" but does not grow.
+    let rentTotal = 0;
+    rows.forEach((r, i) => {
+      r.rentYear = d.rent * 52 * Math.pow(1 + d.rentGrowth / 100, i);
+      rentTotal += r.rentYear;
+      r.rentTotal = rentTotal;
+      r.totalIn += rentTotal;
+      r.totalInterest = r.balance - r.totalIn;
+    });
     return { key: "D", kind: "shares", rows, start: d.start, ownInfl: d.ownInfl, infl: d.infl, inflText,
-      contrib: d.contrib, everyMonths: d.everyMonths, rate: d.rate, comp: d.comp,
+      contrib: d.contrib, everyMonths: d.everyMonths, rate: d.rate, comp: d.comp, rent: d.rent, rentGrowth: d.rentGrowth,
       rateText: `${d.rate}% a year (expected, not guaranteed)`, compText: compNames[d.comp],
-      contribText: `${money(d.contrib)} ${freqNames[d.everyMonths]}`, startText: money(d.start) };
+      contribText: `${money(d.contrib)} ${freqNames[d.everyMonths]}` +
+        (d.rent > 0 ? ` + rent paid ${money0(d.rent)} a week (+${d.rentGrowth}% a year)` : ""),
+      startText: money(d.start) };
   }
   // "Use the same money as the house": shares start with the deposit + buying costs, then get the
   // house's other spending (loan repayments + yearly costs) spread evenly as a monthly amount,
@@ -728,11 +737,17 @@
   function sameMoneyAsHouse() {
     const years = parseInt($("years").value, 10);
     const h = readHouse(years);
+    if (h.pending) { $("error").textContent = "Option D: choose whether the house is a home or an investment first."; return; }
     if (h.error) { $("error").textContent = h.error; return; }
     const last = calcHouse(h, years).rows[years - 1];
     const upfront = h.deposit + h.buyCosts;
+    // Rent vs buy: the renter pays rent first; only what is left over is invested
+    const num = (id) => parseFloat($(id).value) || 0;
+    let rentPaid = 0;
+    for (let y = 0; y < years; y++) rentPaid += num("d_sRent") * 52 * Math.pow(1 + num("d_sRentGrowth") / 100, y);
     $("d_sStart").value = Math.round(upfront);
-    $("d_sContrib").value = ((last.totalIn - upfront) / (years * 12)).toFixed(2);
+    // If rent (paid or received) is more than the loan and costs, there is nothing extra to invest each month
+    $("d_sContrib").value = Math.max(0, (last.totalIn - upfront - rentPaid) / (years * 12)).toFixed(2);
     $("d_sFreq").value = "1";
     update();
   }
@@ -781,12 +796,15 @@
       return;
     }
     $("summary").innerHTML = prefix + (house
-      ? `Buying a house for <b>${money0(o.price)}</b> with a <b>${money0(o.deposit)}</b> deposit` +
+      ? `Buying ${o.purpose === "invest" ? "an investment property" : "a home"} for <b>${money0(o.price)}</b> with a <b>${money0(o.deposit)}</b> deposit` +
         (o.loan > 0 ? ` and a <b>${money0(o.loan)}</b> loan (${o.payText} a month)` : "") +
+        (o.purpose === "invest" && o.rent > 0 ? ` and renting it out from <b>${money0(o.rent)}</b> a week` : "") +
         `, after <b>${yrs}</b> your equity is <b>${money(L.balance)}</b> (house worth ${money0(L.houseValue)}` +
+        (L.sellCost > 0.005 ? ` minus ${money0(L.sellCost)} selling costs` : "") +
         (L.loanLeft > 0.005 ? ` minus ${money0(L.loanLeft)} still owed` : `, loan paid off`) +
-        `) — that is <b>${times}×</b> what you put in.`
-      : `Starting with <b>${money(o.start)}</b> and adding <b>${money(o.contrib)}</b> ${freqNames[o.everyMonths]}, ` +
+        `)` + (L.totalIn > 0 ? ` — that is <b>${times}×</b> what you put in.` : ` — the rent covered all the money you put in.`)
+      : (o.rent > 0 ? `Renting (from <b>${money0(o.rent)}</b> a week) and investing: ` : "") +
+        `Starting with <b>${money(o.start)}</b> and adding <b>${money(o.contrib)}</b> ${freqNames[o.everyMonths]}, ` +
         `at <b>${o.rate}%</b> a year compounded <b>${compNames[o.comp]}</b>, after <b>${yrs}</b> ` +
         `you will have <b>${money(L.balance)}</b> — that is <b>${times}×</b> what you put in.`) + inflPhrase;
 
@@ -835,11 +853,20 @@
     $("compareSummary").innerHTML = text;
     // Explain what "final value" means for a house
     const house = options.find(o => o.kind === "house");
-    $("compareNote").hidden = !house;
+    const renter = options.find(o => o.kind === "shares" && o.rent > 0);
+    $("compareNote").hidden = !house && !renter;
+    if (!house && renter) {
+      $("compareNote").textContent = "For rent and invest (Option D), total put in includes the rent paid, which is spent " +
+        "and does not grow. Tax is not included; please seek your own tax advice.";
+    }
     if (house) {
-      $("compareNote").textContent = "For the house (Option D), the final value is your equity: the house value minus the loan " +
-        "still owed. Total put in counts the deposit, buying costs, every loan repayment and the yearly costs. " +
-        "It does not count rent you would save by owning, or rent you could earn.";
+      $("compareNote").textContent = house.purpose === "invest"
+        ? "For the investment property (Option D), the final value is your equity if you sold: the house value minus " +
+          "selling costs and the loan still owed. Total put in counts the deposit, buying costs, every loan repayment and " +
+          "the yearly costs, minus the rent received. Tax (such as capital gains tax and tax on rent) is not included; please seek your own tax advice."
+        : "For the home (Option D), the final value is your equity: the house value minus the loan still owed. " +
+          "Total put in counts the deposit, buying costs, every loan repayment and the yearly costs. " +
+          "It does not count rent you would save by owning.";
     }
 
     // Summary table: one column per option, the best value in a row marked with a trophy
@@ -1063,7 +1090,8 @@
       o.inflText = o.ownInfl ? `${o.infl}% a year` : "Same as Option A";
       options.push(describe(o));
     });
-    if (dInput) {
+    if (dInput && dInput.pending) $("dHouseInfo").textContent = "";
+    if (dInput && !dInput.pending) {
       const d = buildOptionD(dInput, years);
       addReal(d.rows, d.ownInfl ? Array(years).fill(d.infl) : inflRates);   // own rate, or the same as Option A
       options.push(d);
@@ -1081,10 +1109,13 @@
       ? [[`${sw("D")}Option D house value`, r => money0(r.houseValue), ""],
          ["Option D loan rate", r => r.loanRate === null ? "—" : r.loanRate + "%", ""],
          ["Option D monthly repayment", r => r.repayment ? money(r.repayment) : "—", ""],
+         ...(o.purpose === "invest" ? [["Option D rent received that year", r => money0(r.rentYear), ""]] : []),
          ["Option D loan left", r => money0(r.loanLeft), ""],
-         ["Option D equity (value minus loan)", r => `<b>${money(r.balance)}</b>`, ""],
+         [o.purpose === "invest" ? "Option D equity (value minus selling costs and loan)" : "Option D equity (value minus loan)",
+          r => `<b>${money(r.balance)}</b>`, ""],
          ["Option D in today's money", r => money(r.real), "real"]]
-      : [[`${sw(o.key)}Option ${o.key} balance`, r => `<b>${money(r.balance)}</b>`, ""],
+      : [...(o.rent > 0 ? [[`${sw(o.key)}Option ${o.key} rent paid that year`, r => money0(r.rentYear), ""]] : []),
+         [`${o.rent > 0 ? "" : sw(o.key)}Option ${o.key} balance`, r => `<b>${money(r.balance)}</b>`, ""],
          [`Option ${o.key} in today's money`, r => money(r.real), "real"]];
     $("mainHead").innerHTML = `<tr><th>Year</th><th>Put in this year</th><th>Interest this year</th>` +
       `<th>Total put in</th><th>Total interest</th><th>${comparing ? sw("A") + "Option A balance" : "Balance"}</th>` +
@@ -1102,6 +1133,68 @@
       `</tr>`).join("");
 
     drawCompare(options, initial, years);
+    goalFinder(initial, contrib, everyMonths, rate, comp, years, inflRates);
+  }
+
+  // ---------- Goal finder (uses Option A's settings) ----------
+  // 1) How much to add each time to reach the goal in the chosen years.
+  // 2) How long it takes with the contribution you have now.
+  let goalNeed = 0;
+  function goalFinder(P, C, every, rate, comp, years, inflRates) {
+    const out = $("goalResult");
+    const goal = parseFloat($("goalAmount").value) || 0;
+    if (goal < 0) { out.innerHTML = "Please use a goal of 0 or more."; return; }
+    if (goal === 0) { out.innerHTML = "👋 Type a goal, for example 500000, to see how much to add and how long it takes."; return; }
+    const real = $("goalReal").checked;
+    // How much prices have grown after a number of months (each year's inflation; after the plan, the last year's rate)
+    const priceAt = (months) => {
+      let f = 1;
+      const full = Math.floor(months / 12);
+      for (let y = 0; y < full; y++) f *= 1 + inflRates[Math.min(y, inflRates.length - 1)] / 100;
+      const part = months % 12;
+      if (part) f *= Math.pow(1 + inflRates[Math.min(full, inflRates.length - 1)] / 100, part / 12);
+      return f;
+    };
+    const targetAt = (months) => real ? goal * priceAt(months) : goal;
+    const target = targetAt(years * 12);
+    const yrs = years === 1 ? "1 year" : years + " years";
+
+    // 1) Contribution needed (standard savings formula), rounded UP to the smallest coin so the goal is reached
+    const i = Math.pow(1 + rate / 100 / comp, comp * every / 12) - 1;     // growth per contribution period
+    const n = years * 12 / every;                                          // number of contributions
+    const g = Math.pow(1 + i, n);
+    const fromStart = P * g;
+    const digits = new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits;
+    const step = Math.pow(10, digits);
+    let need = fromStart >= target ? 0 : (i ? (target - fromStart) * i / (g - 1) : (target - fromStart) / n);
+    need = Math.ceil(need * step - 1e-7) / step;
+    goalNeed = need;
+
+    // 2) Time to reach the goal with the current contribution, month by month (up to 100 years)
+    const monthlyGrowth = Math.pow(1 + rate / 100 / comp, comp / 12);
+    let bal = P, reached = bal >= targetAt(0) ? 0 : null;
+    for (let m = 1; reached === null && m <= 1200; m++) {
+      bal *= monthlyGrowth;
+      if (m % every === 0) bal += C;
+      if (bal >= targetAt(m) - 1e-9) reached = m;
+    }
+    const when = (m) => {
+      const y = Math.floor(m / 12), mo = m % 12;
+      return [y ? `${y} ${y === 1 ? "year" : "years"}` : "", mo ? `${mo} ${mo === 1 ? "month" : "months"}` : ""]
+        .filter(Boolean).join(" and ") || "straight away";
+    };
+
+    const goalText = real ? `<b>${money(goal)}</b> in today's money (about <b>${money(target)}</b> by then)` : `<b>${money(goal)}</b>`;
+    let html = fromStart >= target
+      ? `<p>✅ Your starting amount alone reaches ${goalText} in <b>${yrs}</b>. No regular contribution is needed.</p>`
+      : `<p>To reach ${goalText} in <b>${yrs}</b>, add <b>${money(need)}</b> ${freqNames[every]}` +
+        ` (at ${rate}% a year, compounded ${compNames[comp]}, starting with ${money(P)}).</p>` +
+        (Math.round(need * step) !== Math.round(C * step)
+          ? `<button type="button" class="use-btn" id="goalUseBtn">Use ${money(need)} ${freqNames[every]} in Option A</button>` : "");
+    html += reached !== null
+      ? `<p>⏱️ With what you add now (${money(C)} ${freqNames[every]}), you reach the goal in <b>${when(reached)}</b>.</p>`
+      : `<p>⏱️ With what you add now (${money(C)} ${freqNames[every]}), you would not reach the goal within 100 years.</p>`;
+    out.innerHTML = html;
   }
 
   // Make one inflation box per year. Values already typed are kept.
@@ -1130,6 +1223,7 @@
   // Start fresh every time the page opens. Browsers like to put back numbers typed on an
   // earlier visit; this puts every box and dropdown back to its starting value (0 for numbers).
   document.querySelectorAll('input[type="number"]').forEach(i => i.value = i.defaultValue);
+  document.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = i.defaultChecked);
   document.querySelectorAll("select").forEach(s => {
     const start = [...s.options].find(o => o.defaultSelected);
     if (start) s.value = start.value;
@@ -1141,6 +1235,14 @@
     $("years").add(new Option(y === 1 ? "1 year" : y + " years", y, false, y === 20));
   }
 
+  ["goalAmount", "goalReal"].forEach(id => { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
+  $("goalResult").addEventListener("click", (e) => {
+    if (e.target.id !== "goalUseBtn") return;
+    $("contrib").value = String(goalNeed);
+    update();
+    $("contrib").classList.remove("flash"); void $("contrib").offsetWidth; $("contrib").classList.add("flash");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
   ["currency", "initial", "contrib", "contribFreq", "rate", "inflation", "inflMode", "compFreq", "years"].forEach(id => {
     $(id).addEventListener("input", update);
     $(id).addEventListener("change", update);
@@ -1148,176 +1250,10 @@
   document.querySelectorAll("#yearChips .chip").forEach(c => c.addEventListener("click", () => {
     $("years").value = c.dataset.years; update();
   }));
-  // ---------- Advertised rates ----------
-  // Each row: [bank, product, rate %, minimum / term / conditions, source name, source link, compounding per year]
-  // Compounding is used when you click "Use this rate". It is always 1 (Yearly): advertised
-  // APY / AER / p.a. figures are yearly numbers.
-  const RATES = {
-    USD: { country: "the USA", rows: [
-      ["Axos ONE", "Savings", 5.00, "Needs direct deposit and a minimum balance. About 4.21% after the promo.", "NerdWallet", "https://www.nerdwallet.com/banking/best/high-yield-online-savings-accounts", 1],
-      ["Pibank", "Savings", 4.40, "No minimum balance.", "Motley Fool", "https://www.fool.com/money/banks/articles/top-savings-account-rates-today-nov-9-2026/", 1],
-      ["SoFi", "Savings", 4.40, "3.30% base + 1.10% bonus for up to 6 months.", "CNBC Select", "https://www.cnbc.com/select/best-high-yield-savings-accounts/", 1],
-      ["Western Alliance (via Raisin)", "Savings", 4.30, "Guaranteed 90 days, then 4.00%.", "CNBC Select", "https://www.cnbc.com/select/best-high-yield-savings-accounts/", 1],
-      ["Sallie Mae", "Savings", 4.00, "No minimum balance.", "CNBC Select", "https://www.cnbc.com/select/best-high-yield-savings-accounts/", 1],
-      ["CFG Bank", "1-year CD", 4.65, "Minimum $500.", "Bankrate", "https://www.bankrate.com/banking/cds/best-1-year-cd-rates/", 1],
-      ["BTG Pactual Bank", "1-year CD", 4.65, "Minimum $500.", "Bankrate", "https://www.bankrate.com/banking/cds/best-1-year-cd-rates/", 1],
-      ["Charles Schwab", "CD OneSource", 4.75, "Minimum $1,000.", "Forbes Advisor", "https://www.forbes.com/advisor/banking/cds/best-cd-rates/", 1],
-      ["Sallie Mae", "5-year CD", 5.00, "Term 5 years.", "Bankrate", "https://www.bankrate.com/banking/cds/current-cd-interest-rates/", 1],
-      ["E*TRADE", "5-year CD", 4.80, "Term 5 years.", "Bankrate", "https://www.bankrate.com/banking/cds/current-cd-interest-rates/", 1],
-    ]},
-    AUD: { country: "Australia", rows: [
-      ["Suncorp", "Term deposit", 5.75, "12 months. Canstar table based on $10,000.", "Canstar", "https://www.canstar.com.au/term-deposits/compare/best-term-deposit-rates/", 1],
-      ["AMP Bank GO", "Term deposit", 5.70, "12 months.", "Mozo", "https://www.mozo.com.au/term-deposits", 1],
-      ["Rabobank", "Term deposit", 5.70, "60 months (5 years). Higher minimum.", "Easy Fixed Income", "https://easyfixedincome.com/term-deposits-australia/", 1],
-      ["Bank Australia", "Term deposit", 5.40, "6 months.", "Bank Australia", "https://www.bankaust.com.au/banking/term-deposits", 1],
-      ["CommBank", "Term deposit (special)", 5.35, "12 months. $5,000 to $5 million. Interest at maturity.", "Canstar", "https://www.canstar.com.au/term-deposits/compare/big-four-banks-term-deposit-rates/", 1],
-    ]},
-    NZD: { country: "New Zealand", rows: [
-      ["Rabobank", "Term deposit", 5.05, "5 years. Highest 5-year rate in NZ (9 Nov 2026).", "Opes Partners", "https://www.opespartners.co.nz/investment/current-term-deposits-nz", 1],
-      ["ASB", "Term deposit", 5.00, "5 years. Minimum $5,000.", "TermDepositRates.co.nz", "https://www.termdepositrates.co.nz/asb/", 1],
-      ["Gold Band Finance", "Term deposit", 4.85, "24 months. Non-bank lender: check its credit rating.", "Canstar NZ", "https://www.canstar.co.nz/personal-banking/term-deposits/", 1],
-      ["General Finance", "Term deposit", 4.55, "12 months. Non-bank lender: check its credit rating.", "Canstar NZ", "https://www.canstar.co.nz/personal-banking/term-deposits/", 1],
-      ["Rabobank", "Term deposit", 4.15, "12 months. Highest 12-month bank rate.", "Opes Partners", "https://www.opespartners.co.nz/investment/current-term-deposits-nz", 1],
-      ["BNZ", "Term deposit", 4.05, "12 months. Minimum $2,000.", "TermDepositRates.co.nz", "https://www.termdepositrates.co.nz/bnz/", 1],
-      ["Heartland Bank", "Notice saver", 3.25, "90-day notice savings account.", "Heartland", "https://www.heartland.co.nz/savings-and-deposits/interest-rates", 1],
-    ]},
-    CAD: { country: "Canada", rows: [
-      ["WealthONE Bank", "5-year GIC", 4.55, "Term 5 years.", "WOWA", "https://wowa.ca/gic-rates", 1],
-      ["Oaken Financial", "5-year GIC", 4.50, "Term 5 years.", "Motley Fool Canada", "https://www.fool.ca/2026/11/06/rates-are-rising-again-so-are-gics-and-high-interest-savings-etfs-even-worth-it/", 1],
-      ["Saven Financial", "5-year GIC", 4.50, "Term 5 years.", "Motley Fool Canada", "https://www.fool.ca/2026/11/06/rates-are-rising-again-so-are-gics-and-high-interest-savings-etfs-even-worth-it/", 1],
-      ["WealthONE Bank", "1-year GIC", 4.05, "Term 1 year.", "WOWA", "https://wowa.ca/1-year-gic-rates", 1],
-      ["Achieva Financial", "1-year GIC", 3.95, "Term 1 year.", "Ratehub", "https://www.ratehub.ca/gics/best-gic-rates", 1],
-      ["WealthONE Bank", "Savings (HISA)", 3.25, "Up to 3.25%. Check the regular rate after any promo.", "Forbes Advisor Canada", "https://www.forbes.com/advisor/ca/banking/best-high-interest-savings-accounts/", 1],
-      ["EQ Bank", "Savings (HISA)", 3.00, "Promo rate. Check the regular rate.", "YourBestSavings", "https://yourbestsavings.com/ca/best-high-interest-savings-accounts/", 1],
-    ]},
-    GBP: { country: "the UK", rows: [
-      ["Afin Bank", "5-year fixed bond", 5.40, "Term 5 years (AER).", "Depositscout", "https://depositscout.com/guides/best-uk-savings-rates-november-2026", 1],
-      ["GB Bank", "5-year fixed bond", 5.37, "Term 5 years (AER).", "Which?", "https://www.which.co.uk/money/savings-and-isas/savings-accounts/how-to-find-the-best-savings-account-aAWTh2N0jTx5", 1],
-      ["Vida Savings", "2-year fixed bond", 5.26, "Term 2 years (AER).", "Which?", "https://www.which.co.uk/money/savings-and-isas/savings-accounts/how-to-find-the-best-savings-account-aAWTh2N0jTx5", 1],
-      ["Afin Bank", "1-year fixed bond", 5.17, "Term 1 year (AER).", "Depositscout", "https://depositscout.com/savings/fixed-rate", 1],
-      ["OakNorth", "1-year fixed bond", 5.16, "Term 1 year (AER).", "Money.co.uk", "https://www.money.co.uk/savings-accounts/fixed-rate-bonds", 1],
-      ["LemFi", "Easy access savings", 5.00, "Variable rate (AER). Balances up to £250,000.", "Moneyfacts", "https://moneyfactscompare.co.uk/savings-accounts/", 1],
-      ["Monument Bank / Zopa", "Easy access savings", 4.56, "Variable rate (AER).", "Depositscout", "https://depositscout.com/savings", 1],
-    ]},
-    EUR: { country: "Germany / Europe", note: "Note: the newest euro rates I could find are from mid-2026, so they may be out of date.", rows: [
-      ["Achmea Bank (via Raisin)", "Fixed deposit", 4.00, "Up to about 4% APY. The page is older, so check the rate now.", "Settle in Germany", "https://settle-in-germany.com/banking/savings/fixed-term/", 1],
-      ["EU partner banks (via Raisin)", "12-month fixed deposit (Festgeld)", 3.08, "Minimum €5,000. Protected up to €100,000.", "Bankdaten.de", "https://www.bankdaten.de/en/guide/festgeld-germany.html", 1],
-      ["EU partner banks (via Raisin)", "6-month fixed deposit", 2.76, "Term 6 months.", "Bankdaten.de", "https://www.bankdaten.de/en/guide/festgeld-germany.html", 1],
-      ["German banks", "12-month fixed deposit", 2.30, "Minimums about €1,000 to €10,000.", "PickTheBank", "https://pickthebank.eu/fixed-deposits/germany/1-year/eur/", 1],
-      ["German banks", "5-year fixed deposit", 2.30, "Term 5 years.", "PickTheBank", "https://pickthebank.eu/fixed-deposits/germany/5-years/eur/", 1],
-    ]},
-    INR: { country: "India", note: "Small finance banks pay the most. Senior citizens usually get about 0.25% to 0.50% more.", rows: [
-      ["Suryoday Small Finance Bank", "Fixed deposit (FD)", 8.25, "General citizens. Up to 8.60% for seniors.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 1],
-      ["Utkarsh Small Finance Bank", "Fixed deposit (FD)", 8.10, "Up to 8.50% for seniors.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 1],
-      ["Ujjivan Small Finance Bank", "Fixed deposit (FD)", 8.10, "Best tenure only.", "Aryan Age", "https://www.aryanage.com/article/50827/senior-citizens-can-earn-up-to-860-on-fd-in", 1],
-      ["HDFC Bank", "Fixed deposit (FD)", 7.20, "Rates raised from 4 Nov 2026 on some tenures.", "BusinessToday", "https://www.businesstoday.in/personal-finance/story/fd-rates-rise-to-8-60-which-banks-offer-the-highest-returns-to-senior-citizens-in-november-2026-566283-2026-11-07", 1],
-      ["ICICI Bank / PNB", "Fixed deposit (FD)", 7.10, "Large banks, best tenure.", "Policybazaar", "https://www.policybazaar.com/fd-interest-rates/fd-rates-comparison/", 1],
-      ["Muthoot Capital", "Company FD (NBFC)", 9.10, "Not a bank: higher risk. Up to 9.35% for seniors.", "Stable Money", "https://stablemoney.in/fixed-deposit-interest-rates/best-fixed-deposit-interest-rate", 1],
-    ]},
-    SGD: { country: "Singapore", note: "The best rates often need fresh funds, a minimum amount or other conditions.", rows: [
-      ["RHB (Premier Banking)", "12-month fixed deposit", 2.40, "Promo. Minimum S$20,000.", "Syfe", "https://www.syfe.com/magazine/best-fixed-deposit-rates-singapore/", 1],
-      ["Maybank", "12-month fixed deposit", 2.40, "Up to 2.40% with promotions.", "The Kopi Notes", "https://thekopinotes.com/articles/digital-banks/maybank-fixed-deposit-rate-promotion/", 1],
-      ["HL Bank", "24-month fixed deposit", 2.20, "Minimum S$10,000.", "Growbeansprout", "https://growbeansprout.com/insights/savings/singapore-best-fixed-deposit-rate", 1],
-      ["CIMB", "12-month fixed deposit", 2.10, "Minimum S$10,000. Online. No fresh funds needed.", "The Kopi Notes", "https://thekopinotes.com/articles/digital-banks/highest-fixed-deposit-rate-singapore/", 1],
-      ["Hong Leong Finance", "Premium SAVER", 1.20, "Savings account. Lower rate at S$200,000 or more.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 1],
-      ["MariBank", "Savings account", 0.88, "Flat rate, no conditions.", "SingPromos", "https://singpromos.com/banks-credit-cards/best-singapore-deposit-rates-fixed-deposit-time-deposit-incremental-balance-more-188806", 1],
-    ]},
-    JPY: { country: "Japan", note: "Most normal yen deposit rates are still below 1%. Higher rates are short campaigns with conditions.", rows: [
-      ["Bank of Yokohama", "3-month time deposit (campaign)", 2.00, "Retirement-bonus deposits only. 1 Oct to 30 Dec 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 1],
-      ["Major banks (megabanks)", "1-year time deposit", 0.50, "Normal rate, as of September 2026.", "FinCalcYou", "https://fincalcyou.com/pages/fixed-deposit-calculator-japan.html", 1],
-      ["Japan Post Bank", "Ordinary savings", 0.50, "New rate from 9 Nov 2026.", "BigGo Finance", "https://finance.biggo.com/news/61aeb940-efd5-450e-be58-602a1a5d99b5", 1],
-      ["Rakuten Bank", "1-year time deposit", 0.40, "Standard rate (June 2026). A 1.20% campaign ran in summer.", "FinCalcYou", "https://fincalcyou.com/pages/fixed-deposit-calculator-japan.html", 1],
-    ]},
-  };
-
-  // ---------- Rates the visitor saves for a typed currency ----------
-  // Kept in this visitor's own browser. If the browser blocks saving, they last until the page closes.
-  const memoryRates = {};
-  let storageWorks = true;
-  function loadMyRates(code) {
-    try { const s = localStorage.getItem("cic-rates-" + code); if (s) return JSON.parse(s); }
-    catch (e) { storageWorks = false; }
-    return memoryRates[code] || [];
-  }
-  function saveMyRates(code, rows) {
-    memoryRates[code] = rows;
-    try { localStorage.setItem("cic-rates-" + code, JSON.stringify(rows)); } catch (e) { storageWorks = false; }
-  }
-  // Make typed text safe to show inside the page
+  // The nine currencies in the Currency menu (anything else is typed in "Other currency")
+  const NINE = ["USD", "AUD", "NZD", "CAD", "GBP", "EUR", "INR", "SGD", "JPY"];
+  // Make text safe to show inside the page
   const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-  const safeUrl = (u) => /^https?:\/\//i.test(u || "") ? u : "";
-
-  // The rows shown for the currency in use: our researched list, or the visitor's saved list
-  function ratesRowsFor(code) {
-    return RATES[code] ? RATES[code].rows : loadMyRates(code);
-  }
-
-  function researchLinks(code) {
-    const country = countryOf(code);
-    const when = new Date().toLocaleString("en", { month: "long", year: "numeric" });
-    const searches = [
-      ["Best savings account rates", `best high interest savings account rates ${country} ${when}`],
-      ["Best fixed / term deposit rates", `best fixed deposit term deposit rates ${country} ${when}`],
-      ["Rate comparison websites", `compare savings interest rates banks ${country}`],
-      ["Central bank interest rate", `${country} central bank interest rate ${when}`],
-      ["Inflation rate", `${country} inflation rate ${when}`],
-    ];
-    return searches.map(([label, q]) =>
-      `<a href="https://www.google.com/search?q=${encodeURIComponent(q)}" target="_blank" rel="noopener noreferrer">🔎 ${label}</a>`).join("");
-  }
-
-  function drawRates() {
-    const code = currentCurrency();
-    const typed = $("currency").value === "OTHER";
-    $("research").hidden = !typed || !code;
-    if (!code) {   // typed currency not recognised yet
-      $("ratesCountry").textContent = "…";
-      $("ratesNote").textContent = "Type a currency above to see research links for that country.";
-      $("ratesNote").style.display = "";
-      $("ratesTableWrap").hidden = true;
-      return;
-    }
-    const known = RATES[code];
-    const rows = ratesRowsFor(code);
-    $("checkedLabel").hidden = !known;   // only our researched lists were checked in Nov 2026
-    $("ratesCountry").textContent = known ? known.country : `${countryOf(code)} (${code})`;
-    let note = known ? (known.note || "") :
-      (rows.length ? "These are the rates you saved. Check them again before you rely on them."
-                   : `No rates saved for ${currencyName(code)} yet. Use Step 1 to research, then Step 2 to save what you find.`);
-    $("ratesNote").textContent = note;
-    $("ratesNote").style.display = note ? "" : "none";
-    if (typed) {
-      $("researchCountry").textContent = countryOf(code);
-      $("researchLinks").innerHTML = researchLinks(code);
-      $("saveNote").textContent = storageWorks ? "Saved rates stay in this browser on this device only."
-        : "Your browser is not allowing saving, so saved rates will be lost when you close the page.";
-    }
-    $("ratesTableWrap").hidden = rows.length === 0;
-    $("ratesBody").innerHTML = rows.map((row, i) => {
-      const [bank, product, rate, cond, srcName, url] = row;
-      const link = safeUrl(url);
-      return `<tr><td><b>${esc(bank)}</b></td><td>${product ? `<span class="tag">${esc(product)}</span>` : ""}</td>
-        <td class="rate">${Number(rate).toFixed(2)}%</td><td>${esc(cond || "")}</td>
-        <td>${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(srcName)} ↗</a>` : "—"}</td>
-        <td><button class="use-btn" data-i="${i}">Use this rate</button>${known ? "" :
-          ` <button class="use-btn del-btn" data-del="${i}" aria-label="Delete this rate">✕</button>`}</td></tr>`;
-    }).join("");
-  }
-
-  $("addRateForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const code = currentCurrency(); if (!code || RATES[code]) return;
-    const url = safeUrl($("arUrl").value.trim());
-    let srcName = "Link";
-    try { if (url) srcName = new URL(url).hostname.replace(/^www\./, ""); } catch (err) {}
-    const rows = loadMyRates(code);
-    rows.push([$("arBank").value.trim(), $("arProduct").value.trim(), parseFloat($("arRate").value),
-               $("arCond").value.trim(), srcName, url, 1]);
-    rows.sort((a, b) => b[2] - a[2]);   // highest rate first
-    saveMyRates(code, rows);
-    $("addRateForm").reset();
-    drawRates();
-  });
   // ---------- Pick the starting currency ----------
   // 1) A currency this visitor picked before (saved in their own browser only)
   // 2) Their device's time zone, e.g. "Australia/Sydney" -> AUD
@@ -1364,7 +1300,7 @@
   function pickStartCurrency() {
     let saved = null;
     try { saved = localStorage.getItem("cic-currency"); } catch (e) {}
-    if (saved && RATES[saved]) return [saved, "Your last choice."];
+    if (saved && NINE.includes(saved)) return [saved, "Your last choice."];
     if (saved && ALL_CODES.includes(saved)) return ["OTHER", "Your last choice.", saved];
     const tzCur = currencyFromTimeZone();
     if (tzCur) return [tzCur, "Picked from your device's location (time zone). You can change it."];
@@ -1373,7 +1309,7 @@
     return ["USD", ""];
   }
   // Fill the "type a currency" suggestion list with every currency except the nine above
-  $("currencyList").innerHTML = ALL_CODES.filter(c => !RATES[c])
+  $("currencyList").innerHTML = ALL_CODES.filter(c => !NINE.includes(c))
     .map(c => `<option value="${c} — ${esc(currencyName(c))}">`).join("");
 
   const [startCurrency, startHint, startTyped] = pickStartCurrency();
@@ -1392,43 +1328,19 @@
       $("otherCurrency").focus();
     }
     rememberCurrency();
-    drawRates();
   });
-  $("otherCurrency").addEventListener("input", () => { update(); drawRates(); rememberCurrency(); });
+  $("otherCurrency").addEventListener("input", () => { update(); rememberCurrency(); });
   $("otherCurrency").addEventListener("change", () => {
     // Tidy what was typed into "CODE — Name" once we know the currency
     const code = currentCurrency();
-    if (code && RATES[code]) {                // typed one of the nine: use the normal option
+    if (code && NINE.includes(code)) {        // typed one of the nine: use the normal option
       $("currency").value = code;
       $("otherCurrency").value = "";
     } else if (code) {
       $("otherCurrency").value = `${code} — ${currencyName(code)}`;
     }
-    update(); drawRates(); rememberCurrency();
+    update(); rememberCurrency();
   });
-  $("ratesBody").addEventListener("click", (e) => {
-    const code = currentCurrency(); if (!code) return;
-    const del = e.target.closest("[data-del]");
-    if (del) {
-      const rows = loadMyRates(code);
-      rows.splice(+del.dataset.del, 1);
-      saveMyRates(code, rows);
-      drawRates();
-      return;
-    }
-    const b = e.target.closest(".use-btn"); if (!b) return;
-    const row = ratesRowsFor(code)[+b.dataset.i];
-    // Send the rate to Option A, B or C (whichever is picked in "Send Use this rate to")
-    const t = activeOpts.includes($("rateTarget").value) ? $("rateTarget").value : "A";
-    const ids = t === "A" ? ["rate", "compFreq"] : ["rate_" + t, "compFreq_" + t];
-    $(ids[0]).value = row[2];
-    $(ids[1]).value = String(row[6]);
-    update();
-    ids.forEach(id => { $(id).classList.remove("flash"); void $(id).offsetWidth; $(id).classList.add("flash"); });
-    if (t === "A") window.scrollTo({ top: 0, behavior: "smooth" });
-    else $("opt" + t).scrollIntoView({ behavior: "smooth", block: "center" });
-  });
-
   // Compare buttons and inputs
   $("addOptBtn").addEventListener("click", addOption);
   $("addDBtn").addEventListener("click", addOptionD);
@@ -1444,7 +1356,6 @@
   });
   $("compareBox").addEventListener("input", (e) => { if (e.target.closest(".opt")) update(); });
   $("compareBox").addEventListener("change", (e) => { if (e.target.closest(".opt")) update(); });
-  drawRates();
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", update);
   // Coming back with the browser's Back button can show the old page from memory: start fresh again

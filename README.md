@@ -17,22 +17,31 @@
 - **Option A** is your main details.
 - **Options B and C** each have their own contribution, rate, compounding and inflation (the same as A, or their own rate).
 - **Option D** is either **buying a house** with a loan or **investing in shares**:
-  - House: price, deposit, buying costs, yearly costs, loan term, house value growth and a loan rate that can stay the same or change each year (the repayment is worked out again when the rate changes). The final value is your equity: the house value minus the loan still owed.
-  - Shares: starting amount, contribution, expected return and compounding. **Use the same money as the house** puts in exactly the same total as the house.
+  - House: first choose **home to live in (PPR)** or **investment property**. Then enter the price, deposit, buying costs, yearly costs, loan term, house value growth and a loan rate that is fixed or changes each year (the repayment is worked out again when the rate changes). The final value is your equity: the house value minus the loan still owed.
+  - Investment property also takes the weekly rent (with a yearly increase) and selling costs. Rent received lowers the money you put in, and selling costs come off the house value. Tax is not included.
+  - Shares: starting amount, contribution, expected return and compounding. For **rent vs buy**, add the rent you would pay if not buying (with a yearly increase); it counts as money spent and does not grow. **Use the same money as the house** invests what is left after rent, so both put in the same total.
   - Option D can use Option A's inflation or its own.
 - When you compare, the top card shows the **winner** (the biggest final value). The comparison shows a summary table, a chart you can switch between lines, bars, shaded areas and the difference from Option A, and year-by-year balances. The main year-by-year table adds columns for each option.
 
-## Currencies and rates
+## Goal finder
 
-- Pick from 9 currencies, or type any other currency. The page guesses a starting currency from the device's time zone or region. It reads these from the device and does not send them anywhere.
-- Browse advertised savings and term deposit rates for the USA, Australia, New Zealand, Canada, the UK, Europe, India, Singapore and Japan, checked in November 2026. Click **Use this rate** to load one into Option A, B or C.
-- For other currencies, use the research links to find local rates and save them. Saved rates stay in that browser on that device only.
+- Type a goal (in future money, or in today's money allowing for inflation). Using Option A's settings, it shows how much to add each time to reach the goal in your chosen years, with a button to use that amount, and how long it takes with what you add now.
+
+## Currencies
+
+- Pick from 9 currencies, or type any other currency. The page guesses a starting currency from the device's time zone or region. It reads these from the device and does not send them anywhere. Your last currency choice is remembered in your own browser only.
+- You type your own interest rates. Check current rates with your bank or a comparison website.
 
 ## Privacy
 
 - Visits are counted anonymously with [GoatCounter](https://www.goatcounter.com/): no cookies and no personal data. It records only things like the page visited, the country, the type of device and where the visit came from.
 - The amounts, rates and other numbers you type never leave your browser.
 - Opening `index.html` from your own computer is not counted.
+- The **Feedback / Contact** link opens a separate Google Form. Only what you choose to type there is sent (your email is optional), and Google stores it. The form is not used for personal financial or tax advice.
+
+## Feedback
+
+Found a mistake or have an idea? Use the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSen8tOrDVLJdkpFpjhgKqawVwHMIy0JHeH_Q8XEy8JMrlayGw/viewform).
 
 ## Run locally
 
@@ -40,4 +49,4 @@ Open `index.html` in any browser.
 
 ## Disclaimer
 
-Advertised rates change often. Check them with the bank before you rely on them. Tax and fees are not included. House prices and share returns are steady yearly guesses; real ones go up and down, and rent is not included. This is for learning only and is not financial advice. Seek professional services before making any commitment. Everything here is speculative and subject to change.
+Interest rates change often; check current rates with your bank before you rely on them. Tax (such as capital gains tax, tax on interest and tax on rent) and bank fees are not included; please seek your own tax advice. House prices, rents and share returns are steady yearly guesses; real ones go up and down. This is for learning only and is not financial or tax advice. Seek professional services before making any commitment. Everything here is speculative and subject to change.
