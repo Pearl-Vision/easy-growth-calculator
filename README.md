@@ -1,4 +1,4 @@
-# Compound Interest Calculator
+# Easy Growth Calculator
 
 A compound interest calculator that runs in the browser. It needs no install and no build step.
 
