@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Easy Growth Planner – 1-minute guide</title>
+<meta name="description" content="A one-minute animated guide to Easy Growth Planner: fill in Option A, compare options, set a goal and see the winner.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap">
+<style>
+  [hidden] { display: none !important; }
+  body { margin: 0; }
+  /* Layout: one manga "stage" panel that plays seven short scenes, with episode controls under it. */
+  :root {
+    --paper: #eef2ff;      /* page behind the panel */
+    --panel: #ffffff;      /* the manga panel */
+    --ink: #1a1433;        /* outlines and text */
+    --muted: #5a5578;
+    --dot: rgba(26, 20, 51, 0.07);   /* halftone dots */
+    --sakura: #ff4f86;     /* accent */
+    --coin: #ffc83d;       /* Sprout the coin */
+    --leaf: #22b26a;
+    --ray: rgba(255, 200, 61, 0.28);
+    --optA: #4f46e5; --optB: #0ea5e9; --optC: #db2777; --optD: #16a34a;
+    --display: "Bangers", "Impact", "Arial Black", sans-serif;
+    --body: "M PLUS Rounded 1c", "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0d0b1c; --panel: #1a1631; --ink: #f1eeff; --muted: #b3acd6;
+      --dot: rgba(241, 238, 255, 0.06); --ray: rgba(255, 200, 61, 0.14); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0d0b1c; --panel: #1a1631; --ink: #f1eeff; --muted: #b3acd6;
+    --dot: rgba(241, 238, 255, 0.06); --ray: rgba(255, 200, 61, 0.14); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+  .wrap { max-width: 960px; margin: 0 auto; padding-block: 24px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; gap: 16px; }
+  .top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+  .brand { font-family: var(--display); font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: 0.04em; }
+  .brand b { color: var(--sakura); font-weight: 400; }
+  .back { font-weight: 800; color: var(--ink); text-decoration: none; border: 3px solid var(--ink); border-radius: 10px;
+    padding: 4px 12px; background: var(--panel); box-shadow: 3px 3px 0 var(--ink); }
+  .back:hover, .back:focus-visible { background: var(--coin); color: #1a1433; }
+  .ep { font-size: 0.85rem; color: var(--muted); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* ---------- The manga panel ---------- */
+  .stage { position: relative; min-height: 460px; border: 4px solid var(--ink); border-radius: 6px; overflow: hidden;
+    background: radial-gradient(var(--dot) 1.2px, transparent 1.6px) 0 0 / 10px 10px, var(--panel);
+    box-shadow: 8px 8px 0 var(--ink); }
+  .scene { position: absolute; inset: 0; padding: 28px; display: grid; align-content: center; gap: 18px; isolation: isolate; }
+  .scene[hidden] { display: none !important; }
+  .scene h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(1.8rem, 5vw, 2.8rem);
+    letter-spacing: 0.03em; line-height: 1.05; text-wrap: balance; }
+  .tag { display: inline-block; font-family: var(--display); font-size: 1rem; letter-spacing: 0.08em;
+    background: var(--ink); color: var(--panel); padding: 2px 10px; transform: rotate(-2deg); justify-self: start; }
+
+  /* Speech bubble */
+  .bubble { position: relative; background: var(--panel); border: 3px solid var(--ink); border-radius: 22px;
+    padding: 12px 16px; font-weight: 700; max-width: 34ch; }
+  .bubble::after { content: ""; position: absolute; left: 26px; bottom: -14px; width: 22px; height: 22px;
+    background: var(--panel); border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: rotate(45deg); }
+  .bubble.left::after { left: -13px; top: 22px; bottom: auto; transform: rotate(135deg); }
+
+  /* Sound effects */
+  .sfx { font-family: var(--display); color: var(--coin); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill;
+    font-size: clamp(2rem, 6vw, 3.4rem); letter-spacing: 0.04em; transform: rotate(-8deg); line-height: 1; }
+
+  /* Sprout and rivals */
+  .coin { width: 120px; height: 140px; display: block; }
+  .coin .body { fill: var(--c, var(--coin)); stroke: #1a1433; stroke-width: 4; }
+  .coin .ring { fill: none; stroke: rgba(26, 20, 51, 0.25); stroke-width: 3; }
+  .coin .ink { fill: #1a1433; }
+  .coin .line { fill: none; stroke: #1a1433; stroke-width: 3.5; stroke-linecap: round; }
+  .coin .shine { fill: #fff; }
+  .coin .blush { fill: #ff8fb1; opacity: 0.7; }
+  .coin .leafs { fill: var(--leaf); stroke: #1a1433; stroke-width: 2.5; }
+  .bob { animation: bob 2.2s ease-in-out infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  /* ---------- Scene 1: title card ---------- */
+  .s-title { justify-items: center; text-align: center; }
+  .s-title::before { content: ""; position: absolute; inset: -60%; z-index: -1;
+    background: repeating-conic-gradient(from 0deg, var(--ray) 0deg 8deg, transparent 8deg 20deg);
+    animation: spin 40s linear infinite; }
+  .s-title > * { position: relative; z-index: 1; }
+  .s-title .coin { width: 150px; height: 175px; }
+  .s-title h2 { font-size: clamp(2.4rem, 8vw, 4.4rem); color: var(--sakura); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
+  .s-title .sub { font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.9rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* Dollar waterfall pouring down behind EGP, in every scene EGP appears in (--cx = where EGP stands) */
+  .scene > .cascade { --cx: 50%; position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    --w: 150px;
+    background: linear-gradient(90deg, transparent calc(var(--cx) - var(--w) - 20px), color-mix(in srgb, var(--leaf) 16%, transparent) var(--cx), transparent calc(var(--cx) + var(--w) + 20px)); }
+  .scene > .cascade.edge { opacity: 0.85; }
+  .scene.rain > *:not(.cascade) { position: relative; z-index: 1; }
+  .cascade span { position: absolute; top: -40px; font-family: var(--display); line-height: 1; color: var(--leaf);
+    -webkit-text-stroke: 1.5px #1a1433; paint-order: stroke fill; will-change: transform;
+    animation: fall var(--t) linear var(--d) infinite; }
+  .cascade span.bill { -webkit-text-stroke: 0; }
+  @keyframes fall {
+    from { transform: translate(0, 0) rotate(var(--r0)); }
+    to { transform: translate(var(--drift), 720px) rotate(var(--r1)); }
+  }
+  /* Splash where the money lands */
+  .cascade .splash { position: absolute; left: var(--cx); bottom: -30px; width: calc(var(--w) * 2 + 60px); height: 50px; transform: translateX(-50%);
+    border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--leaf) 45%, transparent), transparent);
+    animation: splash 0.9s ease-in-out infinite alternate; }
+  @keyframes splash { to { transform: translateX(-50%) scaleX(1.15); } }
+  /* A stream that rises instead of falls (scene 7, right side): starts at the bottom, floats up to the top */
+  .cascade.up span { top: auto; bottom: -40px; animation-name: rise; }
+  .cascade.up .splash { bottom: auto; top: -30px; }
+  @keyframes rise {
+    from { transform: translate(0, 0) rotate(var(--r0)); }
+    to { transform: translate(var(--drift), -720px) rotate(var(--r1)); }
+  }
+
+  /* Scene parts slide/pop in when a scene starts (they rest fully visible) */
+  .on .pop { animation: pop 0.55s cubic-bezier(.2, 1.6, .4, 1) both; }
+  .on .slide { animation: slide 0.6s ease-out both; }
+  .on .d1 { animation-delay: 0.15s; } .on .d2 { animation-delay: 0.35s; } .on .d3 { animation-delay: 0.55s; }
+  .on .d4 { animation-delay: 0.75s; } .on .d5 { animation-delay: 1.4s; }
+  @keyframes pop { from { transform: scale(0.3) rotate(-6deg); opacity: 0; } }
+  @keyframes slide { from { transform: translateX(-40px); opacity: 0; } }
+
+  /* ---------- Scene 2: Option A form ---------- */
+  .duo { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; }
+  .speaker { display: grid; gap: 14px; justify-items: start; }
+  .form { border: 3px solid var(--ink); border-radius: 12px; background: var(--panel); padding: 14px 16px; display: grid; gap: 8px;
+    box-shadow: 5px 5px 0 var(--optA); }
+  .form h3 { margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .chip { width: 12px; height: 12px; border-radius: 3px; background: var(--c); display: inline-block; }
+  .field { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center;
+    border-bottom: 2px dashed color-mix(in srgb, var(--ink) 25%, transparent); padding-bottom: 6px; font-size: 0.92rem; }
+  .field span:first-child { color: var(--muted); font-weight: 700; }
+  .field output { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 7ch; text-align: right; }
+  .field output::after { content: "▍"; color: var(--sakura); animation: blink 0.8s steps(1) infinite; opacity: 0; }
+  .field output.typing::after { opacity: 1; }
+  @keyframes blink { 50% { color: transparent; } }
+  .result { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-weight: 800; }
+  .result .big { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Scene 3: rivals ---------- */
+  .s-rivals::before { content: ""; position: absolute; inset: 0; z-index: 0; opacity: 0.6;
+    background: repeating-linear-gradient(100deg, transparent 0 22px, var(--dot) 22px 24px); }
+  .s-rivals > * { position: relative; z-index: 1; }
+  .rivals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .rival { display: grid; justify-items: center; gap: 6px; text-align: center; }
+  .rival .coin { width: 96px; height: 112px; }
+  .rival b { font-family: var(--display); font-weight: 400; font-size: 1.3rem; letter-spacing: 0.05em; color: var(--c); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+  .rival small { font-weight: 700; color: var(--muted); font-size: 0.8rem; line-height: 1.3; }
+  .on .rival { animation: dash 0.5s ease-out both; }
+  .on .rival:nth-child(2) { animation-delay: 0.2s; } .on .rival:nth-child(3) { animation-delay: 0.4s; } .on .rival:nth-child(4) { animation-delay: 0.6s; }
+  @keyframes dash { from { transform: translateX(120%) skewX(-18deg); opacity: 0; } 70% { transform: translateX(-6%) skewX(6deg); } }
+
+  /* ---------- Scene 4: goal race ---------- */
+  .race-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  .goal-pill { border: 3px solid var(--ink); border-radius: 999px; padding: 4px 14px; font-weight: 800; background: var(--panel); }
+  .year { font-family: var(--display); font-size: 1.6rem; letter-spacing: 0.05em; font-variant-numeric: tabular-nums; }
+  .track { position: relative; height: 210px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;
+    align-items: end; padding: 0 12px; border-bottom: 3px solid var(--ink); }
+  .goal-line { position: absolute; left: 0; right: 0; border-top: 3px dashed var(--sakura); z-index: 2; }
+  .goal-line span { position: absolute; right: 4px; top: -24px; font-weight: 800; color: var(--sakura); font-size: 0.85rem; background: var(--panel); padding: 0 4px; }
+  .bar { position: relative; height: 0%; background: color-mix(in srgb, var(--c) 35%, transparent); border: 3px solid var(--c);
+    border-bottom: 0; border-radius: 6px 6px 0 0; transition: height 0.35s linear; }
+  .bar .who { position: absolute; bottom: -30px; left: 0; right: 0; text-align: center; font-weight: 800; color: var(--c); }
+  .bar .hit { position: absolute; left: 50%; top: -34px; transform: translateX(-50%) scale(0); white-space: nowrap;
+    font-weight: 800; font-size: 0.8rem; background: var(--ink); color: var(--panel); border-radius: 999px; padding: 2px 8px;
+    transition: transform 0.35s cubic-bezier(.2, 1.6, .4, 1); }
+  .bar.got .hit { transform: translateX(-50%) scale(1); }
+  .race-note { font-weight: 700; min-height: 1.5em; margin-top: 18px; }
+
+  /* ---------- Scene 5: winner chart ---------- */
+  .chart-wrap { overflow-x: auto; }
+  .chart { width: 100%; height: auto; display: block; max-width: 100%; }
+  .chart .axis { stroke: var(--ink); stroke-width: 2; }
+  .chart .grid { stroke: color-mix(in srgb, var(--ink) 15%, transparent); stroke-width: 1; }
+  .chart text { fill: var(--muted); font-size: 12px; font-family: var(--body); font-weight: 700; }
+  .chart .ln { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .on .chart .ln { animation: draw 2.2s ease-out both; }
+  .chart .ln.win { stroke-width: 7; filter: drop-shadow(0 0 6px var(--optB)); }
+  @keyframes draw { from { stroke-dashoffset: var(--len); } }
+  .win-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .trophy { font-size: 2.6rem; line-height: 1; }
+  .on .trophy { animation: pop 0.6s 2s cubic-bezier(.2, 1.6, .4, 1) both; }
+
+  /* ---------- Scene 6: power-ups ---------- */
+  .powers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .power { border: 3px solid var(--ink); border-radius: 14px; padding: 14px; background: var(--panel); display: grid; gap: 6px;
+    box-shadow: 5px 5px 0 var(--c); }
+  .power .ic { font-size: 2rem; line-height: 1; }
+  .power b { font-size: 1.05rem; }
+  .power p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+
+  /* ---------- Scene 7: your turn ---------- */
+  .s-end { justify-items: center; text-align: center; }
+  .s-end .coin { width: 140px; height: 165px; }
+  .wave { transform-origin: 50% 90%; }
+  .on .wave { animation: wave 1.2s ease-in-out 3; }
+  @keyframes wave { 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+  .go { display: inline-block; font-family: var(--display); font-size: 1.5rem; letter-spacing: 0.06em; text-decoration: none;
+    color: var(--ink); background: var(--coin); border: 3px solid #1a1433; border-radius: 12px; padding: 8px 22px;
+    box-shadow: 5px 5px 0 var(--ink); color: #1a1433; transition: transform 0.15s, box-shadow 0.15s; }
+  .go:hover, .go:focus-visible { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+  .fine { font-size: 0.85rem; color: var(--muted); max-width: 52ch; margin: 0; }
+
+  /* ---------- Controls ---------- */
+  .controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+  .btn { font: inherit; font-weight: 800; color: var(--ink); background: var(--panel); border: 3px solid var(--ink); border-radius: 10px;
+    padding: 6px 14px; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .dots { display: flex; gap: 8px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); background: var(--panel); padding: 0; cursor: pointer; }
+  .dot[aria-current="true"] { background: var(--sakura); }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--sakura); outline-offset: 3px; }
+  .bar-time { height: 6px; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--panel); }
+  .bar-time i { display: block; height: 100%; width: 0; background: var(--sakura); }
+  .note { font-size: 0.85rem; color: var(--muted); margin: 0; text-align: center; }
+  .snd[aria-pressed="true"] { background: var(--coin); color: #1a1433; }
+  .snd[hidden] { display: none !important; }
+
+  @media (max-width: 640px) {
+    .stage { min-height: 620px; }
+    .scene { padding: 20px 16px; }
+    .duo { grid-template-columns: minmax(0, 1fr); }
+    .rivals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .powers { grid-template-columns: minmax(0, 1fr); }
+    .track { height: 180px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="top">
+    <span class="brand">EASY <b>GROWTH</b> PLANNER</span>
+    <span class="ep" id="epLabel">Episode 1 · Scene 1 of 7</span>
+    <a class="back" href="./">← Back to the planner</a>
+  </header>
+
+  <section class="stage" id="stage" aria-label="Animated guide to Easy Growth Planner">
+
+    <!-- 1. Title card -->
+    <article class="scene s-title rain on" data-name="Title">
+      <div class="cascade" aria-hidden="true" style="--cx:50%;--w:150px" data-n="56"></div>
+      <div class="pop" data-coin="sprout"></div>
+      <h2 class="pop d1">Your Easy Growth Planner</h2>
+      <div class="sub slide d2">Episode 1 · Compare. Plan. Grow.</div>
+      <div class="bubble pop d3">Hi, I'm EGP! Let's see how your money could grow.</div>
+    </article>
+
+    <!-- 2. Option A -->
+    <article class="scene rain" data-name="Option A" hidden>
+      <div class="cascade edge" aria-hidden="true" style="--cx:calc(100% - 16px);--w:16px" data-n="22"></div>
+      <span class="tag">Step 1</span>
+      <div class="duo">
+        <div class="speaker"><div class="bob" data-coin="sprout"></div></div>
+        <div style="display:grid;gap:14px;min-width:0">
+          <div class="bubble left slide">First, tell me about <em>your</em> money. That's Option A.</div>
+          <div class="form pop d1" style="--c:var(--optA)">
+            <h3><span class="chip"></span> Option A <small style="color:var(--muted);font-weight:700">your details</small></h3>
+            <div class="field"><span>Starting amount</span><output data-type="$10,000"></output></div>
+            <div class="field"><span>Add every month</span><output data-type="$500"></output></div>
+            <div class="field"><span>Interest per year</span><output data-type="6%"></output></div>
+            <div class="field"><span>Number of years</span><output data-type="20 years"></output></div>
+          </div>
+          <div class="result pop d5"><span>After 20 years:</span><span class="big" id="aFinal"></span><span class="sfx">KA-CHING!</span></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 3. Rivals -->
+    <article class="scene s-rivals rain" data-name="Compare" hidden>
+      <div class="cascade edge" aria-hidden="true" style="--cx:16px;--w:16px" data-n="22"></div>
+      <span class="tag">Step 2</span>
+      <h2>Friends join in!</h2>
+      <div class="rivals">
+        <div class="rival" style="--c:var(--optA)"><div data-coin="rival" data-color="--optA"></div><b>A</b><small>You · 6%</small></div>
+        <div class="rival" style="--c:var(--optB)"><div data-coin="rival" data-color="--optB"></div><b>B</b><small>8% a year</small></div>
+        <div class="rival" style="--c:var(--optC)"><div data-coin="rival" data-color="--optC"></div><b>C</b><small>4% a year, any currency</small></div>
+        <div class="rival" style="--c:var(--optD)"><div data-coin="rival" data-color="--optD"></div><b>D</b><small>A house 🏠 or shares 📈</small></div>
+      </div>
+      <div class="bubble pop d5">Try a different rate, currency or number of years in B and C. D can even be a house or shares!</div>
+    </article>
+
+    <!-- 4. Goal race -->
+    <article class="scene rain" data-name="Goal" hidden>
+      <div class="cascade edge" aria-hidden="true" style="--cx:calc(100% - 16px);--w:16px" data-n="22"></div>
+      <span class="tag">Step 3</span>
+      <div class="race-head">
+        <h2>The goal race</h2>
+        <span class="goal-pill">🎯 Goal: $100,000</span>
+        <span class="year" id="raceYear">Year 0</span>
+      </div>
+      <div class="track" id="track">
+        <div class="goal-line" id="goalLine"><span>$100,000</span></div>
+        <div class="bar" style="--c:var(--optA)"><span class="hit"></span><span class="who">A</span></div>
+        <div class="bar" style="--c:var(--optB)"><span class="hit"></span><span class="who">B</span></div>
+        <div class="bar" style="--c:var(--optC)"><span class="hit"></span><span class="who">C</span></div>
+      </div>
+      <p class="race-note" id="raceNote">Set a goal in the Goal finder and watch who gets there first.</p>
+    </article>
+
+    <!-- 5. Winner -->
+    <article class="scene rain" data-name="Winner" hidden>
+      <div class="cascade edge" aria-hidden="true" style="--cx:12px;--w:10px" data-n="18"></div>
+      <span class="tag">Step 4</span>
+      <div class="win-row">
+        <h2>And the winner is…</h2>
+        <span class="trophy" aria-hidden="true">🏆</span>
+      </div>
+      <div class="chart-wrap"><svg class="chart" id="chart" viewBox="0 0 640 270" role="img" aria-label="Balances over 20 years: B ends highest, then A, then C"></svg></div>
+      <div class="bubble pop d5" id="winText">Option B!</div>
+    </article>
+
+    <!-- 6. Power-ups -->
+    <article class="scene rain" data-name="Power-ups" hidden>
+      <div class="cascade edge" aria-hidden="true" style="--cx:calc(100% - 16px);--w:16px" data-n="22"></div>
+      <span class="tag">Power-ups</span>
+      <h2>Extra tricks</h2>
+      <div class="powers">
+        <div class="power pop d1" style="--c:var(--optA)"><span class="ic">🛒</span><b>Today's money</b><p>Add inflation to see what your money will really buy later.</p></div>
+        <div class="power pop d2" style="--c:var(--optB)"><span class="ic">💱</span><b>Any currency</b><p>B and C can use another currency. The exchange rate updates every day.</p></div>
+        <div class="power pop d3" style="--c:var(--optC)"><span class="ic">🎯</span><b>Goal bars</b><p>Bars on the chart show when each option reaches your goal.</p></div>
+      </div>
+      <div class="bubble pop d4">And it all works on your phone too!</div>
+    </article>
+
+    <!-- 7. Your turn -->
+    <article class="scene s-end rain" data-name="Your turn" hidden>
+      <div class="cascade edge" aria-hidden="true" style="--cx:7%;--w:30px" data-n="28"></div>
+      <div class="cascade edge up" aria-hidden="true" style="--cx:calc(100% - 16px);--w:18px" data-n="22"></div>
+      <div class="wave" data-coin="sprout"></div>
+      <h2>Your turn!</h2>
+      <a class="go pop d1" href="./">Open Easy Growth Planner →</a>
+      <p class="fine slide d2">Estimates only. Rates, prices and exchange rates change, and tax is not included.
+        Get professional and tax advice before you decide.</p>
+    </article>
+  </section>
+
+  <div class="bar-time" aria-hidden="true"><i id="timeBar"></i></div>
+  <nav class="controls" aria-label="Scene controls">
+    <button type="button" class="btn" id="prevBtn" aria-label="Previous scene">◀ Back</button>
+    <div class="dots" id="dots"></div>
+    <button type="button" class="btn" id="playBtn">⏸ Pause</button>
+    <button type="button" class="btn" id="nextBtn" aria-label="Next scene">Next ▶</button>
+  </nav>
+  <div class="controls sound" aria-label="Sound">
+    <button type="button" class="btn snd" id="moneyBtn" aria-pressed="false">💰 Money sounds: off</button>
+    <button type="button" class="btn snd" id="musicBtn" aria-pressed="false">🎵 Music: off</button>
+  </div>
+  <p class="note">Press 💰 Money sounds for ka-chings and coin clinks, and 🎵 Music for a tune (all made by this page, no sound files).<br>
+    Example: $10,000 to start, $500 a month, compounded yearly, for 20 years. Numbers are worked out the same way as in the app.</p>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // ---------- The same maths as the app: monthly growth, money added at the end of each month ----------
+  function grow(P, C, ratePct, years) {
+    const mg = Math.pow(1 + ratePct / 100, 1 / 12);     // compounded yearly
+    let b = P; const out = [P];
+    for (let m = 1; m <= years * 12; m++) { b = b * mg + C; if (m % 12 === 0) out.push(b); }
+    return out;
+  }
+  const A = grow(10000, 500, 6, 20), B = grow(10000, 500, 8, 20), C = grow(10000, 500, 4, 20);
+  const GOAL = 100000;
+  const reach = (arr) => arr.findIndex(v => v >= GOAL);   // first year at or above the goal
+  $("aFinal").textContent = money(A[20]);
+  $("winText").textContent = `Option B! ${money(B[20])} after 20 years. The top card in the app always shows the winner.`;
+
+  // ---------- Sprout and the rivals (original characters, drawn in SVG) ----------
+  function coinSVG(kind, colorVar) {
+    const rival = kind === "rival";
+    const fill = colorVar ? `style="--c:var(${colorVar})"` : "";
+    return `<svg class="coin" viewBox="0 0 120 140" ${fill} aria-hidden="true">
+      ${rival ? "" : `<path class="line" d="M60 36 L60 16" /><ellipse class="leafs" cx="48" cy="16" rx="12" ry="6" transform="rotate(-25 48 16)"/><ellipse class="leafs" cx="72" cy="12" rx="12" ry="6" transform="rotate(25 72 12)"/>`}
+      <circle class="body" cx="60" cy="84" r="46"/>
+      <circle class="ring" cx="60" cy="84" r="38"/>
+      <ellipse class="ink" cx="45" cy="82" rx="8" ry="11"/><ellipse class="ink" cx="75" cy="82" rx="8" ry="11"/>
+      <circle class="shine" cx="42" cy="77" r="3.2"/><circle class="shine" cx="72" cy="77" r="3.2"/>
+      <circle class="shine" cx="48" cy="88" r="1.6"/><circle class="shine" cx="78" cy="88" r="1.6"/>
+      <ellipse class="blush" cx="33" cy="96" rx="7" ry="4"/><ellipse class="blush" cx="87" cy="96" rx="7" ry="4"/>
+      <path class="line" d="M49 99 Q60 112 71 99"/>
+    </svg>`;
+  }
+  document.querySelectorAll("[data-coin]").forEach(el => el.innerHTML = coinSVG(el.dataset.coin, el.dataset.color));
+
+  // ---------- Dollar waterfall behind EGP (every scene EGP is in): $ signs and bills, thickest behind EGP ----------
+  if (!still) document.querySelectorAll(".cascade").forEach(box => {   // no falling money when motion is switched off
+    let html = "";
+    const n = parseInt(box.dataset.n || "56", 10);
+    const w = parseFloat(getComputedStyle(box).getPropertyValue("--w")) || 150;
+    const k = box.classList.contains("edge") ? 0.7 : 1;  // side streams use smaller money
+    for (let i = 0; i < n; i++) {
+      const spread = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;   // most near the middle of the stream
+      const bill = Math.random() < 0.22;
+      const size = (bill ? 20 + Math.random() * 14 : 16 + Math.random() * 22) * k;
+      const t = 1.6 + Math.random() * 1.6;
+      html += `<span class="${bill ? "bill" : ""}" style="left:calc(var(--cx) + ${Math.round(spread * w)}px - ${(size / 2).toFixed(0)}px);font-size:${size.toFixed(0)}px;` +
+        `--t:${t.toFixed(2)}s;--d:${(-Math.random() * t).toFixed(2)}s;--drift:${Math.round((Math.random() - 0.5) * Math.min(40, w))}px;` +
+        `--r0:${Math.round((Math.random() - 0.5) * 40)}deg;--r1:${Math.round((Math.random() - 0.5) * 220)}deg">${bill ? "💵" : "$"}</span>`;
+    }
+    box.innerHTML = html + `<div class="splash"></div>`;
+  });
+
+  // ---------- Winner chart (drawn to scale) ----------
+  (function drawChart() {
+    const svg = $("chart"), W = 640, H = 270, L = 56, R = 20, T = 14, Bm = 30, max = 350000;
+    const x = (i) => L + (W - L - R) * i / 20, y = (v) => T + (H - T - Bm) * (1 - v / max);
+    let s = "";
+    for (let v = 0; v <= max; v += 50000) {
+      s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>` +
+           `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">$${v / 1000}K</text>`;
+    }
+    [0, 5, 10, 15, 20].forEach(i => s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${i === 0 ? "Start" : "Year " + i}</text>`);
+    s += `<line class="axis" x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}"/>`;
+    const path = (arr) => arr.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+    [[C, "--optC", ""], [A, "--optA", ""], [B, "--optB", " win"]].forEach(([arr, col, cls]) => {
+      s += `<path class="ln${cls}" d="${path(arr)}" style="stroke:var(${col})"/>`;
+    });
+    [[B, "B", "--optB"], [A, "A", "--optA"], [C, "C", "--optC"]].forEach(([arr, k, col]) =>
+      s += `<text x="${x(20) - 6}" y="${y(arr[20]) - 10}" text-anchor="end" style="fill:var(${col});font-size:14px">${k}</text>`);
+    svg.innerHTML = s;
+    svg.querySelectorAll(".ln").forEach(p => { const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.setProperty("--len", len); });
+  })();
+
+  // ---------- Goal race ----------
+  const bars = [...document.querySelectorAll(".bar")], series = [A, B, C], names = ["A", "B", "C"];
+  const SCALE = 130000, LAST = 12;
+  $("goalLine").style.bottom = (GOAL / SCALE * 100) + "%";
+  let raceTimer = null;
+  function raceShow(year) {
+    $("raceYear").textContent = "Year " + year;
+    bars.forEach((b, i) => {
+      b.style.height = Math.min(100, series[i][year] / SCALE * 100) + "%";
+      const r = reach(series[i]);
+      const got = r !== -1 && year >= r;
+      if (got && !b.classList.contains("got") && year > 0) kaChing();   // reached the goal just now
+      b.classList.toggle("got", got);
+      b.querySelector(".hit").textContent = got ? `🎯 Year ${r}` : "";
+    });
+    const done = names.map((k, i) => ({ k, r: reach(series[i]) })).filter(o => o.r !== -1 && year >= o.r).sort((a, b) => a.r - b.r);
+    $("raceNote").textContent = done.length
+      ? `${done.map(o => `Option ${o.k} reaches the goal in year ${o.r}`).join(" · ")}.`
+      : "Set a goal in the Goal finder and watch who gets there first.";
+  }
+  function raceStart() {
+    clearInterval(raceTimer);
+    if (still) { raceShow(LAST); return; }
+    let yr = 0; raceShow(0);
+    raceTimer = setInterval(() => { yr++; raceShow(yr); if (yr >= LAST) clearInterval(raceTimer); }, 450);
+  }
+
+  // ---------- Typing in Option A ----------
+  let typeTimers = [];
+  function typeStart(scene) {
+    typeTimers.forEach(clearTimeout); typeTimers = [];
+    const outs = [...scene.querySelectorAll("output[data-type]")];
+    outs.forEach(o => { o.textContent = still ? o.dataset.type : ""; o.classList.remove("typing"); });
+    if (still) return;
+    let t = 300;
+    outs.forEach(o => {
+      const text = o.dataset.type;
+      typeTimers.push(setTimeout(() => o.classList.add("typing"), t));
+      [...text].forEach((ch, i) => { t += 70; typeTimers.push(setTimeout(() => o.textContent = text.slice(0, i + 1), t)); });
+      t += 120; typeTimers.push(setTimeout(() => o.classList.remove("typing"), t));
+    });
+  }
+
+  // ---------- Scenes, dots, autoplay ----------
+  const scenes = [...document.querySelectorAll(".scene")];
+  const LENGTHS = [5000, 7500, 6500, 8500, 7000, 6500, 9000];   // ms each scene stays on screen
+  let cur = 0, playing = !still, timer = null, started = 0;
+  const dots = $("dots");
+  scenes.forEach((s, i) => {
+    const d = document.createElement("button");
+    d.type = "button"; d.className = "dot"; d.setAttribute("aria-label", `Scene ${i + 1}: ${s.dataset.name}`);
+    d.addEventListener("click", () => { go(i); });
+    dots.appendChild(d);
+  });
+  function go(i) {
+    cur = (i + scenes.length) % scenes.length;
+    scenes.forEach((s, j) => { s.hidden = j !== cur; s.classList.remove("on"); });
+    void scenes[cur].offsetWidth;                        // restart the scene's animations
+    scenes[cur].classList.add("on");
+    [...dots.children].forEach((d, j) => d.setAttribute("aria-current", j === cur ? "true" : "false"));
+    $("epLabel").textContent = `Episode 1 · Scene ${cur + 1} of ${scenes.length}`;
+    if (scenes[cur].querySelector("output[data-type]")) typeStart(scenes[cur]);
+    if (scenes[cur].querySelector("#track")) raceStart();
+    sceneSounds(cur);
+    schedule();
+  }
+  function schedule() {
+    clearTimeout(timer);
+    started = performance.now();
+    if (playing) timer = setTimeout(() => go(cur + 1), LENGTHS[cur]);
+  }
+
+  // ---------- Sound: everything is made live with the Web Audio API (no sound files, nothing sent anywhere) ----------
+  let ac = null, musicGain = null, sfxGain = null, noise = null;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) { $("moneyBtn").hidden = true; $("musicBtn").hidden = true; }
+  function audio() {                                   // one audio engine for the music and the money sounds
+    if (!ac) {
+      ac = new AC();
+      musicGain = ac.createGain(); musicGain.gain.value = 0.0001; musicGain.connect(ac.destination);
+      sfxGain = ac.createGain(); sfxGain.gain.value = 0.32; sfxGain.connect(ac.destination);
+      noise = ac.createBuffer(1, ac.sampleRate * 0.2, ac.sampleRate);
+      const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ac.state !== "running") ac.resume();
+    return ac;
+  }
+  // A ringing partial (a bell or a coin is a few of these together)
+  function ring(t, freq, dur, gain, out) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function hiss(t, dur, gain, freq, out) {             // a short burst of noise ("ka", "tss")
+    const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = noise; f.type = "bandpass"; f.frequency.value = freq; f.Q.value = 1.2;
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(out); src.start(t); src.stop(t + dur + 0.02);
+  }
+
+  // ---------- Money sounds: a cash-register "ka-ching" and coin clinks ----------
+  let moneyOn = false, sfxTimers = [];
+  function kaChing() {
+    if (!moneyOn) return;
+    const t = audio().currentTime + 0.01;
+    hiss(t, 0.06, 0.9, 2200, sfxGain);                  // "ka": the drawer
+    hiss(t + 0.05, 0.04, 0.6, 4200, sfxGain);
+    [[2093, 0.9], [2637, 0.6], [3136, 0.45], [4186, 0.25], [1046.5, 0.35]].forEach(([f, g]) => {
+      ring(t + 0.09, f, 0.9, g * 0.5, sfxGain);        // "ching": the bell
+      ring(t + 0.19, f * 1.0595, 0.8, g * 0.35, sfxGain);
+    });
+  }
+  function clink(delay = 0) {                          // one coin
+    if (!moneyOn) return;
+    const t = audio().currentTime + 0.01 + delay;
+    const base = 2600 + Math.random() * 1800;
+    ring(t, base, 0.16, 0.5, sfxGain);
+    ring(t, base * 1.52, 0.11, 0.3, sfxGain);
+    ring(t + 0.035, base * 1.09, 0.1, 0.2, sfxGain);   // a tiny bounce
+  }
+  function coinShower(count, seconds) { for (let i = 0; i < count; i++) clink(Math.random() * seconds); }
+  function later(ms, fn) { sfxTimers.push(setTimeout(fn, ms)); }
+  // What each scene sounds like (timed to its animations)
+  function sceneSounds(i) {
+    sfxTimers.forEach(clearTimeout); sfxTimers = [];
+    if (!moneyOn || still) return;
+    if (i === 0) { coinShower(10, 1.6); later(500, kaChing); }                       // the money waterfall
+    if (i === 1) later(1450, kaChing);                                              // "KA-CHING!" pops up
+    if (i === 2) [0, 200, 400, 600].forEach(ms => later(ms + 300, () => clink()));  // the friends dash in
+    if (i === 3) clink();                                                           // the race (ka-ching at each goal)
+    if (i === 4) { later(2000, kaChing); later(2150, () => coinShower(6, 0.8)); }    // the trophy
+    if (i === 5) [150, 350, 550].forEach(ms => later(ms, () => clink()));           // the power-ups pop in
+    if (i === 6) { coinShower(12, 2); later(300, kaChing); }                         // your turn!
+  }
+  $("moneyBtn").addEventListener("click", () => {
+    moneyOn = !moneyOn;
+    $("moneyBtn").setAttribute("aria-pressed", moneyOn);
+    $("moneyBtn").textContent = moneyOn ? "💰 Money sounds: on" : "💰 Money sounds: off";
+    if (moneyOn) { audio(); kaChing(); } else { sfxTimers.forEach(clearTimeout); sfxTimers = []; }
+  });
+
+  // ---------- Music: an original, cheerful loop (chords C, G, Am, F; bass, soft arpeggio, a simple tune, a light beat) ----------
+  let musicTimer = null, nextTime = 0, stepIdx = 0, musicOn = false;
+  const STEP = 60 / 112 / 2;                           // eighth notes at 112 beats a minute
+  const CHORDS = [[60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60]];
+  const TUNE = [72, null, 76, 79, null, 76, 74, 72,   74, null, 79, null, 77, 76, 74, null,
+                76, null, 72, 76, 81, null, 79, 76,   77, 76, 74, 72, null, 74, 72, null];
+  const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  const VOL = 0.13;
+  function tone(t, m, dur, type, gain) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = hz(m);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(musicGain); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function musicTick() {
+    while (nextTime < ac.currentTime + 0.2) {
+      const bar = Math.floor(stepIdx / 8) % 4, st = stepIdx % 8, ch = CHORDS[bar];
+      if (st % 4 === 0) tone(nextTime, ch[0] - 24, STEP * 3.6, "triangle", 0.5);     // bass
+      tone(nextTime, ch[st % 3] + 12, STEP * 0.8, "square", 0.05);                   // arpeggio
+      const m = TUNE[stepIdx % 32];
+      if (m) tone(nextTime, m, STEP * 1.7, "triangle", 0.22);                        // the tune
+      if (st % 2 === 1) hiss(nextTime, 0.05, 0.12, 8000, musicGain);                 // "tss"
+      nextTime += STEP; stepIdx++;
+    }
+  }
+  function startMusic() {
+    audio();
+    musicGain.gain.cancelScheduledValues(ac.currentTime);
+    musicGain.gain.setValueAtTime(0.0001, ac.currentTime);
+    musicGain.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.6);          // fade in
+    nextTime = ac.currentTime + 0.1; stepIdx = 0;
+    clearInterval(musicTimer); musicTimer = setInterval(musicTick, 50);
+  }
+  function stopMusic() {
+    if (!ac) return;
+    musicGain.gain.cancelScheduledValues(ac.currentTime);
+    musicGain.gain.setTargetAtTime(0.0001, ac.currentTime, 0.15);                    // fade out
+    setTimeout(() => { if (!musicOn) clearInterval(musicTimer); }, 600);
+  }
+  $("musicBtn").addEventListener("click", () => {
+    musicOn = !musicOn;
+    if (musicOn) startMusic(); else stopMusic();
+    $("musicBtn").setAttribute("aria-pressed", musicOn);
+    $("musicBtn").textContent = musicOn ? "🎵 Music: on" : "🎵 Music: off";
+  });
+  // Quiet when the visitor switches to another tab; back on when they return
+  document.addEventListener("visibilitychange", () => {
+    if (!ac) return;
+    if (document.hidden) ac.suspend(); else if (musicOn || moneyOn) ac.resume();
+  });
+  (function tick() {                                     // the little progress bar under the panel
+    $("timeBar").style.width = playing ? Math.min(100, (performance.now() - started) / LENGTHS[cur] * 100) + "%" : "0%";
+    requestAnimationFrame(tick);
+  })();
+  function setPlay(p) { playing = p; $("playBtn").textContent = p ? "⏸ Pause" : "▶ Play"; schedule(); }
+  $("playBtn").addEventListener("click", () => setPlay(!playing));
+  $("prevBtn").addEventListener("click", () => go(cur - 1));
+  $("nextBtn").addEventListener("click", () => go(cur + 1));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") go(cur + 1);
+    if (e.key === "ArrowLeft") go(cur - 1);
+  });
+  if (!playing) $("playBtn").textContent = "▶ Play";
+  go(0);
+})();
+</script>
+<!-- Anonymous visit counting by GoatCounter (no cookies, no personal data). Dashboard: https://easygrowth.goatcounter.com -->
+<script data-goatcounter="https://easygrowth.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

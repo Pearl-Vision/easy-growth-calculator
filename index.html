@@ -45,10 +45,87 @@
   }
   header h1 { margin: 0 0 6px; font-size: clamp(1.5rem, 4vw, 2.2rem); }
   header p { margin: 0; opacity: 0.9; }
-  main { max-width: 1150px; margin: -40px auto 40px; padding: 0 16px; }
-  .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
-  .grid > *, .stack > * { min-width: 0; }
-  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+  main { max-width: 1280px; margin: -40px auto 40px; padding: 0 16px; }
+  /* Page layout: rows of cards. Rows 1 and 3 have two cards side by side; row 2 has the four options and the Goal finder. */
+  main > .row, main > .card { margin-bottom: 20px; }
+  .row { display: grid; gap: 20px; }
+  .row > * { min-width: 0; }
+  .row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row-2.solo { grid-template-columns: minmax(0, 1fr); }          /* only one card showing: use the full width */
+  /* Options: A on the left (two rows tall); B, C and D side by side with equal heights;
+     the Goal finder fills the space under B, C and D */
+  .row-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: auto 1fr; align-items: stretch; }
+  .row-4 .opt-a { grid-column: 1; grid-row: 1 / span 2; }
+  .row-4 .goal-card { grid-column: 2 / -1; grid-row: 2; align-self: start; }
+  @media (max-width: 1100px) {   /* tablet: two by two, then the Goal finder across the full width */
+    .row-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
+    .row-4 .opt-a, .row-4 .goal-card { grid-column: auto; grid-row: auto; }
+    .row-4 .goal-card { grid-column: 1 / -1; }
+  }
+  @media (max-width: 880px) { .row-2 { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 620px) { .row-4 { grid-template-columns: minmax(0, 1fr); } }
+  .opt-tip { margin: -8px 0 4px; }
+  /* ---------- How to use: four steps that slide in, then take turns to glow ---------- */
+  .how { padding: 16px 20px; }
+  .how-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .how .how-top h2 { margin-right: auto; }        /* the guide button and ✕ sit on the right */
+  /* "Watch the 1-minute guide": opens the animated guide (guide.html) in a new tab */
+  .how-video { font-weight: 700; font-size: 0.9rem; text-decoration: none; color: #fff; border-radius: 999px; padding: 6px 14px;
+    background: linear-gradient(120deg, var(--primary), var(--primary-2)); box-shadow: var(--shadow);
+    animation: videoPulse 2.4s ease-in-out 2s 3; }
+  .how-video:hover, .how-video:focus-visible { filter: brightness(1.1); transform: translateY(-1px); }
+  @keyframes videoPulse { 0%, 100% { box-shadow: var(--shadow); } 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 25%, transparent); } }
+  @media (prefers-reduced-motion: reduce) { .how-video { animation: none; } }
+  .how h2 { margin: 0; }
+  .how-hide { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; cursor: pointer; padding: 2px 8px; }
+  .how-hide:hover { background: var(--input-bg); color: var(--text); }
+  .how-steps { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 880px) { .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .how-step { width: 100%; height: 100%; text-align: left; cursor: pointer; font: inherit; color: var(--text);
+    display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border);
+    background: var(--input-bg); position: relative; transition: transform 0.2s, border-color 0.2s, box-shadow 0.3s; }
+  .how-steps li { opacity: 0; transform: translateY(14px); animation: howIn 0.6s ease-out forwards; }   /* slide in one by one */
+  .how-steps li:nth-child(1) { animation-delay: 0.1s; }
+  .how-steps li:nth-child(2) { animation-delay: 0.35s; }
+  .how-steps li:nth-child(3) { animation-delay: 0.6s; }
+  .how-steps li:nth-child(4) { animation-delay: 0.85s; }
+  .how-step b { font-size: 0.95rem; }
+  .how-step span:last-child { font-size: 0.8rem; color: var(--muted); }
+  .how-icon { font-size: 1.6rem; display: inline-block; transform-origin: 50% 80%; animation: howWiggle 0.8s ease-in-out 1.4s 1; }
+  .how-step:hover, .how-step:focus-visible { border-color: var(--primary); transform: translateY(-3px); }
+  .how-step.glow { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent); }
+  .how-step.glow .how-icon { animation: howHop 0.7s ease-in-out 1; }
+  .how-note { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); }
+  .how-show-row { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; margin: 0 0 20px; }
+  .how-show { background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 999px; padding: 5px 12px; cursor: pointer; font-size: 0.85rem; box-shadow: var(--shadow); }
+  .jump { animation: jumpGlow 1.4s ease-out 1; }
+  @keyframes howIn { to { opacity: 1; transform: none; } }
+  @keyframes howWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+  @keyframes howHop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-7px) scale(1.15); } }
+  @keyframes jumpGlow { 0% { box-shadow: 0 0 0 4px var(--primary); } 100% { box-shadow: var(--shadow); } }
+  @media (prefers-reduced-motion: reduce) {
+    .how-steps li { animation: none; opacity: 1; transform: none; }
+    .how-step { transition: none; }
+    .how-icon, .how-step.glow .how-icon, .jump { animation: none; }
+  }
+  .opt-card { border-top: 4px solid var(--c); }
+  .opt-card .opt { border: 0; padding: 0; margin: 0; }
+  .opt-card .opt-head b { font-size: 1.1rem; }
+  .opt-title { display: flex; align-items: center; gap: 6px; }
+  .opt-title .opt-remove { font-size: 0.85rem; font-weight: 400; }
+  #fxCard .table-wrap { max-height: none; }
+  .fx-row { display: flex; align-items: center; gap: 8px; }
+  .fx-row span { white-space: nowrap; font-weight: 600; font-size: 0.9rem; }
+  .fx-row input { flex: 1; min-width: 0; }
+  .hint a { color: inherit; }
+  .sub-head { margin: 16px 0 0; font-size: 1rem; }
+  /* Two cards side by side on top: smaller numbers so they fit on one line; the chart fills its card */
+  #rowTop:not(.solo) .stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  #rowTop:not(.solo) .stat { padding: 12px 14px; }
+  #rowTop:not(.solo) .stat .value { font-size: 1.2rem; }
+  #compareChartCard { display: flex; flex-direction: column; }
+  #compareChartCard .chart-box { flex: 1; min-height: 320px; }
   .card {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 16px; padding: 20px; box-shadow: var(--shadow);
@@ -95,6 +172,7 @@
   .s-interest { background: linear-gradient(135deg, #059669, #10b981); }
   .s-real { background: linear-gradient(135deg, #ea580c, #f59e0b); }
   td.real { color: var(--orange); font-weight: 600; }
+  td.ended { color: var(--muted); text-align: center; }
   .summary { color: var(--muted); margin: 0 0 16px; }
   .summary b { color: var(--text); }
   .chart-box { position: relative; height: 320px; }
@@ -107,7 +185,6 @@
   td.pct { color: var(--primary); font-weight: 600; }
   :root[data-theme="dark"] td.pct { color: #a5b4fc; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) td.pct { color: #a5b4fc; } }
-  .stack { display: grid; gap: 20px; }
   .note { font-size: 0.8rem; color: var(--muted); margin-top: 14px; }
   .use-btn {
     background: var(--primary); color: #fff; border: 0; border-radius: 8px;
@@ -118,8 +195,6 @@
   @keyframes flash { 0% { box-shadow: 0 0 0 4px var(--primary); } 100% { box-shadow: none; } }
   /* ---------- Compare options ---------- */
   :root { --optA: #4f46e5; --optB: #0ea5e9; --optC: #db2777; --optD: #16a34a; }
-  .compare-box { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .compare-box h3 { margin: 0 0 4px; font-size: 1rem; }
   .opt { border: 1px solid var(--border); border-left-width: 4px; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
   #optB { border-left-color: var(--optB); }
   #optC { border-left-color: var(--optC); }
@@ -149,8 +224,6 @@
   .compare-table td.best { color: var(--green); font-weight: 700; }
   .compare-table td.best::after { content: " 🏆"; }
   .compare-summary { font-size: 1rem; margin: 0 0 14px; }
-  details.year-compare { margin-top: 14px; }
-  details.year-compare summary { cursor: pointer; font-weight: 600; }
   .top-winner { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; background: var(--input-bg);
     border: 1px solid var(--border); font-size: 0.95rem; }
   .goal-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
@@ -158,9 +231,18 @@
   .goal-inputs label { margin: 0; }
   .goal-check { display: flex !important; align-items: center; gap: 8px; font-weight: 400; font-size: 0.85rem; }
   .goal-check input { width: auto; margin: 0; }
+  .example-note { margin: 8px 0 0; padding: 8px 10px; font-size: 0.8rem; border-radius: 8px;
+    background: var(--input-bg); border: 1px dashed var(--primary); }
+  .link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--primary); font-weight: 700;
+    text-decoration: underline; cursor: pointer; }
+  :root[data-theme="dark"] .link-btn { color: #a5b4fc; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .link-btn { color: #a5b4fc; } }
   .goal-result { margin-top: 12px; font-size: 0.95rem; }
   .goal-result p { margin: 6px 0; }
   .goal-result .use-btn { margin-top: 4px; }
+  .goal-opt { border-left: 4px solid var(--c); padding: 2px 0 2px 12px; margin-top: 12px; }
+  .goal-opt-head { margin: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+  .goal-first { font-weight: 600; }
   .chart-type { display: flex; align-items: center; gap: 8px; margin: 12px 0 8px; }
   .chart-type label { margin: 0; }
   .chart-type select { width: auto; padding: 6px 10px; }
@@ -181,12 +263,62 @@
 </header>
 
 <main>
-  <div class="grid">
-    <!-- INPUTS -->
-    <section class="card">
-      <h2>Your details <span class="opt-tag" id="optATag" hidden>Option A</span></h2>
+  <!-- How to use: four simple steps (click a step to jump there) -->
+  <section class="card how" id="howTo" aria-label="How to use this site">
+    <div class="how-top">
+      <h2>How to use</h2>
+      <a class="how-video" href="guide.html" target="_blank" rel="noopener">▶ Watch the 1-minute guide</a>
+      <button type="button" class="how-hide" id="howHide" aria-label="Hide how to use">✕</button>
+    </div>
+    <ol class="how-steps">
+      <li><button type="button" class="how-step" data-go="optA"><span class="how-icon">✏️</span><b>1. Fill in Option A</b><span>Your money now and what you add</span></button></li>
+      <li><button type="button" class="how-step" data-go="optB"><span class="how-icon">⚖️</span><b>2. Compare</b><span>Try something different in B, C or D</span></button></li>
+      <li><button type="button" class="how-step" data-go="goalCard"><span class="how-icon">🎯</span><b>3. Set a goal</b><span>See what you need and when</span></button></li>
+      <li><button type="button" class="how-step" data-go="rowTop"><span class="how-icon">🏆</span><b>4. See the winner</b><span>Charts and tables show it all</span></button></li>
+    </ol>
+    <p class="how-note">Estimates only. Get professional and tax advice before you decide.</p>
+  </section>
+  <div class="how-show-row" id="howShow" hidden>
+    <a class="how-video" href="guide.html" target="_blank" rel="noopener">▶ Watch the 1-minute guide</a>
+    <button type="button" class="how-show" id="howShowBtn">❔ How to use</button>
+  </div>
 
-      <label for="currency">Currency</label>
+  <!-- Row 1: comparison chart (when comparing) and the main results -->
+  <div class="row row-2" id="rowTop">
+    <section class="card" id="compareChartCard">
+      <h2>Year by year balances</h2>
+      <div class="chart-type">
+            <label for="chartType">Chart type</label>
+            <select id="chartType" autocomplete="off">
+              <option value="line" selected>Lines</option>
+              <option value="bar">Bars (side by side)</option>
+              <option value="area">Shaded areas</option>
+              <option value="diff">Difference from Option A</option>
+            </select>
+          </div>
+          <div class="chart-box"><canvas id="compareChart" aria-label="Comparison chart"></canvas></div>
+          <p class="hint goal-chart-note" id="goalChartNote" hidden></p>
+          <p class="hint" id="diffNote" hidden>"Difference from Option A" needs at least one more option. Fill in Option B, C or D to compare.</p>
+    </section>
+    <section class="card">
+        <p class="top-winner" id="topWinner" hidden></p>
+        <div class="stats">
+          <div class="stat s-total"><div class="label" id="lblTotal">Final value</div><div class="value" id="outTotal">$0</div></div>
+          <div class="stat s-deposit"><div class="label">Total you put in</div><div class="value" id="outDeposits">$0</div></div>
+          <div class="stat s-interest"><div class="label" id="lblInterest">Interest earned</div><div class="value" id="outInterest">$0</div></div>
+          <div class="stat s-real"><div class="label">Final value in today's money</div><div class="value" id="outReal">$0</div></div>
+        </div>
+        <p class="summary" id="summary"></p>
+        <div class="chart-box"><canvas id="chart" aria-label="Growth chart"></canvas></div>
+      </section>
+
+  </div>
+
+  <!-- Row 2: the four options side by side, and the Goal finder under B, C and D -->
+  <div class="row row-4" id="compareBox">
+    <section class="card opt-card opt-a" style="--c:var(--optA)">
+      <h2 class="opt-title"><span class="swatch" style="background:var(--optA)"></span> Option A <span class="hint">your details</span></h2>
+      <label for="currency">Currency <span class="hint">(your local currency)</span></label>
       <select id="currency" autocomplete="off">
         <option value="USD" selected>US Dollar (USD $)</option>
         <option value="AUD">Australian Dollar (AUD $)</option>
@@ -205,6 +337,8 @@
         <datalist id="currencyList"></datalist>
       </div>
       <div class="hint" id="currencyHint" style="margin-top:4px"></div>
+      <p class="example-note" id="exampleNote" hidden>✨ Example numbers in your money for Options A, B and C and the Goal finder.
+        Type your own, or <button type="button" class="link-btn" id="clearExamples">clear them</button>.</p>
 
       <label for="initial">Starting amount</label>
       <div class="input-wrap"><span class="cur">$</span><input id="initial" type="number" autocomplete="off" min="0" step="any" value="0"></div>
@@ -251,86 +385,64 @@
 
       <label for="years">Number of years</label>
       <select id="years" autocomplete="off"></select>
-      <div class="chips" id="yearChips">
-        <button class="chip" data-years="10">10 yrs</button>
-        <button class="chip active" data-years="20">20 yrs</button>
-        <button class="chip" data-years="30">30 yrs</button>
-        <button class="chip" data-years="40">40 yrs</button>
-      </div>
-
-      <!-- Compare: Options B and C, plus Option D (house or shares) -->
-      <div class="compare-box" id="compareBox">
-        <h3>Compare options</h3>
-        <div class="hint">Options B and C: try a different rate, compounding, contribution or inflation side by side.
-          Option D: buy a house with a loan, or invest in shares.
-          Years and currency stay the same for every option.</div>
-        <div class="opt" id="optB" hidden></div>
-        <div class="opt" id="optC" hidden></div>
-        <div class="opt" id="optD" hidden></div>
-        <button type="button" class="chip add-opt" id="addOptBtn">+ Add option B</button>
-        <button type="button" class="chip add-opt" id="addDBtn">+ Add option D: house or shares</button>
-      </div>
 
       <div class="error" id="error"></div>
       <p class="note">Contributions are added at the end of each period. The interest rate is the
         nominal yearly rate. Tax and fees are not included; please seek your own tax advice.</p>
     </section>
-
-    <!-- RESULTS -->
-    <div class="stack">
-      <section class="card">
-        <p class="top-winner" id="topWinner" hidden></p>
-        <div class="stats">
-          <div class="stat s-total"><div class="label" id="lblTotal">Final value</div><div class="value" id="outTotal">$0</div></div>
-          <div class="stat s-deposit"><div class="label">Total you put in</div><div class="value" id="outDeposits">$0</div></div>
-          <div class="stat s-interest"><div class="label" id="lblInterest">Interest earned</div><div class="value" id="outInterest">$0</div></div>
-          <div class="stat s-real"><div class="label">Final value in today's money</div><div class="value" id="outReal">$0</div></div>
-        </div>
-        <p class="summary" id="summary"></p>
-        <div class="chart-box"><canvas id="chart" aria-label="Growth chart"></canvas></div>
+      <section class="card opt-card" style="--c:var(--optB)">
+        <div class="opt" id="optB"></div>
       </section>
-
-      <!-- Shown only when 2 or more options are being compared -->
-      <section class="card" id="compareCard" hidden>
-        <h2>Comparing your options</h2>
-        <p class="compare-summary" id="compareSummary"></p>
-        <p class="hint" id="compareNote" hidden></p>
-        <div class="table-wrap">
-          <table class="compare-table">
-            <thead id="compareHead"></thead>
-            <tbody id="compareBody"></tbody>
-          </table>
-        </div>
-        <details class="year-compare" open>
-          <summary>Year by year balances</summary>
-          <div class="chart-type">
-            <label for="chartType">Chart type</label>
-            <select id="chartType" autocomplete="off">
-              <option value="line" selected>Lines</option>
-              <option value="bar">Bars (side by side)</option>
-              <option value="area">Shaded areas</option>
-              <option value="diff">Difference from Option A</option>
-            </select>
-          </div>
-          <div class="chart-box"><canvas id="compareChart" aria-label="Comparison chart"></canvas></div>
-          <div class="table-wrap">
-            <table class="compare-table">
-              <thead id="compareYearHead"></thead>
-              <tbody id="compareYearBody"></tbody>
-            </table>
-          </div>
-        </details>
+      <section class="card opt-card" style="--c:var(--optC)">
+        <div class="opt" id="optC"></div>
       </section>
-
-      <section class="card" id="goalCard">
-        <h2>🎯 Goal finder <span class="hint">(uses Option A's settings)</span></h2>
+      <section class="card opt-card" style="--c:var(--optD)">
+        <div class="opt" id="optD"></div>
+      </section>
+      <!-- Goal finder: beside Option A, under Options B, C and D -->
+      <section class="card goal-card" id="goalCard">
+        <h2>🎯 Goal finder <span class="hint" id="goalFor">(uses Option A's settings)</span></h2>
         <div class="goal-inputs">
           <label for="goalAmount">My goal<div class="input-wrap"><span class="cur">$</span><input id="goalAmount" type="number" autocomplete="off" min="0" step="any" value="0"></div></label>
           <label class="goal-check"><input type="checkbox" id="goalReal" autocomplete="off"> The goal is in today's money (allow for inflation)</label>
         </div>
         <div class="goal-result" id="goalResult"></div>
       </section>
+  </div>
 
+  <!-- Row 3: compare table and the year-by-year table -->
+  <div class="row row-2 solo" id="rowBottom">
+    <section class="card" id="compareCard" hidden>
+      <h2>Compare your options</h2>
+        <p class="compare-summary" id="compareSummary"></p>
+        <p class="hint" id="compareNote" hidden></p>
+        <!-- Shown when Option B or C uses its own currency -->
+        <div id="fxCard" hidden>
+          <h3 class="sub-head" style="margin-top:0">💱 Totals in your local currency (<span id="fxLocal"></span>)</h3>
+          <p class="hint" style="margin:4px 0 0">Options in another currency are changed into Option A's currency at today's exchange rate.
+            Exchange rates go up and down, so the real amount later may be different.</p>
+          <div class="table-wrap">
+            <table class="compare-table">
+              <thead id="fxHead"></thead>
+              <tbody id="fxBody"></tbody>
+            </table>
+          </div>
+          <h3 class="sub-head">All options in <span id="fxLocal2"></span></h3>
+        </div>
+        <div class="table-wrap">
+          <table class="compare-table">
+            <thead id="compareHead"></thead>
+            <tbody id="compareBody"></tbody>
+          </table>
+        </div>
+        <h3 class="sub-head">Year by year balances</h3>
+        <div class="table-wrap">
+          <table class="compare-table">
+            <thead id="compareYearHead"></thead>
+            <tbody id="compareYearBody"></tbody>
+          </table>
+        </div>
+    </section>
       <section class="card">
         <h2>Year by year</h2>
         <p class="note" style="margin-top:0"><b>Balance in today's money</b> = what the balance could buy at today's prices, after inflation.
@@ -343,9 +455,7 @@
           </table>
         </div>
       </section>
-    </div>
   </div>
-
 </main>
 <footer>For learning only. This is not financial or tax advice. Results do not include tax. Seek professional services, including your own tax advice, before making any commitment.
   <p class="feedback"><a href="https://docs.google.com/forms/d/e/1FAIpQLSen8tOrDVLJdkpFpjhgKqawVwHMIy0JHeH_Q8XEy8JMrlayGw/viewform" target="_blank" rel="noopener noreferrer">💬 Feedback / Contact</a>
@@ -366,11 +476,54 @@
   const moneyShort = (n) => n.toLocaleString(undefined, { style: "currency", currency, notation: "compact", maximumFractionDigits: 1 });
   // Percentage of part compared to whole, e.g. pct(5, 100) -> "+5.00%"
   const pct = (part, whole) => whole > 0 ? (part >= 0 ? "+" : "") + (part / whole * 100).toFixed(2) + "%" : "–";
-  function currencySymbol() {
-    const part = new Intl.NumberFormat(undefined, { style: "currency", currency, currencyDisplay: "narrowSymbol" })
+  function currencySymbol(code = currency) {
+    const part = new Intl.NumberFormat(undefined, { style: "currency", currency: code, currencyDisplay: "narrowSymbol" })
       .formatToParts(0).find(p => p.type === "currency");
-    return part ? part.value : currency;
+    return part ? part.value : code;
   }
+  // Money in any currency (used for Options B and C when they use their own currency)
+  const moneyIn = (n, code) => {
+    const digits = new Intl.NumberFormat("en", { style: "currency", currency: code }).resolvedOptions().maximumFractionDigits;
+    return n.toLocaleString(undefined, { style: "currency", currency: code, minimumFractionDigits: digits, maximumFractionDigits: digits });
+  };
+  // ---------- Exchange rates ----------
+  // Today's rates from ExchangeRate-API's free open service (no sign-up). Only the currency code is sent.
+  // The service publishes new rates once a day and says when the next ones are due.
+  // fxCache[base] = { rates, time, next, refreshing } once loaded, "loading" the first time, or "failed".
+  // Rates are fetched again (without the browser's saved copy) as soon as the next day's rates are due,
+  // even if the page stays open; until then the current rates are used. A failed fetch is tried again after 10 minutes.
+  const fxCache = {};
+  const FX_RETRY = 10 * 60 * 1000;
+  function fetchRates(to) {
+    const c = fxCache[to];
+    if (c && c.rates) c.refreshing = true; else fxCache[to] = "loading";
+    fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(to)}`, { cache: "no-cache" })
+      .then(r => r.json())
+      .then(d => {
+        if (!d || d.result !== "success") throw new Error("no rates");
+        // Next fetch: when the service's next rates are due (plus a minute), but at least once a day
+        const due = (d.time_next_update_unix || 0) * 1000 + 60 * 1000;
+        const next = due > Date.now() ? Math.min(due, Date.now() + 24 * 3600 * 1000) : Date.now() + FX_RETRY;
+        fxCache[to] = { rates: d.rates, time: d.time_last_update_utc, next };
+      })
+      .catch(() => {
+        const old = fxCache[to];
+        if (old && old.rates) { old.refreshing = false; old.next = Date.now() + FX_RETRY; }   // keep using the last rates
+        else fxCache[to] = { failedAt: Date.now() };
+      })
+      .finally(update);
+  }
+  function liveRate(from, to) {          // how many "to" for 1 "from"
+    const c = fxCache[to];
+    if (!c || (c.failedAt && Date.now() - c.failedAt > FX_RETRY)) { fetchRates(to); return { status: "loading" }; }
+    if (c === "loading") return { status: "loading" };
+    if (c.failedAt || !c.rates[from]) return { status: "failed" };
+    if (Date.now() >= c.next && !c.refreshing) fetchRates(to);   // new day's rates are due: refresh in the background
+    return { status: "ok", rate: 1 / c.rates[from], time: c.time };
+  }
+  // Check for new rates every 30 minutes, and when the visitor comes back to the tab
+  setInterval(() => { if (Object.keys(fxCache).length) update(); }, 30 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && Object.keys(fxCache).length) update(); });
   // ---------- Any currency in the world ----------
   // The browser knows every official currency code (ISO 4217) and its name.
   const ALL_CODES = (Intl.supportedValuesOf ? Intl.supportedValuesOf("currency") :
@@ -410,57 +563,72 @@
   // Option A is the main details. B and C each have their own contribution, rate and compounding.
   const activeOpts = [];   // which extra options are showing, e.g. ["B"] or ["B", "C"]
   let compareChart;
+  // Options B and C are laid out exactly like Option A (same boxes, same order, same labels).
+  // They can use their own currency; results are changed into Option A's (local) currency to compare.
+  // The number of years is a dropdown like Option A's: "Same as Option A" or the option's own 1 to 50 years.
   function optionHtml(k) {
-    // Shorter labels fit the small boxes: "Every year (yearly)" -> "Every year"
-    const short = (id) => $(id).innerHTML
-      .replace(/Every [36] months \(([^)]*)\)/g, (m, w) => w[0].toUpperCase() + w.slice(1))  // "Every 3 months (quarterly)" -> "Quarterly"
-      .replace(/ \([^)]*\)/g, "");
-    return `<div class="opt-head"><span class="swatch" style="background:var(--opt${k})"></span><b>Option ${k}</b>
-      <button type="button" class="opt-remove" data-remove="${k}" aria-label="Remove option ${k}">✕</button></div>
-      <div class="opt-grid">
-        <label>Regular contribution<div class="input-wrap"><span class="cur">$</span><input id="contrib_${k}" type="number" min="0" step="any"></div></label>
-        <label>How often<select id="contribFreq_${k}">${short("contribFreq")}</select></label>
-        <label>Interest rate per year<div class="input-wrap right"><span>%</span><input id="rate_${k}" type="number" min="0" step="any"></div></label>
-        <label>Interest compounds<select id="compFreq_${k}">${short("compFreq")}</select></label>
-        <label>Inflation<select id="inflMode_${k}">
-          <option value="same">Same as A</option>
-          <option value="own">Own rate</option>
-        </select></label>
-        <label id="inflWrap_${k}" hidden>Inflation per year<div class="input-wrap right"><span>%</span><input id="infl_${k}" type="number" min="0" step="any"></div></label>
-      </div>`;
+    const nine = [...$("currency").options].filter(o => o.value !== "OTHER")
+      .map(o => `<option value="${o.value}">${o.text}</option>`).join("");
+    return `<h2 class="opt-title"><span class="swatch" style="background:var(--opt${k})"></span> Option ${k} <span class="hint">your details</span></h2>
+      <p class="hint opt-tip">Fill in to compare. Leave the amounts at 0 to leave it out.</p>
+      <label for="cur_${k}">Currency</label>
+      <select id="cur_${k}" autocomplete="off">
+        <option value="SAME" selected>Same as Option A</option>${nine}
+        <option value="OTHER">Other currency… (type it)</option>
+      </select>
+      <div id="otherWrap_${k}" hidden style="margin-top:8px">
+        <input id="otherCur_${k}" list="currencyList" autocomplete="off"
+          placeholder="Type a code or name, e.g. MYR or Ringgit" aria-label="Option ${k}: type any currency">
+      </div>
+      <div id="fxWrap_${k}" hidden>
+        <label for="fx_${k}">Exchange rate</label>
+        <div class="fx-row"><span id="fxFrom_${k}"></span><input id="fx_${k}" type="number" autocomplete="off" min="0" step="any"><span id="fxTo_${k}"></span></div>
+        <div class="hint" id="fxNote_${k}" style="margin-top:4px"></div>
+      </div>
+
+      <label for="initial_${k}">Starting amount</label>
+      <div class="input-wrap"><span class="cur">$</span><input id="initial_${k}" type="number" autocomplete="off" min="0" step="any"></div>
+
+      <label for="contrib_${k}">Regular contribution</label>
+      <div class="input-wrap"><span class="cur">$</span><input id="contrib_${k}" type="number" autocomplete="off" min="0" step="any"></div>
+
+      <label for="contribFreq_${k}">How often you contribute</label>
+      <select id="contribFreq_${k}" autocomplete="off">${$("contribFreq").innerHTML}</select>
+
+      <label for="rate_${k}">Interest rate per year <span class="hint">(e.g. 5)</span></label>
+      <div class="input-wrap right"><span>%</span><input id="rate_${k}" type="number" autocomplete="off" min="0" step="any"></div>
+
+      <label for="inflMode_${k}">Inflation per year <span class="hint">(prices going up; use 0 to ignore)</span></label>
+      <select id="inflMode_${k}" autocomplete="off">
+        <option value="same">Same as Option A</option>
+        <option value="own">Own rate every year</option>
+      </select>
+      <div class="input-wrap right" id="inflWrap_${k}" style="margin-top:8px" hidden>
+        <span>%</span><input id="infl_${k}" type="number" autocomplete="off" min="0" step="any" aria-label="Option ${k} inflation rate every year">
+      </div>
+
+      <label for="compFreq_${k}">How often interest compounds</label>
+      <select id="compFreq_${k}" autocomplete="off">${$("compFreq").innerHTML}</select>
+
+      <label for="years_${k}">Number of years</label>
+      <select id="years_${k}" autocomplete="off">
+        <option value="SAME" selected>Same as Option A</option>
+        ${[...$("years").options].map(o => `<option value="${o.value}">${o.text}</option>`).join("")}
+      </select>`;
   }
-  function addOption() {
-    const k = ["B", "C"].find(x => !activeOpts.includes(x));
-    if (!k) return;
+  function addOption(k) {
+    if (activeOpts.includes(k)) return;
     const box = $("opt" + k);
     box.innerHTML = optionHtml(k);
-    // Start as a copy of Option A, so you only change what you want to compare.
+    // Options B, C and D are always open; they start like Option A (0 in every money box),
+    // and are left out of the comparison until a starting amount or contribution is typed.
     // Interest always starts as compounding Yearly.
-    ["contrib", "contribFreq", "rate"].forEach(f => $(f + "_" + k).value = $(f).value);
+    ["initial", "contrib", "contribFreq", "rate"].forEach(f => $(f + "_" + k).value = $(f).value);
     $("compFreq_" + k).value = "1";
     $("infl_" + k).value = $("inflation").value || "0";   // used only if "Own rate" is picked
     box.hidden = false;
     activeOpts.push(k);
     activeOpts.sort();
-    refreshCompareUI();
-    update();
-    $("rate_" + k).focus();
-  }
-  function removeOption(k) {
-    const box = $("opt" + k);
-    box.hidden = true;
-    box.innerHTML = "";
-    activeOpts.splice(activeOpts.indexOf(k), 1);
-    refreshCompareUI();
-    update();
-  }
-  function refreshCompareUI() {
-    const next = ["B", "C"].find(x => !activeOpts.includes(x));
-    $("addOptBtn").hidden = !next;
-    if (next) $("addOptBtn").textContent = "+ Add option " + next;
-    const dOn = !$("optD").hidden;
-    $("addDBtn").hidden = dOn;
-    $("optATag").hidden = activeOpts.length === 0 && !dOn;
   }
 
   // ---------- Option D: buy a house, or invest in shares ----------
@@ -473,8 +641,8 @@
       .replace(/ \([^)]*\)/g, "");
     const box = (id, value) => `<div class="input-wrap">${cur}<input id="${id}" type="number" min="0" step="any" value="${value}"></div>`;
     const pctBox = (id, value) => `<div class="input-wrap right"><span>%</span><input id="${id}" type="number" min="0" step="any" value="${value}"></div>`;
-    return `<div class="opt-head"><span class="swatch" style="background:var(--optD)"></span><b>Option D</b>
-      <button type="button" class="opt-remove" data-remove="D" aria-label="Remove option D">✕</button></div>
+    return `<h2 class="opt-title"><span class="swatch" style="background:var(--optD)"></span> Option D <span class="hint">house or shares</span></h2>
+      <p class="hint opt-tip">Fill in to compare. Leave the amounts at 0 to leave it out.</p>
       <div class="d-type">
         <label><input type="radio" name="dType" value="house" checked> Buy a house</label>
         <label><input type="radio" name="dType" value="shares"> Invest in shares</label>
@@ -542,15 +710,6 @@
     $("d_sComp").value = "1";
     $("infl_D").value = $("inflation").value || "0";   // used only if "Own rate" is picked
     box.hidden = false;
-    refreshCompareUI();
-    update();
-  }
-  function removeOptionD() {
-    $("optD").hidden = true;
-    $("optD").innerHTML = "";
-    dRateMemory.length = 0;
-    refreshCompareUI();
-    update();
   }
   // Monthly repayment that pays off "owed" in "monthsLeft" months at a yearly rate (standard loan formula)
   function repaymentFor(owed, ratePct, monthsLeft) {
@@ -763,7 +922,8 @@
     const L = lastOf(o);
     const house = o.kind === "house";
     const comparing = options.length > 1;
-    const yrs = years === 1 ? "1 year" : years + " years";
+    const ny = o.rows.length;                          // the winner's own number of years
+    const yrs = ny === 1 ? "1 year" : ny + " years";
 
     // Options that tie with the winner (same final value to the cent)
     const tied = options.filter(x => cents(lastOf(x).balance) === cents(L.balance)).map(x => x.key);
@@ -804,7 +964,7 @@
         (L.loanLeft > 0.005 ? ` minus ${money0(L.loanLeft)} still owed` : `, loan paid off`) +
         `)` + (L.totalIn > 0 ? ` — that is <b>${times}×</b> what you put in.` : ` — the rent covered all the money you put in.`)
       : (o.rent > 0 ? `Renting (from <b>${money0(o.rent)}</b> a week) and investing: ` : "") +
-        `Starting with <b>${money(o.start)}</b> and adding <b>${money(o.contrib)}</b> ${freqNames[o.everyMonths]}, ` +
+        `Starting with <b>${o.startText || money(o.start)}</b> and adding <b>${o.cur ? `${moneyIn(o.contrib, o.cur)} (${money(o.contrib * o.fx)})` : money(o.contrib)}</b> ${freqNames[o.everyMonths]}, ` +
         `at <b>${o.rate}%</b> a year compounded <b>${compNames[o.comp]}</b>, after <b>${yrs}</b> ` +
         `you will have <b>${money(L.balance)}</b> — that is <b>${times}×</b> what you put in.`) + inflPhrase;
 
@@ -813,11 +973,16 @@
   }
 
   function drawCompare(options, initial, years) {
-    $("compareCard").hidden = options.length < 2;
-    if (options.length < 2) return;
+    // The "Year by year balances" chart is always shown (beside the results); the compare table only when comparing
+    const solo = options.length < 2;
+    $("compareCard").hidden = solo;
+    $("rowBottom").classList.toggle("solo", solo);    // one card in the row: it uses the full width
+    if (solo) { drawBalancesChart(options); return; }
     const cents = (x) => Math.round(x * 100);           // compare money to the cent
     const last = options.map(o => o.rows[o.rows.length - 1]);
-    const yrs = years === 1 ? "1 year" : years + " years";
+    const yrsOf = (o) => o.rows.length === 1 ? "1 year" : o.rows.length + " years";
+    const sameYears = options.every(o => o.rows.length === options[0].rows.length);
+    const maxYears = Math.max(...options.map(o => o.rows.length));
 
     // The winner is the option with the biggest final value
     const topCents = Math.max(...last.map(r => cents(r.balance)));
@@ -827,12 +992,12 @@
     if (nothingYet) {
       text = "👋 Type your amounts to compare the options.";
     } else if (winIdx.length === options.length) {
-      text = `All options end with the same amount: <b>${money(last[0].balance)}</b> after ${yrs}.`;
+      text = `All options end with the same amount: <b>${money(last[0].balance)}</b>${sameYears ? ` after ${yrsOf(options[0])}` : ""}.`;
     } else {
       const w = winIdx[0];
       const others = options.map((o, i) => i).filter(i => !winIdx.includes(i));
       text = `🏆 <b>${winIdx.length > 1 ? "Options" : "Option"} ${winIdx.map(i => options[i].key).join(" and ")}</b> ${winIdx.length > 1 ? "end" : "ends"} with the most: ` +
-        `<b>${money(last[w].balance)}</b> after ${yrs}. ` +
+        `<b>${money(last[w].balance)}</b> after ${yrsOf(options[w])}. ` +
         others.map(i => `That is <b>${money(last[w].balance - last[i].balance)}</b> more than Option ${options[i].key}.`).join(" ");
       // Be fair: say so if the winner only wins because more of your own money goes in
       const putInMore = others.filter(i => cents(last[w].totalIn) > cents(last[i].totalIn));
@@ -849,6 +1014,10 @@
       text += ` After each option's own inflation, <b>${realWin.length > 1 ? "Options" : "Option"} ${realWin.join(" and ")}</b> ` +
         `${realWin.length > 1 ? "are" : "is"} worth the most ` +
         `in today's money: <b>${money(r0.real)}</b>.`;
+    }
+    if (!sameYears && !nothingYet) {
+      text += ` Note: the options run for different numbers of years (` +
+        options.map(o => `Option ${o.key}: ${yrsOf(o)}`).join(", ") + `), so each final value is at the end of its own years.`;
     }
     $("compareSummary").innerHTML = text;
     // Explain what "final value" means for a house
@@ -880,6 +1049,7 @@
     $("compareHead").innerHTML = `<tr><th></th>${options.map(o => `<th>${head(o.key)}</th>`).join("")}</tr>`;
     $("compareBody").innerHTML =
       `<tr><td>Starting amount</td>${options.map(o => `<td class="txt">${o.startText}</td>`).join("")}</tr>` +
+      `<tr><td>Number of years</td>${options.map(o => `<td class="txt">${yrsOf(o)}</td>`).join("")}</tr>` +
       `<tr><td>Rate</td>${options.map(o => `<td class="txt">${o.rateText}</td>`).join("")}</tr>` +
       `<tr><td>Compounds</td>${options.map(o => `<td class="txt">${o.compText}</td>`).join("")}</tr>` +
       `<tr><td>Money added</td>${options.map(o => `<td class="txt">${o.contribText}</td>`).join("")}</tr>` +
@@ -891,12 +1061,24 @@
 
     // Year-by-year balances
     $("compareYearHead").innerHTML = `<tr><th>Year</th>${options.map(o => `<th>${head(o.key)}</th>`).join("")}</tr>`;
-    $("compareYearBody").innerHTML = options[0].rows.map((_, y) =>
-      row(String(y + 1), options.map(o => o.rows[y].balance), true)).join("");
+    // One row per year of the longest option; "—" once an option has ended
+    $("compareYearBody").innerHTML = Array.from({ length: maxYears }, (_, y) => {
+      const vals = options.map(o => o.rows[y] ? o.rows[y].balance : null);
+      const have = vals.filter(v => v !== null);
+      const bestC = Math.max(...have.map(cents));
+      const allSame = have.every(v => cents(v) === bestC);
+      return `<tr><td>${y + 1}</td>${vals.map(v => v === null ? `<td class="ended">—</td>`
+        : `<td class="${have.length > 1 && !allSame && cents(v) === bestC ? "best" : ""}">${money(v)}</td>`).join("")}</tr>`;
+    }).join("");
+    drawBalancesChart(options);
+  }
 
-    // Chart: the visitor picks lines, bars, shaded areas, or the difference from Option A
+  // "Year by year balances" chart: the visitor picks lines, bars, shaded areas, or the difference from Option A
+  function drawBalancesChart(options) {
+    const maxYears = Math.max(...options.map(o => o.rows.length));
     const type = $("chartType").value;
-    const labels = ["Start", ...options[0].rows.map(r => "Year " + r.year)];
+    $("diffNote").hidden = !(type === "diff" && options.length < 2);
+    const labels = ["Start", ...Array.from({ length: maxYears }, (_, i) => "Year " + (i + 1))];   // up to the longest option
     const balances = (o) => [o.start, ...o.rows.map(r => r.balance)];
     const colour = (k) => cssVar("--opt" + k);
     let datasets;
@@ -904,7 +1086,7 @@
       // How far ahead (above 0) or behind (below 0) each option is compared with A
       const a = balances(options[0]);
       datasets = options.slice(1).map(o => ({
-        label: `Option ${o.key} minus Option A`, data: balances(o).map((v, i) => v - a[i]),
+        label: `Option ${o.key} minus Option A`, data: balances(o).map((v, i) => i < a.length ? v - a[i] : null),
         backgroundColor: colour(o.key),
       }));
     } else {
@@ -933,8 +1115,52 @@
     // A chart cannot switch between line and bar in place, so make a new one when the kind changes
     if (compareChart && compareChart.config.type !== chartKind) { compareChart.destroy(); compareChart = null; }
     if (compareChart) { compareChart.data = { labels, datasets }; compareChart.options = chartOptions; compareChart.update(); }
-    else { compareChart = new Chart($("compareChart"), { type: chartKind, data: { labels, datasets }, options: chartOptions }); }
+    else { compareChart = new Chart($("compareChart"), { type: chartKind, data: { labels, datasets }, options: chartOptions, plugins: [goalBarsPlugin] }); }
   }
+  // ---------- Goal bars on the comparison chart ----------
+  // goalReach = { A: months, B: months, ... } for options that reach the Goal finder's goal (with what they add now)
+  // within the years shown. For each one, an outlined bar in the option's colour is drawn at the year it gets there,
+  // as tall as its balance that year, with the option's letter on top. Shown on Lines, Bars and Shaded areas.
+  let goalReach = {};
+  const goalBarsPlugin = {
+    id: "goalBars",
+    afterDatasetsDraw(chart) {
+      if ($("chartType").value === "diff") return;
+      const { ctx, scales: { x, y } } = chart;
+      const byYear = {};
+      Object.entries(goalReach).forEach(([k, months]) => {
+        const ds = chart.data.datasets.find(d => d.label === "Option " + k);
+        const idx = Math.ceil(months / 12);                 // the end of the year it gets there
+        if (!ds || idx >= ds.data.length) return;
+        (byYear[idx] ||= []).push({ k, v: ds.data[idx] });
+      });
+      const step = Math.abs(x.getPixelForValue(1) - x.getPixelForValue(0)) || 40;
+      ctx.save();
+      Object.entries(byYear).forEach(([idx, list]) => {
+        const w = Math.max(8, Math.min(30, step * 0.8 / list.length));   // bars in the same year sit side by side
+        list.forEach((m, j) => {
+          const cx = x.getPixelForValue(+idx) + (j - (list.length - 1) / 2) * w;
+          const top = y.getPixelForValue(m.v), base = y.getPixelForValue(Math.max(0, y.min));
+          const col = cssVar("--opt" + m.k);
+          ctx.fillStyle = col + "2e";                       // light, see-through fill
+          ctx.strokeStyle = col; ctx.lineWidth = 2;
+          ctx.fillRect(cx - w / 2 + 1, top, w - 2, base - top);
+          ctx.strokeRect(cx - w / 2 + 1, top, w - 2, base - top);
+          ctx.fillStyle = col; ctx.font = "700 12px system-ui, sans-serif"; ctx.textAlign = "center";
+          ctx.fillText(m.k, cx, top - 5);                   // the option's letter on top
+          // The Goal finder symbol inside the bar, near its top (sized to fit the bar)
+          const size = Math.max(9, Math.min(16, w - 4));
+          if (base - top >= size + 6) {
+            ctx.font = `${size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+            ctx.textBaseline = "top";
+            ctx.fillText("🎯", cx, top + 4);
+            ctx.textBaseline = "alphabetic";
+          }
+        });
+      });
+      ctx.restore();
+    },
+  };
 
   // Main calculation. Works month by month.
   function calculate(initial, contrib, everyMonths, ratePct, compPerYear, years) {
@@ -1014,6 +1240,14 @@
       return;
     }
     currency = chosen;
+    // Example numbers waiting for today's exchange rate (see startExamples)
+    if (examplesPending) {
+      const live = liveRate("USD", currency);
+      if (live.status !== "loading") {
+        examplesPending = false;
+        if (examplesUntouched()) fillExamples(live.status === "ok" ? live.rate : 1);
+      }
+    }
     document.querySelectorAll(".cur").forEach(s => s.textContent = currencySymbol());
     const initial = parseFloat($("initial").value) || 0;
     const contrib = parseFloat($("contrib").value) || 0;
@@ -1037,25 +1271,62 @@
     // Options B and C (if added): their own contribution, rate and compounding
     const extras = activeOpts.map(k => ({
       key: k,
+      initial: parseFloat($("initial_" + k).value) || 0,
       contrib: parseFloat($("contrib_" + k).value) || 0,
       everyMonths: parseInt($("contribFreq_" + k).value, 10),
       rate: parseFloat($("rate_" + k).value) || 0,
       comp: parseInt($("compFreq_" + k).value, 10),
       ownInfl: $("inflMode_" + k).value === "own",        // false = same inflation as Option A
       infl: parseFloat($("infl_" + k).value) || 0,
+      years: $("years_" + k).value === "SAME" ? years : parseInt($("years_" + k).value, 10),   // its own number of years
     }));
-    activeOpts.forEach(k => $("inflWrap_" + k).hidden = $("inflMode_" + k).value !== "own");
+    // An option counts only once it has a starting amount or a contribution
+    extras.forEach(o => o.used = o.initial !== 0 || o.contrib !== 0);
+    // Each option's currency and exchange rate (1 of its currency = fx of Option A's currency)
+    let fxProblem = "";
+    extras.forEach(o => {
+      const k = o.key;
+      $("inflWrap_" + k).hidden = $("inflMode_" + k).value !== "own";
+      // "Same as Option A (20 years)"
+      $("years_" + k).options[0].text = `Same as Option A (${years === 1 ? "1 year" : years + " years"})`;
+      const pick = $("cur_" + k).value;
+      $("otherWrap_" + k).hidden = pick !== "OTHER";
+      const code = pick === "SAME" ? currency : pick === "OTHER" ? parseTypedCurrency($("otherCur_" + k).value) : pick;
+      const symbol = code ? currencySymbol(code) : "?";
+      $("opt" + k).querySelectorAll(".cur").forEach(s => s.textContent = symbol);
+      const foreign = !!code && code !== currency;
+      $("fxWrap_" + k).hidden = !foreign;
+      o.fx = 1;
+      if (!code) { if (o.used) fxProblem ||= `Please type a currency for Option ${k}, for example MYR or Malaysian Ringgit, and pick it from the list.`; return; }
+      if (!foreign) return;
+      o.cur = code;
+      $("fxFrom_" + k).textContent = `1 ${code} =`;
+      $("fxTo_" + k).textContent = currency;
+      const box = $("fx_" + k);
+      if (box.dataset.pair !== code + ">" + currency) {      // new currency pair: start again from the live rate
+        box.dataset.pair = code + ">" + currency; box.dataset.manual = ""; box.value = "";
+      }
+      const live = liveRate(code, currency);
+      if (!box.dataset.manual && live.status === "ok") box.value = String(+live.rate.toPrecision(6));
+      $("fxNote_" + k).innerHTML = box.dataset.manual
+        ? "Your own rate. Clear the box to use today's rate again."
+        : live.status === "ok"
+          ? `Today's rate from <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">ExchangeRate-API</a> (updated ${esc(new Date(live.time).toLocaleDateString())}). You can change it.`
+          : live.status === "loading" ? "Getting today's rate…" : "Couldn't get today's rate. Please type the rate.";
+      o.fx = parseFloat(box.value);
+      if (!(o.fx > 0) && o.used) fxProblem ||= live.status === "loading"
+        ? `Getting today's exchange rate for Option ${k}…`
+        : `Please type the exchange rate for Option ${k} (how many ${currency} for 1 ${code}).`;
+    });
 
     if (initial < 0 || contrib < 0 || rate < 0 || inflRates.some(v => v < 0) ||
-        extras.some(o => o.contrib < 0 || o.rate < 0 || o.infl < 0)) { $("error").textContent = "Please use numbers that are 0 or more."; return; }
+        extras.some(o => o.initial < 0 || o.contrib < 0 || o.rate < 0 || o.infl < 0)) { $("error").textContent = "Please use numbers that are 0 or more."; return; }
     if (!years || years < 1 || years > 100) { $("error").textContent = "Years must be between 1 and 100."; return; }
+    if (fxProblem) { $("error").textContent = fxProblem; return; }
     // Option D (house or shares), if added
     const dInput = readOptionD(years);
     if (dInput && dInput.error) { $("error").textContent = dInput.error; return; }
     $("error").textContent = "";
-
-    document.querySelectorAll("#yearChips .chip").forEach(c =>
-      c.classList.toggle("active", parseInt(c.dataset.years, 10) === years));
 
     const rows = calculate(initial, contrib, everyMonths, rate, comp, years);
     // Today's money: divide by how much prices have grown so far.
@@ -1070,6 +1341,8 @@
       });
     };
     addReal(rows, inflRates);
+    // Option A's inflation for any number of years (after A's last year, A's last rate carries on)
+    const aInfl = (n) => Array.from({ length: n }, (_, i) => inflRates[Math.min(i, inflRates.length - 1)]);
     // The sentence about inflation for anything that uses Option A's inflation
     const aInflPhrase = (realValue, what) => inflation > 0
       ? (eachYear
@@ -1079,19 +1352,33 @@
 
     // Compare: Option A uses the main details; B and C use their own settings
     // Words for the comparison table (Option D writes its own)
-    const describe = (o) => Object.assign(o, { start: initial, startText: money(initial),
+    // Options B and C have their own starting amount; Option A uses the main one
+    // An option in its own currency shows both: "£500.00 (A$975.00)"
+    const both = (n, o) => o.cur ? `${moneyIn(n, o.cur)} (${money(n * o.fx)})` : money(n);
+    const describe = (o) => Object.assign(o, { start: (o.initial ?? initial) * (o.fx || 1), startText: both(o.initial ?? initial, o),
       rateText: `${o.rate}% a year`, compText: compNames[o.comp],
-      contribText: `${money(o.contrib)} ${freqNames[o.everyMonths]}` });
+      contribText: `${both(o.contrib, o)} ${freqNames[o.everyMonths]}` });
     const options = [describe({ key: "A", contrib, everyMonths, rate, comp, rows,
       inflText: eachYear ? `varies by year (average ${inflation.toFixed(2)}%)` : `${inflation}% a year` })];
-    extras.forEach(o => {
-      o.rows = calculate(initial, o.contrib, o.everyMonths, o.rate, o.comp, years);
-      addReal(o.rows, o.ownInfl ? Array(years).fill(o.infl) : inflRates);
+    extras.filter(o => o.used).forEach(o => {
+      o.rows = calculate(o.initial, o.contrib, o.everyMonths, o.rate, o.comp, o.years);
+      addReal(o.rows, o.ownInfl ? Array(o.years).fill(o.infl) : aInfl(o.years));
+      if (o.cur) {
+        // Keep the last year in its own currency for the local-currency table,
+        // then change every amount into Option A's currency at today's rate (the rate is assumed to stay the same)
+        o.ownLast = { ...o.rows[o.rows.length - 1] };
+        o.rows.forEach(r => ["inThisYear", "interestThisYear", "totalIn", "totalInterest", "balance", "real"]
+          .forEach(f => r[f] *= o.fx));
+      }
       o.inflText = o.ownInfl ? `${o.infl}% a year` : "Same as Option A";
       options.push(describe(o));
     });
-    if (dInput && dInput.pending) $("dHouseInfo").textContent = "";
-    if (dInput && !dInput.pending) {
+    // Option D counts only once something is typed (a house price or deposit, or shares money or rent)
+    const dUsed = dInput && !dInput.pending && (dInput.kind === "house"
+      ? dInput.price > 0 || dInput.deposit > 0
+      : dInput.start > 0 || dInput.contrib > 0 || dInput.rent > 0);
+    if (dInput && !dUsed) $("dHouseInfo").textContent = "";
+    if (dUsed) {
       const d = buildOptionD(dInput, years);
       addReal(d.rows, d.ownInfl ? Array(years).fill(d.infl) : inflRates);   // own rate, or the same as Option A
       options.push(d);
@@ -1115,86 +1402,171 @@
           r => `<b>${money(r.balance)}</b>`, ""],
          ["Option D in today's money", r => money(r.real), "real"]]
       : [...(o.rent > 0 ? [[`${sw(o.key)}Option ${o.key} rent paid that year`, r => money0(r.rentYear), ""]] : []),
-         [`${o.rent > 0 ? "" : sw(o.key)}Option ${o.key} balance`, r => `<b>${money(r.balance)}</b>`, ""],
-         [`Option ${o.key} in today's money`, r => money(r.real), "real"]];
+         [`${o.rent > 0 ? "" : sw(o.key)}Option ${o.key} balance${o.cur ? ` (in ${currency})` : ""}`, r => `<b>${money(r.balance)}</b>`, ""],
+         [`Option ${o.key} in today's money${o.cur ? ` (in ${currency})` : ""}`, r => money(r.real), "real"]];
     $("mainHead").innerHTML = `<tr><th>Year</th><th>Put in this year</th><th>Interest this year</th>` +
       `<th>Total put in</th><th>Total interest</th><th>${comparing ? sw("A") + "Option A balance" : "Balance"}</th>` +
       `<th>Total gain on money put in</th><th>Inflation</th>` +
       `<th>${comparing ? "Option A in today's money" : "Balance in today's money"}</th>` +
       others.map(o => columnsFor(o).map(c => `<th>${c[0]}</th>`).join("")).join("") +
       `</tr>`;
-    $("tableBody").innerHTML = rows.map((r, y) => `<tr>
-      <td>${r.year}</td><td>${money(r.inThisYear)}</td><td class="int">${money(r.interestThisYear)}</td>
+    // Options can run for different numbers of years: one row per year of the longest; "—" after an option ends
+    const maxYears = Math.max(...options.map(o => o.rows.length));
+    const gap = (n) => `<td class="ended">—</td>`.repeat(n);
+    $("tableBody").innerHTML = Array.from({ length: maxYears }, (_, y) => {
+      const r = rows[y];
+      return `<tr><td>${y + 1}</td>` + (r
+        ? `<td>${money(r.inThisYear)}</td><td class="int">${money(r.interestThisYear)}</td>
       <td>${money(r.totalIn)}</td><td class="int">${money(r.totalInterest)}</td><td><b>${money(r.balance)}</b></td>
       <td class="pct">${pct(r.totalInterest, r.totalIn)}</td>
       <td>${r.inflation}%</td>
-      <td class="real">${money(r.real)}</td>` +
-      others.map(o => columnsFor(o).map(c => `<td class="${c[2]}">${c[1](o.rows[y])}</td>`).join("")).join("") +
-      `</tr>`).join("");
+      <td class="real">${money(r.real)}</td>`
+        : gap(8)) +
+      others.map(o => o.rows[y]
+        ? columnsFor(o).map(c => `<td class="${c[2]}">${c[1](o.rows[y])}</td>`).join("")
+        : gap(columnsFor(o).length)).join("") +
+      `</tr>`;
+    }).join("");
 
     drawCompare(options, initial, years);
-    goalFinder(initial, contrib, everyMonths, rate, comp, years, inflRates);
+    localCurrencyTable(options);
+    // Goal finder: Option A, plus Options B and C when they are used (or have a rate typed) and their currency is ready
+    // rows/start (in local currency) are used for the goal bars on the comparison chart
+    goalFinder([{ key: "A", P: initial, C: contrib, every: everyMonths, rate, comp, infl: inflRates, years,
+        rows, start: initial },
+      ...extras.filter(o => (o.used || o.rate > 0) && o.fx > 0).map(o => ({ key: o.key, P: o.initial, C: o.contrib,
+        every: o.everyMonths, rate: o.rate, comp: o.comp, infl: o.ownInfl ? Array(o.years).fill(o.infl) : aInfl(o.years),
+        years: o.years, cur: o.cur, fx: o.fx, rows: o.used && comparing ? o.rows : null, start: o.start }))], years);
   }
 
-  // ---------- Goal finder (uses Option A's settings) ----------
+  // ---------- Totals in the local currency (Option A's), when B or C use their own currency ----------
+  function localCurrencyTable(options) {
+    const show = options.length > 1 && options.some(o => o.cur);
+    $("fxCard").hidden = !show;
+    if (!show) return;
+    $("fxLocal").textContent = $("fxLocal2").textContent = currency;
+    const sw = (k) => `<span class="swatch" style="background:var(--opt${k})"></span> `;
+    $("fxHead").innerHTML = `<tr><th></th>${options.map(o => `<th>${sw(o.key)}Option ${o.key}</th>`).join("")}</tr>`;
+    const last = (o) => o.rows[o.rows.length - 1];
+    const lines = [
+      ["Currency", o => o.cur || currency],
+      ["Exchange rate", o => o.cur ? `1 ${o.cur} = ${+o.fx.toPrecision(6)} ${currency}` : "—"],
+      ["Final value in its own currency", o => o.cur ? moneyIn(o.ownLast.balance, o.cur) : money(last(o).balance)],
+      [`Final value in ${currency}`, o => `<b>${money(last(o).balance)}</b>`],
+      [`Total put in (${currency})`, o => money(last(o).totalIn)],
+      [`Gain (${currency})`, o => money(last(o).totalInterest)],
+      [`In today's money (${currency})`, o => money(last(o).real)],
+    ];
+    $("fxBody").innerHTML = lines.map(([name, cell]) =>
+      `<tr><td>${name}</td>${options.map(o => `<td>${cell(o)}</td>`).join("")}</tr>`).join("");
+  }
+
+  // ---------- Goal finder (Option A, and Options B and C when they are being used) ----------
+  // For each option, with its own settings:
   // 1) How much to add each time to reach the goal in the chosen years.
-  // 2) How long it takes with the contribution you have now.
-  let goalNeed = 0;
-  function goalFinder(P, C, every, rate, comp, years, inflRates) {
-    const out = $("goalResult");
-    const goal = parseFloat($("goalAmount").value) || 0;
-    if (goal < 0) { out.innerHTML = "Please use a goal of 0 or more."; return; }
-    if (goal === 0) { out.innerHTML = "👋 Type a goal, for example 500000, to see how much to add and how long it takes."; return; }
-    const real = $("goalReal").checked;
+  // 2) How long it takes with the contribution it has now.
+  // The goal is typed in Option A's (local) currency. An option in another currency works in its own
+  // currency (goal ÷ exchange rate) and shows the local amount next to it.
+  const goalNeeds = {};      // the contribution each option needs, for the "Use … in Option X" buttons
+  const yearsMonths = (m) => {
+    const y = Math.floor(m / 12), mo = m % 12;
+    return [y ? `${y} ${y === 1 ? "year" : "years"}` : "", mo ? `${mo} ${mo === 1 ? "month" : "months"}` : ""]
+      .filter(Boolean).join(" and ") || "straight away";
+  };
+  // o = { key, P, C, every, rate, comp, infl: [% per year], cur: own currency code or undefined, fx }
+  function goalFor(o, goal, real, years) {
+    const fx = o.cur ? o.fx : 1;
+    const goalOwn = goal / fx;
     // How much prices have grown after a number of months (each year's inflation; after the plan, the last year's rate)
     const priceAt = (months) => {
       let f = 1;
       const full = Math.floor(months / 12);
-      for (let y = 0; y < full; y++) f *= 1 + inflRates[Math.min(y, inflRates.length - 1)] / 100;
+      for (let y = 0; y < full; y++) f *= 1 + o.infl[Math.min(y, o.infl.length - 1)] / 100;
       const part = months % 12;
-      if (part) f *= Math.pow(1 + inflRates[Math.min(full, inflRates.length - 1)] / 100, part / 12);
+      if (part) f *= Math.pow(1 + o.infl[Math.min(full, o.infl.length - 1)] / 100, part / 12);
       return f;
     };
-    const targetAt = (months) => real ? goal * priceAt(months) : goal;
+    const targetAt = (months) => real ? goalOwn * priceAt(months) : goalOwn;
     const target = targetAt(years * 12);
-    const yrs = years === 1 ? "1 year" : years + " years";
-
     // 1) Contribution needed (standard savings formula), rounded UP to the smallest coin so the goal is reached
-    const i = Math.pow(1 + rate / 100 / comp, comp * every / 12) - 1;     // growth per contribution period
-    const n = years * 12 / every;                                          // number of contributions
+    const i = Math.pow(1 + o.rate / 100 / o.comp, o.comp * o.every / 12) - 1;   // growth per contribution period
+    const n = years * 12 / o.every;                                              // number of contributions
     const g = Math.pow(1 + i, n);
-    const fromStart = P * g;
-    const digits = new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits;
+    const fromStart = o.P * g;
+    const digits = new Intl.NumberFormat("en", { style: "currency", currency: o.cur || currency }).resolvedOptions().maximumFractionDigits;
     const step = Math.pow(10, digits);
     let need = fromStart >= target ? 0 : (i ? (target - fromStart) * i / (g - 1) : (target - fromStart) / n);
     need = Math.ceil(need * step - 1e-7) / step;
-    goalNeed = need;
-
     // 2) Time to reach the goal with the current contribution, month by month (up to 100 years)
-    const monthlyGrowth = Math.pow(1 + rate / 100 / comp, comp / 12);
-    let bal = P, reached = bal >= targetAt(0) ? 0 : null;
+    const monthlyGrowth = Math.pow(1 + o.rate / 100 / o.comp, o.comp / 12);
+    let bal = o.P, reached = bal >= targetAt(0) ? 0 : null;
     for (let m = 1; reached === null && m <= 1200; m++) {
       bal *= monthlyGrowth;
-      if (m % every === 0) bal += C;
+      if (m % o.every === 0) bal += o.C;
       if (bal >= targetAt(m) - 1e-9) reached = m;
     }
-    const when = (m) => {
-      const y = Math.floor(m / 12), mo = m % 12;
-      return [y ? `${y} ${y === 1 ? "year" : "years"}` : "", mo ? `${mo} ${mo === 1 ? "month" : "months"}` : ""]
-        .filter(Boolean).join(" and ") || "straight away";
-    };
-
-    const goalText = real ? `<b>${money(goal)}</b> in today's money (about <b>${money(target)}</b> by then)` : `<b>${money(goal)}</b>`;
-    let html = fromStart >= target
-      ? `<p>✅ Your starting amount alone reaches ${goalText} in <b>${yrs}</b>. No regular contribution is needed.</p>`
-      : `<p>To reach ${goalText} in <b>${yrs}</b>, add <b>${money(need)}</b> ${freqNames[every]}` +
-        ` (at ${rate}% a year, compounded ${compNames[comp]}, starting with ${money(P)}).</p>` +
-        (Math.round(need * step) !== Math.round(C * step)
-          ? `<button type="button" class="use-btn" id="goalUseBtn">Use ${money(need)} ${freqNames[every]} in Option A</button>` : "");
-    html += reached !== null
-      ? `<p>⏱️ With what you add now (${money(C)} ${freqNames[every]}), you reach the goal in <b>${when(reached)}</b>.</p>`
-      : `<p>⏱️ With what you add now (${money(C)} ${freqNames[every]}), you would not reach the goal within 100 years.</p>`;
+    return { target, fromStart, need, step, reached };
+  }
+  function goalFinder(list, years) {
+    const out = $("goalResult");
+    const many = list.length > 1;
+    $("goalFor").textContent = many
+      ? `(for Options ${list.map(o => o.key).join(", ").replace(/, ([^,]*)$/, " and $1")}, each with its own settings)`
+      : "(uses Option A's settings)";
+    const goal = parseFloat($("goalAmount").value) || 0;
+    goalReach = {};                                  // goal bars on the comparison chart (set below)
+    $("goalChartNote").hidden = true;
+    if (goal < 0) { out.innerHTML = "Please use a goal of 0 or more."; return; }
+    if (goal === 0) { out.innerHTML = "👋 Type a goal, for example 500000, to see how much to add and how long it takes."; return; }
+    const real = $("goalReal").checked;
+    const results = list.map(o => ({ o, r: goalFor(o, goal, real, o.years) }));
+    const yrsOf = (o) => o.years === 1 ? "1 year" : o.years + " years";     // each option's own number of years
+    let html = results.map(({ o, r }) => {
+      goalNeeds[o.key] = r.need;
+      const m = (n) => o.cur ? moneyIn(n, o.cur) : money(n);                              // in the option's currency
+      const mm = (n) => o.cur ? `${moneyIn(n, o.cur)} (${money(n * o.fx)})` : money(n);   // and in local currency too
+      const goalText = real
+        ? `<b>${money(goal)}</b> in today's money (about <b>${mm(r.target)}</b> by then)`
+        : `<b>${money(goal)}</b>` + (o.cur ? ` (${moneyIn(goal / o.fx, o.cur)})` : "");
+      const box = o.key === "A" ? "contrib" : "contrib_" + o.key;
+      let part = many ? `<h4 class="goal-opt-head"><span class="swatch" style="background:var(--opt${o.key})"></span> Option ${o.key}</h4>` : "";
+      part += r.fromStart >= r.target
+        ? `<p>✅ ${many ? `Option ${o.key}'s` : "Your"} starting amount alone reaches ${goalText} in <b>${yrsOf(o)}</b>. No regular contribution is needed.</p>`
+        : `<p>To reach ${goalText} in <b>${yrsOf(o)}</b>, add <b>${mm(r.need)}</b> ${freqNames[o.every]}` +
+          ` (at ${o.rate}% a year, compounded ${compNames[o.comp]}, starting with ${m(o.P)}).</p>` +
+          (Math.round(r.need * r.step) !== Math.round(o.C * r.step)
+            ? `<button type="button" class="use-btn" data-goal-use="${o.key}" data-box="${box}"${o.key === "A" ? ' id="goalUseBtn"' : ""}>Use ${m(r.need)} ${freqNames[o.every]} in Option ${o.key}</button>` : "");
+      part += r.reached !== null
+        ? `<p>⏱️ With what you add now (${m(o.C)} ${freqNames[o.every]}), you reach the goal in <b>${yearsMonths(r.reached)}</b>.</p>`
+        : `<p>⏱️ With what you add now (${m(o.C)} ${freqNames[o.every]}), you would not reach the goal within 100 years.</p>`;
+      return many ? `<div class="goal-opt" style="--c:var(--opt${o.key})">${part}</div>` : part;
+    }).join("");
+    // Which option gets there first with what is added now? (ties: the earlier option)
+    if (many) {
+      const got = results.filter(x => x.r.reached !== null).sort((a, b) => a.r.reached - b.r.reached);
+      if (got.length) {
+        const first = got.filter(x => x.r.reached === got[0].r.reached).map(x => "Option " + x.o.key);
+        html = `<p class="goal-first">🏁 With what you add now, ${first.join(" and ")} ${first.length > 1 ? "reach" : "reaches"} the goal first, in <b>${yearsMonths(got[0].r.reached)}</b>.</p>` + html;
+      }
+    }
     out.innerHTML = html;
+
+    // Goal bars on the "Year by year balances" chart: what each option has, and when, in the year it reaches the goal
+    const onChart = results.filter(x => x.o.rows && x.r.reached !== null);
+    const inside = onChart.filter(x => Math.ceil(x.r.reached / 12) <= x.o.years).sort((a, b) => a.r.reached - b.r.reached);
+    const after = onChart.filter(x => Math.ceil(x.r.reached / 12) > x.o.years);
+    inside.forEach(x => goalReach[x.o.key] = x.r.reached);
+    const valueAt = (x) => { const idx = Math.ceil(x.r.reached / 12); return idx === 0 ? x.o.start : x.o.rows[idx - 1].balance; };
+    const yearText = (x) => { const idx = Math.ceil(x.r.reached / 12); return idx === 0 ? "at the start" : `in year ${idx}`; };
+    const notes = [];
+    if (inside.length) notes.push(`🎯 Outlined bars show when each option reaches your goal of <b>${money(goal)}</b>${real ? " in today's money" : ""}, ` +
+      `and what it has by the end of that year: ` +
+      inside.map(x => `Option ${x.o.key} ${yearText(x)} (<b>${money(valueAt(x))}</b>)`).join(", ") + ".");
+    after.forEach(x => notes.push(`Option ${x.o.key} reaches the goal after its ${yrsOf(x.o)}.`));
+    if ($("chartType").value === "diff" && inside.length) notes.push("Switch the chart type to Lines, Bars or Shaded areas to see the goal bars.");
+    $("goalChartNote").innerHTML = notes.join(" ");
+    $("goalChartNote").hidden = !notes.length;
+    if (compareChart) compareChart.draw();
   }
 
   // Make one inflation box per year. Values already typed are kept.
@@ -1237,75 +1609,331 @@
 
   ["goalAmount", "goalReal"].forEach(id => { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
   $("goalResult").addEventListener("click", (e) => {
-    if (e.target.id !== "goalUseBtn") return;
-    $("contrib").value = String(goalNeed);
+    const b = e.target.closest("[data-goal-use]");
+    if (!b) return;
+    const box = $(b.dataset.box);                       // that option's "Regular contribution" box
+    box.value = String(goalNeeds[b.dataset.goalUse]);
     update();
-    $("contrib").classList.remove("flash"); void $("contrib").offsetWidth; $("contrib").classList.add("flash");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    box.classList.remove("flash"); void box.offsetWidth; box.classList.add("flash");
+    box.scrollIntoView({ behavior: "smooth", block: "center" });   // show the box that changed
   });
   ["currency", "initial", "contrib", "contribFreq", "rate", "inflation", "inflMode", "compFreq", "years"].forEach(id => {
     $(id).addEventListener("input", update);
     $(id).addEventListener("change", update);
   });
-  document.querySelectorAll("#yearChips .chip").forEach(c => c.addEventListener("click", () => {
-    $("years").value = c.dataset.years; update();
-  }));
   // The nine currencies in the Currency menu (anything else is typed in "Other currency")
   const NINE = ["USD", "AUD", "NZD", "CAD", "GBP", "EUR", "INR", "SGD", "JPY"];
   // Make text safe to show inside the page
   const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
   // ---------- Pick the starting currency ----------
   // 1) A currency this visitor picked before (saved in their own browser only)
-  // 2) Their device's time zone, e.g. "Australia/Sydney" -> AUD
-  // 3) Their device's language/region, e.g. "en-AU" -> AUD
+  // 2) The country of their device's time zone, e.g. "Asia/Kuala_Lumpur" -> Malaysia -> MYR
+  // 3) The country of their device's language/region setting, e.g. "es-MX" -> Mexico -> MXN
   // 4) Otherwise US Dollar
-  // Nothing is sent to any website: everything is read from the visitor's own device.
-  const EURO_COUNTRIES = ["AT","BE","HR","CY","EE","FI","FR","DE","GR","IE","IT","LV","LT","LU","MT","NL","PT","SK","SI","ES"];
-  const EURO_ZONES = ["Vienna","Brussels","Zagreb","Nicosia","Tallinn","Helsinki","Paris","Berlin","Athens","Dublin","Rome",
-    "Riga","Vilnius","Luxembourg","Malta","Amsterdam","Lisbon","Bratislava","Ljubljana","Madrid","Monaco","Andorra"];
-  const CANADA_ZONES = ["Toronto","Vancouver","Edmonton","Winnipeg","Halifax","St_Johns","Regina","Moncton","Montreal",
-    "Whitehorse","Yellowknife","Iqaluit","Glace_Bay","Goose_Bay","Swift_Current","Dawson_Creek","Fort_Nelson","Creston"];
-  const US_ZONES = ["New_York","Chicago","Denver","Los_Angeles","Phoenix","Anchorage","Detroit","Boise","Juneau",
-    "Sitka","Nome","Adak","Menominee","Metlakatla","Yakutat"];
-  const REGION_CURRENCY = { US: "USD", AU: "AUD", NZ: "NZD", CA: "CAD", GB: "GBP", IN: "INR", SG: "SGD", JP: "JPY" };
+  // Nothing is sent to any website for this: everything is read from the visitor's own device.
+  // Time zones by country (the IANA names devices use, including common older names)
+  const TZ_LIST = `AD Europe/Andorra
+AE Asia/Dubai
+AF Asia/Kabul
+AG America/Antigua
+AI America/Anguilla
+AL Europe/Tirane
+AM Asia/Yerevan
+AO Africa/Luanda
+AR America/Buenos_Aires America/Cordoba America/Catamarca America/Jujuy America/Mendoza
+AT Europe/Vienna
+AU Antarctica/Macquarie
+AW America/Aruba
+AX Europe/Mariehamn
+AZ Asia/Baku
+BA Europe/Sarajevo
+BB America/Barbados
+BD Asia/Dhaka Asia/Dacca
+BE Europe/Brussels
+BF Africa/Ouagadougou
+BG Europe/Sofia
+BH Asia/Bahrain
+BI Africa/Bujumbura
+BJ Africa/Porto-Novo
+BM Atlantic/Bermuda
+BN Asia/Brunei
+BO America/La_Paz
+BQ America/Kralendijk
+BR America/Sao_Paulo America/Noronha America/Belem America/Fortaleza America/Recife America/Araguaina America/Maceio America/Bahia America/Campo_Grande America/Cuiaba America/Santarem America/Porto_Velho America/Boa_Vista America/Manaus America/Eirunepe America/Rio_Branco Brazil/East
+BS America/Nassau
+BT Asia/Thimphu Asia/Thimbu
+BW Africa/Gaborone
+BY Europe/Minsk
+BZ America/Belize
+CA America/Toronto America/Vancouver America/Edmonton America/Winnipeg America/Halifax America/St_Johns America/Regina America/Moncton America/Montreal America/Whitehorse America/Yellowknife America/Iqaluit America/Glace_Bay America/Goose_Bay America/Swift_Current America/Dawson_Creek America/Fort_Nelson America/Creston America/Rankin_Inlet America/Resolute America/Cambridge_Bay America/Inuvik America/Dawson America/Atikokan America/Blanc-Sablon America/Nipigon America/Thunder_Bay America/Rainy_River America/Pangnirtung
+CC Indian/Cocos
+CD Africa/Kinshasa Africa/Lubumbashi
+CF Africa/Bangui
+CG Africa/Brazzaville
+CH Europe/Zurich
+CI Africa/Abidjan
+CK Pacific/Rarotonga
+CL America/Santiago America/Punta_Arenas Pacific/Easter Chile/Continental
+CM Africa/Douala
+CN Asia/Shanghai Asia/Urumqi Asia/Chongqing Asia/Chungking Asia/Harbin PRC
+CO America/Bogota
+CR America/Costa_Rica
+CU America/Havana Cuba
+CV Atlantic/Cape_Verde
+CW America/Curacao
+CX Indian/Christmas
+CY Asia/Nicosia Asia/Famagusta Europe/Nicosia
+CZ Europe/Prague
+DE Europe/Berlin Europe/Busingen
+DJ Africa/Djibouti
+DK Europe/Copenhagen
+DM America/Dominica
+DO America/Santo_Domingo
+DZ Africa/Algiers
+EC America/Guayaquil Pacific/Galapagos
+EE Europe/Tallinn
+EG Africa/Cairo Egypt
+EH Africa/El_Aaiun
+ER Africa/Asmara Africa/Asmera
+ES Europe/Madrid Africa/Ceuta Atlantic/Canary
+ET Africa/Addis_Ababa
+FI Europe/Helsinki
+FJ Pacific/Fiji
+FK Atlantic/Stanley
+FM Pacific/Chuuk Pacific/Pohnpei Pacific/Kosrae Pacific/Truk Pacific/Ponape
+FO Atlantic/Faroe Atlantic/Faeroe
+FR Europe/Paris
+GA Africa/Libreville
+GB Europe/London Europe/Belfast GB GB-Eire
+GD America/Grenada
+GE Asia/Tbilisi
+GF America/Cayenne
+GG Europe/Guernsey
+GH Africa/Accra
+GI Europe/Gibraltar
+GL America/Nuuk America/Godthab America/Danmarkshavn America/Scoresbysund America/Thule
+GM Africa/Banjul
+GN Africa/Conakry
+GP America/Guadeloupe
+GQ Africa/Malabo
+GR Europe/Athens
+GS Atlantic/South_Georgia
+GT America/Guatemala
+GU Pacific/Guam
+GW Africa/Bissau
+GY America/Guyana
+HK Asia/Hong_Kong Hongkong
+HN America/Tegucigalpa
+HR Europe/Zagreb
+HT America/Port-au-Prince
+HU Europe/Budapest
+ID Asia/Jakarta Asia/Pontianak Asia/Makassar Asia/Jayapura Asia/Ujung_Pandang
+IE Europe/Dublin Eire
+IL Asia/Jerusalem Asia/Tel_Aviv Israel
+IM Europe/Isle_of_Man
+IN Asia/Kolkata Asia/Calcutta
+IO Indian/Chagos
+IQ Asia/Baghdad
+IR Asia/Tehran Iran
+IS Atlantic/Reykjavik Iceland
+IT Europe/Rome
+JE Europe/Jersey
+JM America/Jamaica Jamaica
+JO Asia/Amman
+JP Asia/Tokyo Japan
+KE Africa/Nairobi
+KG Asia/Bishkek
+KH Asia/Phnom_Penh
+KI Pacific/Tarawa Pacific/Kanton Pacific/Enderbury Pacific/Kiritimati
+KM Indian/Comoro
+KN America/St_Kitts
+KP Asia/Pyongyang
+KR Asia/Seoul ROK
+KW Asia/Kuwait
+KY America/Cayman
+KZ Asia/Almaty Asia/Qyzylorda Asia/Qostanay Asia/Aqtobe Asia/Aqtau Asia/Atyrau Asia/Oral
+LA Asia/Vientiane
+LB Asia/Beirut
+LC America/St_Lucia
+LI Europe/Vaduz
+LK Asia/Colombo
+LR Africa/Monrovia
+LS Africa/Maseru
+LT Europe/Vilnius
+LU Europe/Luxembourg
+LV Europe/Riga
+LY Africa/Tripoli Libya
+MA Africa/Casablanca
+MC Europe/Monaco
+MD Europe/Chisinau Europe/Tiraspol
+ME Europe/Podgorica
+MF America/Marigot
+MG Indian/Antananarivo
+MH Pacific/Majuro Pacific/Kwajalein Kwajalein
+MK Europe/Skopje
+ML Africa/Bamako Africa/Timbuktu
+MM Asia/Yangon Asia/Rangoon
+MN Asia/Ulaanbaatar Asia/Ulan_Bator Asia/Hovd Asia/Choibalsan
+MO Asia/Macau Asia/Macao
+MP Pacific/Saipan
+MQ America/Martinique
+MR Africa/Nouakchott
+MS America/Montserrat
+MT Europe/Malta
+MU Indian/Mauritius
+MV Indian/Maldives
+MW Africa/Blantyre
+MX America/Mexico_City America/Cancun America/Merida America/Monterrey America/Matamoros America/Chihuahua America/Ciudad_Juarez America/Ojinaga America/Mazatlan America/Bahia_Banderas America/Hermosillo America/Tijuana America/Ensenada Mexico/General
+MY Asia/Kuala_Lumpur Asia/Kuching
+MZ Africa/Maputo
+NA Africa/Windhoek
+NC Pacific/Noumea
+NE Africa/Niamey
+NF Pacific/Norfolk
+NG Africa/Lagos
+NI America/Managua
+NL Europe/Amsterdam
+NO Europe/Oslo
+NP Asia/Kathmandu Asia/Katmandu
+NR Pacific/Nauru
+NU Pacific/Niue
+NZ Pacific/Auckland Pacific/Chatham NZ NZ-CHAT
+OM Asia/Muscat
+PA America/Panama
+PE America/Lima
+PF Pacific/Tahiti Pacific/Marquesas Pacific/Gambier
+PG Pacific/Port_Moresby Pacific/Bougainville
+PH Asia/Manila
+PK Asia/Karachi
+PL Europe/Warsaw Poland
+PM America/Miquelon
+PN Pacific/Pitcairn
+PR America/Puerto_Rico
+PS Asia/Gaza Asia/Hebron
+PT Europe/Lisbon Atlantic/Madeira Atlantic/Azores Portugal
+PW Pacific/Palau
+PY America/Asuncion
+QA Asia/Qatar
+RE Indian/Reunion
+RO Europe/Bucharest
+RS Europe/Belgrade
+RU Europe/Moscow Europe/Kaliningrad Europe/Samara Europe/Volgograd Europe/Saratov Europe/Ulyanovsk Europe/Astrakhan Europe/Kirov Asia/Yekaterinburg Asia/Omsk Asia/Novosibirsk Asia/Barnaul Asia/Tomsk Asia/Novokuznetsk Asia/Krasnoyarsk Asia/Irkutsk Asia/Chita Asia/Yakutsk Asia/Khandyga Asia/Vladivostok Asia/Ust-Nera Asia/Magadan Asia/Sakhalin Asia/Srednekolymsk Asia/Kamchatka Asia/Anadyr W-SU
+RW Africa/Kigali
+SA Asia/Riyadh
+SB Pacific/Guadalcanal
+SC Indian/Mahe
+SD Africa/Khartoum
+SE Europe/Stockholm
+SG Asia/Singapore Singapore
+SH Atlantic/St_Helena
+SI Europe/Ljubljana
+SJ Arctic/Longyearbyen Atlantic/Jan_Mayen
+SK Europe/Bratislava
+SL Africa/Freetown
+SM Europe/San_Marino
+SN Africa/Dakar
+SO Africa/Mogadishu
+SR America/Paramaribo
+SS Africa/Juba
+ST Africa/Sao_Tome
+SV America/El_Salvador
+SX America/Lower_Princes
+SY Asia/Damascus
+SZ Africa/Mbabane
+TC America/Grand_Turk
+TD Africa/Ndjamena
+TF Indian/Kerguelen
+TG Africa/Lome
+TH Asia/Bangkok
+TJ Asia/Dushanbe
+TK Pacific/Fakaofo
+TL Asia/Dili
+TM Asia/Ashgabat Asia/Ashkhabad
+TN Africa/Tunis
+TO Pacific/Tongatapu
+TR Europe/Istanbul Asia/Istanbul Turkey
+TT America/Port_of_Spain
+TV Pacific/Funafuti
+TW Asia/Taipei ROC
+TZ Africa/Dar_es_Salaam
+UA Europe/Kyiv Europe/Kiev Europe/Uzhgorod Europe/Zaporozhye
+UG Africa/Kampala
+UM Pacific/Midway Pacific/Wake
+US America/New_York America/Chicago America/Denver America/Los_Angeles America/Phoenix America/Anchorage America/Detroit America/Boise America/Juneau America/Sitka America/Nome America/Adak America/Menominee America/Metlakatla America/Yakutat America/Louisville America/Fort_Wayne America/Shiprock Pacific/Honolulu Pacific/Johnston Navajo
+UY America/Montevideo
+UZ Asia/Tashkent Asia/Samarkand
+VA Europe/Vatican
+VC America/St_Vincent
+VE America/Caracas
+VG America/Tortola
+VI America/St_Thomas America/Virgin
+VN Asia/Ho_Chi_Minh Asia/Saigon
+VU Pacific/Efate
+WF Pacific/Wallis
+WS Pacific/Apia
+YE Asia/Aden
+YT Indian/Mayotte
+ZA Africa/Johannesburg
+ZM Africa/Lusaka
+ZW Africa/Harare`;
+  const TZ_COUNTRY = {};
+  TZ_LIST.split("\n").forEach(line => { const [cc, ...zones] = line.trim().split(/\s+/); zones.forEach(z => TZ_COUNTRY[z] = cc); });
+  // Each country's own currency (ISO 4217)
+  const COUNTRY_CURRENCY = Object.fromEntries(`AD EUR AE AED AF AFN AG XCD AI XCD AL ALL AM AMD AO AOA AR ARS AS USD AT EUR AU AUD AW AWG AX EUR AZ AZN
+    BA BAM BB BBD BD BDT BE EUR BF XOF BG EUR BH BHD BI BIF BJ XOF BL EUR BM BMD BN BND BO BOB BQ USD BR BRL BS BSD BT BTN BV NOK BW BWP BY BYN BZ BZD
+    CA CAD CC AUD CD CDF CF XAF CG XAF CH CHF CI XOF CK NZD CL CLP CM XAF CN CNY CO COP CR CRC CU CUP CV CVE CW XCG CX AUD CY EUR CZ CZK
+    DE EUR DJ DJF DK DKK DM XCD DO DOP DZ DZD EC USD EE EUR EG EGP EH MAD ER ERN ES EUR ET ETB FI EUR FJ FJD FK FKP FM USD FO DKK FR EUR
+    GA XAF GB GBP GD XCD GE GEL GF EUR GG GBP GH GHS GI GIP GL DKK GM GMD GN GNF GP EUR GQ XAF GR EUR GS GBP GT GTQ GU USD GW XOF GY GYD
+    HK HKD HM AUD HN HNL HR EUR HT HTG HU HUF ID IDR IE EUR IL ILS IM GBP IN INR IO USD IQ IQD IR IRR IS ISK IT EUR JE GBP JM JMD JO JOD JP JPY
+    KE KES KG KGS KH KHR KI AUD KM KMF KN XCD KP KPW KR KRW KW KWD KY KYD KZ KZT LA LAK LB LBP LC XCD LI CHF LK LKR LR LRD LS LSL LT EUR LU EUR LV EUR LY LYD
+    MA MAD MC EUR MD MDL ME EUR MF EUR MG MGA MH USD MK MKD ML XOF MM MMK MN MNT MO MOP MP USD MQ EUR MR MRU MS XCD MT EUR MU MUR MV MVR MW MWK MX MXN MY MYR MZ MZN
+    NA NAD NC XPF NE XOF NF AUD NG NGN NI NIO NL EUR NO NOK NP NPR NR AUD NU NZD NZ NZD OM OMR PA USD PE PEN PF XPF PG PGK PH PHP PK PKR PL PLN PM EUR PN NZD PR USD PS ILS PT EUR PW USD PY PYG
+    QA QAR RE EUR RO RON RS RSD RU RUB RW RWF SA SAR SB SBD SC SCR SD SDG SE SEK SG SGD SH SHP SI EUR SJ NOK SK EUR SL SLE SM EUR SN XOF SO SOS SR SRD SS SSP ST STN SV USD SX XCG SY SYP SZ SZL
+    TC USD TD XAF TF EUR TG XOF TH THB TJ TJS TK NZD TL USD TM TMT TN TND TO TOP TR TRY TT TTD TV AUD TW TWD TZ TZS UA UAH UG UGX UM USD US USD UY UYU UZ UZS
+    VA EUR VC XCD VE VES VG USD VI USD VN VND VU VUV WF XPF WS WST XK EUR YE YER YT EUR ZA ZAR ZM ZMW ZW ZWG`
+    .trim().split(/\s+/).reduce((pairs, v, i, all) => (i % 2 ? pairs : [...pairs, [v, all[i + 1]]]), []));
+  // Older currency codes some browsers still use, for the few that changed recently
+  const CODE_FALLBACK = { XCG: "ANG", SLE: "SLL", ZWG: "USD", VES: "VEF", MRU: "MRO", STN: "STD" };
 
-  function currencyFromTimeZone() {
+  function countryFromTimeZone() {
     let tz = "";
     try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
-    const [area, city = ""] = tz.split("/");
-    if (area === "Australia" || tz === "Antarctica/Macquarie") return "AUD";
-    if (tz === "Pacific/Auckland" || tz === "Pacific/Chatham" || tz === "NZ") return "NZD";
-    if (tz === "Asia/Kolkata" || tz === "Asia/Calcutta") return "INR";
-    if (tz === "Asia/Singapore" || tz === "Singapore") return "SGD";
-    if (tz === "Asia/Tokyo" || tz === "Japan") return "JPY";
-    if (tz === "Europe/London" || tz === "Europe/Belfast" || tz === "GB") return "GBP";
-    if (area === "Europe" && EURO_ZONES.includes(city)) return "EUR";
-    if (area === "America" && CANADA_ZONES.includes(city)) return "CAD";
-    if (area === "Canada") return "CAD";
-    if (area === "America" && (US_ZONES.includes(city) || tz.startsWith("America/Indiana/") ||
-        tz.startsWith("America/Kentucky/") || tz.startsWith("America/North_Dakota/"))) return "USD";
-    if (tz === "Pacific/Honolulu" || area === "US") return "USD";
+    if (TZ_COUNTRY[tz]) return TZ_COUNTRY[tz];
+    if (tz.startsWith("Australia/")) return "AU";
+    if (tz.startsWith("America/Argentina/")) return "AR";
+    if (/^America\/(Indiana|Kentucky|North_Dakota)\//.test(tz) || tz.startsWith("US/")) return "US";
+    if (tz.startsWith("Canada/")) return "CA";
+    if (tz.startsWith("Brazil/")) return "BR";
     return null;
   }
-  function currencyFromLanguage() {
+  function countryFromLanguage() {
     const langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""];
     for (const lang of langs) {
       let region = "";
       try { region = new Intl.Locale(lang).maximize().region || ""; } catch (e) {}
-      if (REGION_CURRENCY[region]) return REGION_CURRENCY[region];
-      if (EURO_COUNTRIES.includes(region)) return "EUR";
+      if (COUNTRY_CURRENCY[region]) return region;
     }
     return null;
   }
+  // The currency of a country, as a code this browser knows (or null)
+  function currencyOfCountry(cc) {
+    let code = COUNTRY_CURRENCY[cc];
+    if (code && !ALL_CODES.includes(code)) code = CODE_FALLBACK[code];
+    return code && ALL_CODES.includes(code) ? code : null;
+  }
+  const countryName = (cc) => { try { return (regionNames && regionNames.of(cc)) || cc; } catch (e) { return cc; } };
   function pickStartCurrency() {
     let saved = null;
     try { saved = localStorage.getItem("cic-currency"); } catch (e) {}
     if (saved && NINE.includes(saved)) return [saved, "Your last choice."];
     if (saved && ALL_CODES.includes(saved)) return ["OTHER", "Your last choice.", saved];
-    const tzCur = currencyFromTimeZone();
-    if (tzCur) return [tzCur, "Picked from your device's location (time zone). You can change it."];
-    const langCur = currencyFromLanguage();
-    if (langCur) return [langCur, "Picked from your device's region setting. You can change it."];
+    // The country from the device's time zone first, then from its language/region setting
+    for (const [cc, how] of [[countryFromTimeZone(), "location (time zone)"], [countryFromLanguage(), "region setting"]]) {
+      const code = cc && currencyOfCountry(cc);
+      if (!code) continue;
+      const hint = `Picked from your device's ${how}: ${countryName(cc)}. You can change it.`;
+      return NINE.includes(code) ? [code, hint] : ["OTHER", hint, code];
+    }
     return ["USD", ""];
   }
   // Fill the "type a currency" suggestion list with every currency except the nine above
@@ -1342,24 +1970,94 @@
     update(); rememberCurrency();
   });
   // Compare buttons and inputs
-  $("addOptBtn").addEventListener("click", addOption);
-  $("addDBtn").addEventListener("click", addOptionD);
   $("chartType").addEventListener("change", update);
   $("compareBox").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-remove]");
-    if (b) { if (b.dataset.remove === "D") removeOptionD(); else removeOption(b.dataset.remove); }
     if (e.target.id === "dSameMoney") sameMoneyAsHouse();
     if (e.target.id === "d_rateFillBtn") {        // "Set all years to __% Apply" for the loan rate
       $("d_rateGrid").querySelectorAll("input").forEach(i => i.value = $("d_rateFill").value || "0");
       update();
     }
   });
-  $("compareBox").addEventListener("input", (e) => { if (e.target.closest(".opt")) update(); });
+  $("compareBox").addEventListener("input", (e) => {
+    // A rate typed by the visitor is kept; an empty box goes back to today's live rate
+    if (e.target.id && e.target.id.startsWith("fx_")) e.target.dataset.manual = e.target.value ? "1" : "";
+    if (e.target.closest(".opt")) update();
+  });
   $("compareBox").addEventListener("change", (e) => { if (e.target.closest(".opt")) update(); });
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", update);
   // Coming back with the browser's Back button can show the old page from memory: start fresh again
   window.addEventListener("pageshow", (e) => { if (e.persisted) location.reload(); });
+  // ---------- How to use ----------
+  // Each step jumps to its part of the page, which glows for a moment.
+  const howTargets = { optA: () => document.querySelector(".opt-a"), optB: () => $("optB").closest("section"),
+                       goalCard: () => $("goalCard"), rowTop: () => $("rowTop").querySelector("section:not([hidden])") };
+  $("howTo").addEventListener("click", (e) => {
+    const step = e.target.closest("[data-go]");
+    if (!step) return;
+    const el = howTargets[step.dataset.go]();
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.remove("jump"); void el.offsetWidth; el.classList.add("jump");
+  });
+  // After the steps slide in, they take turns to glow (stops when the visitor starts typing, or with reduced motion)
+  let howTimer = null, howIdx = 0;
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    setTimeout(() => {
+      howTimer = setInterval(() => {
+        const steps = document.querySelectorAll(".how-step");
+        steps.forEach((s, i) => s.classList.toggle("glow", i === howIdx));
+        howIdx = (howIdx + 1) % steps.length;
+      }, 1800);
+    }, 1600);
+  }
+  const howStop = () => { clearInterval(howTimer); document.querySelectorAll(".how-step").forEach(s => s.classList.remove("glow")); };
+  document.addEventListener("input", howStop, { once: true });
+  // Hide or show the steps; remembered in this browser only
+  const howSet = (hide) => {
+    $("howTo").hidden = hide; $("howShow").hidden = !hide;
+    try { localStorage.setItem("egp-how-hidden", hide ? "1" : ""); } catch (e) {}
+  };
+  $("howHide").addEventListener("click", () => { howStop(); howSet(true); });
+  $("howShowBtn").addEventListener("click", () => howSet(false));
+  try { if (localStorage.getItem("egp-how-hidden") === "1") { $("howTo").hidden = true; $("howShow").hidden = false; } } catch (e) {}
+
+  // Options B, C and D are always open
+  addOption("B"); addOption("C"); addOptionD();
+
+  // ---------- Example numbers when the page opens ----------
+  // Options A, B and C start with an example: 10,000 US dollars to start and 500 a month, changed into the
+  // visitor's own money at today's exchange rate and rounded (for example A$15,000 and A$760, or ¥1,500,000).
+  // Option A earns 6% a year, B 8% and C 4%, all for 20 years (Option A's years). Visitors type over them or clear them.
+  const EXAMPLE_USD = { start: 10000, add: 500, goal: 100000 };   // the Goal finder gets an example goal too
+  let examplesPending = false;
+  const twoFigures = (n) => { if (!(n > 0)) return 0; const p = Math.pow(10, Math.floor(Math.log10(n)) - 1); return Math.round(n / p) * p; };
+  const EXAMPLE_IDS = ["initial", "contrib", "rate", "initial_B", "contrib_B", "rate_B", "initial_C", "contrib_C", "rate_C", "goalAmount"];
+  const examplesUntouched = () => EXAMPLE_IDS.every(id => !(parseFloat($(id).value) > 0));
+  function fillExamples(perUsd) {               // perUsd = how much of the visitor's money 1 US dollar buys
+    const start = twoFigures(EXAMPLE_USD.start * perUsd), add = twoFigures(EXAMPLE_USD.add * perUsd);
+    ["", "_B", "_C"].forEach(s => { $("initial" + s).value = String(start); $("contrib" + s).value = String(add); });
+    $("rate").value = "6"; $("rate_B").value = "8"; $("rate_C").value = "4";
+    $("goalAmount").value = String(twoFigures(EXAMPLE_USD.goal * perUsd));
+    $("exampleNote").hidden = false;
+  }
+  function startExamples() {
+    const code = currentCurrency();
+    if (!code || code === "USD") { fillExamples(1); return; }
+    const live = liveRate("USD", code);         // asks for today's rates (sends only the currency code)
+    if (live.status === "ok") fillExamples(live.rate);
+    else if (live.status === "loading") examplesPending = true;   // filled in by update() when the rate arrives
+    else fillExamples(1);
+  }
+  $("clearExamples").addEventListener("click", () => {
+    EXAMPLE_IDS.forEach(id => $(id).value = "0");
+    examplesPending = false;
+    $("exampleNote").hidden = true;
+    update();
+    $("initial").focus();
+  });
+  // The note goes away once the visitor types their own numbers
+  $("compareBox").addEventListener("input", (e) => { if (e.isTrusted && EXAMPLE_IDS.includes(e.target.id)) { examplesPending = false; $("exampleNote").hidden = true; } });
+  startExamples();
   update();
 </script>
 <!-- Anonymous visit counting by GoatCounter (no cookies, no personal data). Dashboard: https://easygrowth.goatcounter.com -->
